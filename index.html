@@ -3,11 +3,16 @@
 <html lang="sl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>360° Video</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 html, body {
     margin: 0;
     width: 100%;
@@ -17,127 +22,249 @@ html, body {
     font-family: Arial, sans-serif;
 }
 
-#container {
+#app {
     position: fixed;
     inset: 0;
+    background: #000;
 }
 
-canvas {
+/* 360° prikaz */
+#canvas {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     display: block;
     touch-action: none;
+    cursor: grab;
 }
 
+#canvas:active {
+    cursor: grabbing;
+}
+
+/* Originalni video je skrit */
 #video {
-    display: none;
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    left: -10px;
+    top: -10px;
+    opacity: 0.01;
+    pointer-events: none;
 }
 
-#loading {
+/* Začetni zaslon */
+#startScreen {
     position: fixed;
     inset: 0;
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000;
+    background: #101820;
     color: white;
-    z-index: 20;
     text-align: center;
     padding: 30px;
 }
 
-#controls {
-    position: fixed;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    background: rgba(0,0,0,.65);
-    border-radius: 12px;
-    z-index: 10;
+.startBox {
+    max-width: 420px;
 }
 
-button {
+.startBox h1 {
+    margin: 0 0 12px;
+    font-size: 28px;
+}
+
+.startBox p {
+    color: #c7d2da;
+    line-height: 1.5;
+}
+
+#startButton {
+    margin-top: 15px;
+    padding: 14px 24px;
+    border: 0;
+    border-radius: 10px;
+    background: #59d7bd;
+    color: #082421;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Kontrole */
+#controls {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 20;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 9px;
+
+    background: rgba(10,20,28,.82);
+    border-radius: 12px;
+}
+
+.controlButton {
     border: 0;
     border-radius: 8px;
-    padding: 10px 14px;
-    background: white;
-    color: black;
-    font-size: 16px;
+    min-width: 44px;
+    height: 42px;
+    background: #ffffff;
+    color: #111;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+#seek {
+    flex: 1;
+    min-width: 50px;
 }
 
 #time {
     color: white;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* Navodilo */
+#hint {
+    position: fixed;
+    top: calc(15px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+
+    padding: 8px 12px;
+
+    color: white;
+    background: rgba(0,0,0,.55);
+    border-radius: 8px;
+
     font-size: 13px;
     white-space: nowrap;
 }
 
+/* Hotspoti */
 #spots {
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 5;
+    z-index: 10;
 }
 
 .spot {
     position: absolute;
     transform: translate(-50%, -50%);
-    width: 42px;
-    height: 42px;
+
+    width: 44px;
+    height: 44px;
+
     border-radius: 50%;
     border: 3px solid white;
-    background: #ffd54f;
-    color: #111;
-    font-size: 21px;
+
+    background: #ffd45e;
+    color: #15222b;
+
+    font-size: 20px;
     font-weight: bold;
-    cursor: pointer;
+
+    box-shadow: 0 4px 18px rgba(0,0,0,.65);
+
     pointer-events: auto;
-    box-shadow: 0 3px 15px rgba(0,0,0,.7);
+    cursor: pointer;
 }
 
+/* Informacija ob kliku na točko */
 #info {
+    display: none;
+
     position: fixed;
     left: 50%;
     bottom: 80px;
     transform: translateX(-50%);
-    width: min(400px, 85vw);
-    background: rgba(0,0,0,.82);
+
+    width: min(420px, calc(100vw - 30px));
+
+    z-index: 30;
+
+    padding: 16px;
+
+    background: rgba(15,30,40,.94);
     color: white;
-    padding: 15px;
+
     border-radius: 12px;
-    z-index: 12;
-    display: none;
+    border: 1px solid #59d7bd;
 }
 
-#info strong {
-    display: block;
-    margin-bottom: 5px;
+#info h2 {
+    margin: 0 0 6px;
     font-size: 18px;
 }
 
-#error {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    right: 15px;
-    padding: 12px;
-    background: #8b1e1e;
-    color: white;
-    border-radius: 8px;
-    z-index: 30;
-    display: none;
+#info p {
+    margin: 0;
+    line-height: 1.45;
 }
 
-@media(max-width:600px) {
-    #controls {
-        bottom: 10px;
+#closeInfo {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+
+    border: 0;
+    background: transparent;
+    color: white;
+
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* Napaka */
+#error {
+    display: none;
+
+    position: fixed;
+    left: 15px;
+    right: 15px;
+    top: 15px;
+
+    z-index: 200;
+
+    padding: 15px;
+
+    background: #7c2020;
+    color: white;
+
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+
+    #hint {
+        font-size: 11px;
     }
 
-    button {
-        padding: 9px 12px;
+    #controls {
+        left: 7px;
+        right: 7px;
+        bottom: calc(7px + env(safe-area-inset-bottom));
+    }
+
+    .controlButton {
+        min-width: 40px;
+    }
+
+    #time {
+        font-size: 10px;
     }
 }
 </style>
@@ -145,166 +272,313 @@ button {
 
 <body>
 
-<div id="container">
+<div id="app">
+
     <canvas id="canvas"></canvas>
+
     <div id="spots"></div>
+
+    <video
+        id="video"
+        playsinline
+        webkit-playsinline
+        preload="auto"
+        crossorigin="anonymous">
+    </video>
+
 </div>
 
-<video
-    id="video"
-    playsinline
-    webkit-playsinline
-    preload="metadata"
-    crossorigin="anonymous">
-</video>
 
-<div id="loading">
-    Nalagam 360° video ...
+<div id="startScreen">
+
+    <div class="startBox">
+
+        <h1>360° VIDEO</h1>
+
+        <p>
+            Video je shranjen na Dropboxu.
+            Klikni spodaj za začetek ogleda.
+        </p>
+
+        <button id="startButton">
+            Odpri 360° video
+        </button>
+
+    </div>
+
 </div>
+
+
+<div id="hint" style="display:none">
+    Povleci po zaslonu za obračanje pogleda
+</div>
+
+
+<div id="controls" style="display:none">
+
+    <button
+        id="play"
+        class="controlButton">
+        ▶
+    </button>
+
+    <input
+        id="seek"
+        type="range"
+        min="0"
+        max="1000"
+        value="0">
+
+    <span id="time">
+        0:00 / 0:00
+    </span>
+
+    <button
+        id="mute"
+        class="controlButton">
+        🔊
+    </button>
+
+</div>
+
+
+<div id="info">
+
+    <button id="closeInfo">×</button>
+
+    <h2 id="infoTitle"></h2>
+
+    <p id="infoDescription"></p>
+
+</div>
+
 
 <div id="error"></div>
 
-<div id="info">
-    <strong id="infoTitle"></strong>
-    <div id="infoText"></div>
-</div>
-
-<div id="controls">
-    <button id="play">▶</button>
-    <span id="time">0:00 / 0:00</span>
-    <button id="mute">🔊</button>
-</div>
 
 <script>
 
-/* =========================================================
-   VIDEO NA DROPBOXU
-   ========================================================= */
+/* ============================================================
+   DROPBOX VIDEO
+
+   To je DIREKTNA povezava, ki si jo preverila na telefonu.
+   ============================================================ */
 
 const VIDEO_URL =
-"https://www.dropbox.com/scl/fi/k2d27e55jfolq551mclgz/VID_20251019_174611_00_003-2.mp4?rlkey=1k1g0dxr932r3gswj0eke07jy&st=a2nz7c35&raw=1";
+"https://dl.dropboxusercontent.com/scl/fi/k2d27e55jfolq551mclgz/VID_20251019_174611_00_003-2.mp4?rlkey=1k1g0dxr932r3gswj0eke07jy";
 
 
-/* =========================================================
-   INTERAKTIVNE TOČKE
-   Za začetek je seznam prazen.
-   ========================================================= */
+/* ============================================================
+   TOČKE
 
-const hotspots = [
+   Zaenkrat so tri testne točke.
 
-    /*
-    PRIMER:
+   yaw   = levo/desno
+   pitch = gor/dol
+   start = kdaj se pojavi
+   end   = kdaj izgine
+   ============================================================ */
+
+const HOTSPOTS = [
 
     {
         title: "Točka 1",
-        description: "Tukaj je opis prve točke.",
-        yaw: 0.5,
+        description: "To je prva testna točka.",
+        yaw: 0,
         pitch: 0,
         start: 0,
-        end: 20
-    }
+        end: 15
+    },
 
-    */
+    {
+        title: "Točka 2",
+        description: "Druga testna informacija.",
+        yaw: 1.0,
+        pitch: 0,
+        start: 5,
+        end: 30
+    },
+
+    {
+        title: "Točka 3",
+        description: "Tretja testna točka.",
+        yaw: -1.0,
+        pitch: 0.15,
+        start: 10,
+        end: 60
+    }
 
 ];
 
 
-/* =========================================================
+/* ============================================================
    ELEMENTI
-   ========================================================= */
+   ============================================================ */
 
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const video =
+    document.getElementById("video");
 
-const loading = document.getElementById("loading");
-const errorBox = document.getElementById("error");
-const spotsElement = document.getElementById("spots");
+const canvas =
+    document.getElementById("canvas");
 
-const playButton = document.getElementById("play");
-const muteButton = document.getElementById("mute");
+const ctx =
+    canvas.getContext("2d", {
+        alpha: false
+    });
 
-const timeElement = document.getElementById("time");
+const spots =
+    document.getElementById("spots");
 
-const info = document.getElementById("info");
-const infoTitle = document.getElementById("infoTitle");
-const infoText = document.getElementById("infoText");
+const startScreen =
+    document.getElementById("startScreen");
+
+const startButton =
+    document.getElementById("startButton");
+
+const controls =
+    document.getElementById("controls");
+
+const hint =
+    document.getElementById("hint");
+
+const playButton =
+    document.getElementById("play");
+
+const muteButton =
+    document.getElementById("mute");
+
+const seek =
+    document.getElementById("seek");
+
+const timeLabel =
+    document.getElementById("time");
+
+const info =
+    document.getElementById("info");
+
+const infoTitle =
+    document.getElementById("infoTitle");
+
+const infoDescription =
+    document.getElementById("infoDescription");
+
+const closeInfo =
+    document.getElementById("closeInfo");
+
+const errorBox =
+    document.getElementById("error");
 
 
-/* =========================================================
-   360° NASTAVITVE
-   ========================================================= */
+/* ============================================================
+   360° PARAMETRI
+   ============================================================ */
+
+const RAD =
+    Math.PI / 180;
 
 let yaw = 0;
 let pitch = 0;
-let fov = 75;
 
-let dragging = false;
-let dragX = 0;
-let dragY = 0;
-let dragYaw = 0;
-let dragPitch = 0;
+let fov = 80;
 
 let ready = false;
 
-const RAD = Math.PI / 180;
+let sourceCanvas = null;
+let sourceContext = null;
+
+let dragging = false;
+
+let dragStartX = 0;
+let dragStartY = 0;
+
+let dragStartYaw = 0;
+let dragStartPitch = 0;
+
+let lastFrame = 0;
 
 
-/* =========================================================
+/* ============================================================
    POMOŽNE FUNKCIJE
-   ========================================================= */
+   ============================================================ */
 
-function clamp(value, min, max) {
-    return Math.min(max, Math.max(min, value));
+function clamp(value, minimum, maximum) {
+
+    return Math.min(
+        maximum,
+        Math.max(minimum, value)
+    );
 }
+
 
 function formatTime(seconds) {
 
     if (!Number.isFinite(seconds))
         return "0:00";
 
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
+    const minutes =
+        Math.floor(seconds / 60);
 
-    return minutes + ":" + String(secs).padStart(2, "0");
+    const secs =
+        Math.floor(seconds % 60);
+
+    return (
+        minutes +
+        ":" +
+        String(secs).padStart(2, "0")
+    );
 }
 
 
-/* =========================================================
-   CANVAS
-   ========================================================= */
+function showError(message) {
 
-function resize() {
+    errorBox.textContent = message;
 
-    const rect = canvas.getBoundingClientRect();
+    errorBox.style.display = "block";
+}
+
+
+/* ============================================================
+   VELIKOST CANVASA
+   ============================================================ */
+
+function resizeCanvas() {
+
+    const rect =
+        canvas.getBoundingClientRect();
 
     /*
-       Namenoma omejimo resolucijo canvasa,
-       ker je 360° preračunavanje precej zahtevno
-       predvsem na telefonu.
+       Manjša interna resolucija je namenoma uporabljena,
+       ker je ta način 360° prikaza precej zahteven za telefon.
     */
 
-    const scale = Math.min(
-        1,
-        700 / Math.max(1, rect.width),
-        500 / Math.max(1, rect.height)
-    );
+    const scale =
+        Math.min(
+            1,
+            720 / Math.max(1, rect.width),
+            520 / Math.max(1, rect.height)
+        );
 
     canvas.width =
-        Math.max(1, Math.round(rect.width * scale));
+        Math.max(
+            1,
+            Math.round(rect.width * scale)
+        );
 
     canvas.height =
-        Math.max(1, Math.round(rect.height * scale));
+        Math.max(
+            1,
+            Math.round(rect.height * scale)
+        );
 
-    render();
+    render360();
 }
 
 
-/* =========================================================
-   360° IZRAČUN
-   ========================================================= */
+/* ============================================================
+   360° RENDER
+   ============================================================ */
 
-function render() {
+function render360() {
 
     if (!ready)
         return;
@@ -314,148 +588,235 @@ function render() {
 
     try {
 
-        const source = document.createElement("canvas");
-
-        /*
-           Za telefon zmanjšamo izvorno sliko.
-        */
-
-        const maxWidth = 1536;
-
-        const scale =
-            Math.min(1, maxWidth / video.videoWidth);
-
-        source.width =
-            Math.floor(video.videoWidth * scale);
-
-        source.height =
-            Math.floor(video.videoHeight * scale);
-
-        const sourceCtx =
-            source.getContext("2d", {
-                willReadFrequently: true
-            });
-
-        sourceCtx.drawImage(
+        sourceContext.drawImage(
             video,
             0,
             0,
-            source.width,
-            source.height
+            sourceCanvas.width,
+            sourceCanvas.height
         );
 
-        const src =
-            sourceCtx.getImageData(
-                0,
-                0,
-                source.width,
-                source.height
-            ).data;
 
-        const width = canvas.width;
-        const height = canvas.height;
+        const sourceImage =
+            sourceContext.getImageData(
+                0,
+                0,
+                sourceCanvas.width,
+                sourceCanvas.height
+            );
+
+
+        const src =
+            sourceImage.data;
+
+
+        const width =
+            canvas.width;
+
+        const height =
+            canvas.height;
+
 
         const output =
-            ctx.createImageData(width, height);
-
-        const dst = output.data;
-
-        const aspect = width / height;
-
-        const k =
-            Math.tan(fov * RAD / 2);
-
-        const cp = Math.cos(pitch);
-        const sp = Math.sin(pitch);
-
-        const cy = Math.cos(yaw);
-        const sy = Math.sin(yaw);
+            ctx.createImageData(
+                width,
+                height
+            );
 
 
-        for (let y = 0; y < height; y++) {
-
-            const vy =
-                (1 - 2 * (y + 0.5) / height) * k;
-
-            for (let x = 0; x < width; x++) {
-
-                const vx =
-                    (2 * (x + 0.5) / width - 1)
-                    * aspect * k;
+        const dst =
+            output.data;
 
 
-                const yy =
-                    vy * cp + sp;
-
-                const zz =
-                    -vy * sp + cp;
-
-                const xx =
-                    vx * cy + zz * sy;
-
-                const z =
-                    -vx * sy + zz * cy;
+        const aspect =
+            width / height;
 
 
-                const length =
-                    1 / Math.hypot(xx, yy, z);
+        const perspective =
+            Math.tan(
+                fov * RAD / 2
+            );
+
+
+        const cosPitch =
+            Math.cos(pitch);
+
+        const sinPitch =
+            Math.sin(pitch);
+
+
+        const cosYaw =
+            Math.cos(yaw);
+
+        const sinYaw =
+            Math.sin(yaw);
+
+
+        for (
+            let screenY = 0;
+            screenY < height;
+            screenY++
+        ) {
+
+            const viewY =
+                (
+                    1 -
+                    2 *
+                    (screenY + 0.5) /
+                    height
+                )
+                *
+                perspective;
+
+
+            for (
+                let screenX = 0;
+                screenX < width;
+                screenX++
+            ) {
+
+                const viewX =
+                    (
+                        2 *
+                        (screenX + 0.5) /
+                        width
+                        -
+                        1
+                    )
+                    *
+                    aspect
+                    *
+                    perspective;
+
+
+                const rotatedY =
+                    viewY * cosPitch
+                    +
+                    sinPitch;
+
+
+                const rotatedZ =
+                    -viewY * sinPitch
+                    +
+                    cosPitch;
+
+
+                const worldX =
+                    viewX * cosYaw
+                    +
+                    rotatedZ * sinYaw;
+
+
+                const worldZ =
+                    -viewX * sinYaw
+                    +
+                    rotatedZ * cosYaw;
+
+
+                const inverseLength =
+                    1 /
+                    Math.hypot(
+                        worldX,
+                        rotatedY,
+                        worldZ
+                    );
 
 
                 const u =
-                    Math.atan2(xx, z)
-                    / (2 * Math.PI)
-                    + 0.5;
+                    Math.atan2(
+                        worldX,
+                        worldZ
+                    )
+                    /
+                    (2 * Math.PI)
+                    +
+                    0.5;
 
 
                 const v =
-                    0.5 -
+                    0.5
+                    -
                     Math.asin(
-                        clamp(yy * length, -1, 1)
-                    ) / Math.PI;
+                        clamp(
+                            rotatedY *
+                            inverseLength,
+                            -1,
+                            1
+                        )
+                    )
+                    /
+                    Math.PI;
 
 
-                const sx =
+                const sourceX =
                     Math.min(
-                        source.width - 1,
+                        sourceCanvas.width - 1,
                         Math.max(
                             0,
-                            Math.floor(u * source.width)
+                            Math.floor(
+                                u *
+                                sourceCanvas.width
+                            )
                         )
                     );
 
 
-                const sy2 =
+                const sourceY =
                     Math.min(
-                        source.height - 1,
+                        sourceCanvas.height - 1,
                         Math.max(
                             0,
-                            Math.floor(v * source.height)
+                            Math.floor(
+                                v *
+                                sourceCanvas.height
+                            )
                         )
                     );
 
 
                 const sourceIndex =
-                    (sy2 * source.width + sx) * 4;
+                    (
+                        sourceY *
+                        sourceCanvas.width
+                        +
+                        sourceX
+                    )
+                    *
+                    4;
 
-                const destIndex =
-                    (y * width + x) * 4;
+
+                const destinationIndex =
+                    (
+                        screenY *
+                        width
+                        +
+                        screenX
+                    )
+                    *
+                    4;
 
 
-                dst[destIndex] =
+                dst[destinationIndex] =
                     src[sourceIndex];
 
-                dst[destIndex + 1] =
+                dst[destinationIndex + 1] =
                     src[sourceIndex + 1];
 
-                dst[destIndex + 2] =
+                dst[destinationIndex + 2] =
                     src[sourceIndex + 2];
 
-                dst[destIndex + 3] = 255;
+                dst[destinationIndex + 3] =
+                    255;
             }
         }
 
 
-        ctx.putImageData(output, 0, 0);
+        ctx.putImageData(
+            output,
+            0,
+            0
+        );
+
 
         renderHotspots();
 
@@ -465,219 +826,181 @@ function render() {
 
         console.error(error);
 
-        errorBox.style.display = "block";
+        ready = false;
 
-        errorBox.textContent =
-            "360° slike ni mogoče prebrati. " +
-            "Najverjetneje Dropbox ne dovoljuje CORS dostopa do videa. " +
-            error.message;
-
-        video.pause();
+        showError(
+            "Video se sicer naloži, vendar brskalnik ne dovoli " +
+            "360° obdelave slike. Napaka: " +
+            error.message
+        );
     }
 }
 
 
-/* =========================================================
+/* ============================================================
    ANIMACIJA
-   ========================================================= */
+   ============================================================ */
 
-let lastFrame = 0;
-
-function animation(time) {
+function animationLoop(time) {
 
     if (
         ready &&
         !video.paused &&
-        time - lastFrame > 90
+        time - lastFrame > 85
     ) {
 
-        render();
+        render360();
 
         lastFrame = time;
     }
 
-    requestAnimationFrame(animation);
+    requestAnimationFrame(
+        animationLoop
+    );
 }
 
-requestAnimationFrame(animation);
 
-
-/* =========================================================
-   MIŠKA / DOTIK
-   ========================================================= */
-
-canvas.addEventListener(
-    "pointerdown",
-    event => {
-
-        dragging = true;
-
-        dragX = event.clientX;
-        dragY = event.clientY;
-
-        dragYaw = yaw;
-        dragPitch = pitch;
-
-        canvas.setPointerCapture(event.pointerId);
-    }
+requestAnimationFrame(
+    animationLoop
 );
 
 
-canvas.addEventListener(
-    "pointermove",
-    event => {
+/* ============================================================
+   POLOŽAJ TOČKE
+   ============================================================ */
 
-        if (!dragging)
-            return;
+function projectHotspot(point) {
 
-        const dx =
-            event.clientX - dragX;
-
-        const dy =
-            event.clientY - dragY;
-
-
-        yaw =
-            dragYaw -
-            dx / canvas.clientWidth
-            * fov * RAD * 1.7;
-
-
-        pitch =
-            clamp(
-                dragPitch +
-                dy / canvas.clientHeight
-                * fov * RAD,
-                -1.5,
-                1.5
-            );
-
-
-        render();
-    }
-);
-
-
-canvas.addEventListener(
-    "pointerup",
-    () => {
-
-        dragging = false;
-    }
-);
-
-
-canvas.addEventListener(
-    "wheel",
-    event => {
-
-        event.preventDefault();
-
-        fov =
-            clamp(
-                fov +
-                (event.deltaY > 0 ? 5 : -5),
-                35,
-                105
-            );
-
-        render();
-
-    },
-    { passive: false }
-);
-
-
-/* =========================================================
-   HOTSPOT POLOŽAJ
-   ========================================================= */
-
-function hotspotPosition(point) {
-
-    const dy =
+    const relativeYaw =
         point.yaw - yaw;
 
+
     const x =
-        Math.sin(dy)
-        * Math.cos(point.pitch);
+        Math.sin(relativeYaw)
+        *
+        Math.cos(point.pitch);
+
 
     const y =
         Math.sin(point.pitch);
 
+
     const z =
-        Math.cos(dy)
-        * Math.cos(point.pitch);
+        Math.cos(relativeYaw)
+        *
+        Math.cos(point.pitch);
 
 
-    const cp =
+    const cosPitch =
         Math.cos(pitch);
 
-    const sp =
+    const sinPitch =
         Math.sin(pitch);
 
 
-    const yy =
-        y * cp - z * sp;
+    const rotatedY =
+        y * cosPitch
+        -
+        z * sinPitch;
 
-    const zz =
-        y * sp + z * cp;
+
+    const rotatedZ =
+        y * sinPitch
+        +
+        z * cosPitch;
 
 
-    if (zz <= 0.05)
+    if (rotatedZ <= 0.05)
         return null;
 
 
-    const k =
-        Math.tan(fov * RAD / 2);
+    const perspective =
+        Math.tan(
+            fov * RAD / 2
+        );
 
-    const aspect =
-        canvas.clientWidth /
+
+    const width =
+        canvas.clientWidth;
+
+    const height =
         canvas.clientHeight;
 
 
+    const aspect =
+        width / height;
+
+
     const screenX =
-        (x / zz / aspect / k + 1)
-        * canvas.clientWidth / 2;
+        (
+            x /
+            rotatedZ /
+            aspect /
+            perspective
+            +
+            1
+        )
+        *
+        width /
+        2;
 
 
     const screenY =
-        (1 - yy / zz / k)
-        * canvas.clientHeight / 2;
+        (
+            1
+            -
+            rotatedY /
+            rotatedZ /
+            perspective
+        )
+        *
+        height /
+        2;
 
 
     if (
         screenX < 0 ||
-        screenX > canvas.clientWidth ||
+        screenX > width ||
         screenY < 0 ||
-        screenY > canvas.clientHeight
-    )
+        screenY > height
+    ) {
+
         return null;
+    }
 
 
-    return [screenX, screenY];
+    return [
+        screenX,
+        screenY
+    ];
 }
 
 
-/* =========================================================
-   HOTSPOTI
-   ========================================================= */
+/* ============================================================
+   PRIKAZ TOČK
+   ============================================================ */
 
 function renderHotspots() {
 
-    spotsElement.innerHTML = "";
+    spots.replaceChildren();
 
 
-    for (const point of hotspots) {
+    for (const point of HOTSPOTS) {
 
         if (
-            video.currentTime < point.start ||
-            video.currentTime > point.end
-        )
+            video.currentTime <
+            point.start
+            ||
+            video.currentTime >
+            point.end
+        ) {
+
             continue;
+        }
 
 
         const position =
-            hotspotPosition(point);
+            projectHotspot(point);
 
 
         if (!position)
@@ -688,13 +1011,17 @@ function renderHotspots() {
             document.createElement("button");
 
 
-        button.className = "spot";
+        button.className =
+            "spot";
 
-        button.textContent = "i";
+
+        button.textContent =
+            "i";
 
 
         button.style.left =
             position[0] + "px";
+
 
         button.style.top =
             position[1] + "px";
@@ -710,7 +1037,7 @@ function renderHotspots() {
                 infoTitle.textContent =
                     point.title;
 
-                infoText.textContent =
+                infoDescription.textContent =
                     point.description;
 
                 info.style.display =
@@ -720,28 +1047,222 @@ function renderHotspots() {
             };
 
 
-        spotsElement.appendChild(button);
+        spots.appendChild(
+            button
+        );
     }
 }
 
 
-/* =========================================================
-   VIDEO
-   ========================================================= */
+/* ============================================================
+   PREMIKANJE POGLEDA
+   ============================================================ */
 
-video.src = VIDEO_URL;
+canvas.addEventListener(
+    "pointerdown",
+    event => {
+
+        dragging = true;
+
+        dragStartX =
+            event.clientX;
+
+        dragStartY =
+            event.clientY;
+
+        dragStartYaw =
+            yaw;
+
+        dragStartPitch =
+            pitch;
+
+        canvas.setPointerCapture(
+            event.pointerId
+        );
+    }
+);
+
+
+canvas.addEventListener(
+    "pointermove",
+    event => {
+
+        if (!dragging)
+            return;
+
+
+        const deltaX =
+            event.clientX -
+            dragStartX;
+
+
+        const deltaY =
+            event.clientY -
+            dragStartY;
+
+
+        yaw =
+            dragStartYaw
+            -
+            deltaX /
+            canvas.clientWidth
+            *
+            fov *
+            RAD *
+            1.7;
+
+
+        pitch =
+            clamp(
+                dragStartPitch
+                +
+                deltaY /
+                canvas.clientHeight
+                *
+                fov *
+                RAD,
+                -1.5,
+                1.5
+            );
+
+
+        render360();
+    }
+);
+
+
+canvas.addEventListener(
+    "pointerup",
+    () => {
+
+        dragging = false;
+    }
+);
+
+
+canvas.addEventListener(
+    "pointercancel",
+    () => {
+
+        dragging = false;
+    }
+);
+
+
+/* ============================================================
+   ZOOM NA RAČUNALNIKU
+   ============================================================ */
+
+canvas.addEventListener(
+    "wheel",
+    event => {
+
+        event.preventDefault();
+
+
+        if (event.deltaY > 0)
+            fov += 5;
+        else
+            fov -= 5;
+
+
+        fov =
+            clamp(
+                fov,
+                35,
+                105
+            );
+
+
+        render360();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/* ============================================================
+   VIDEO
+   ============================================================ */
+
+video.src =
+    VIDEO_URL;
 
 
 video.addEventListener(
     "loadeddata",
     () => {
 
+        if (
+            !video.videoWidth ||
+            !video.videoHeight
+        ) {
+
+            showError(
+                "Video se je naložil, vendar nima veljavne video slike."
+            );
+
+            return;
+        }
+
+
+        /*
+           Ustvarimo manjšo kopijo video slike.
+        */
+
+        const maximumWidth =
+            1536;
+
+
+        const scale =
+            Math.min(
+                1,
+                maximumWidth /
+                video.videoWidth
+            );
+
+
+        sourceCanvas =
+            document.createElement(
+                "canvas"
+            );
+
+
+        sourceCanvas.width =
+            Math.max(
+                1,
+                Math.floor(
+                    video.videoWidth *
+                    scale
+                )
+            );
+
+
+        sourceCanvas.height =
+            Math.max(
+                1,
+                Math.floor(
+                    video.videoHeight *
+                    scale
+                )
+            );
+
+
+        sourceContext =
+            sourceCanvas.getContext(
+                "2d",
+                {
+                    willReadFrequently: true
+                }
+            );
+
+
         ready = true;
 
-        loading.style.display =
-            "none";
 
-        resize();
+        resizeCanvas();
 
         updateControls();
     }
@@ -752,26 +1273,74 @@ video.addEventListener(
     "error",
     () => {
 
-        loading.style.display =
-            "none";
-
-        errorBox.style.display =
-            "block";
-
-        errorBox.textContent =
-            "Videoposnetka ni mogoče naložiti iz Dropboxa.";
+        showError(
+            "Dropbox video se ni naložil."
+        );
     }
 );
 
 
-/* =========================================================
-   KONTROLE
-   ========================================================= */
+/* ============================================================
+   START
+   ============================================================ */
 
-playButton.onclick =
+startButton.addEventListener(
+    "click",
     async () => {
 
-        info.style.display = "none";
+        startScreen.style.display =
+            "none";
+
+
+        controls.style.display =
+            "flex";
+
+
+        hint.style.display =
+            "block";
+
+
+        /*
+           Na telefonu video zaženemo šele po kliku
+           uporabnika.
+        */
+
+        try {
+
+            await video.play();
+
+        }
+
+        catch (error) {
+
+            console.log(error);
+
+            /*
+               Tudi če autoplay ne uspe,
+               lahko uporabnik pritisne PLAY.
+            */
+
+        }
+
+
+        render360();
+
+        updateControls();
+    }
+);
+
+
+/* ============================================================
+   PLAY
+   ============================================================ */
+
+playButton.addEventListener(
+    "click",
+    async () => {
+
+        info.style.display =
+            "none";
+
 
         if (video.paused) {
 
@@ -783,9 +1352,9 @@ playButton.onclick =
 
             catch (error) {
 
-                alert(
-                    "Predvajanja ni mogoče zagnati: "
-                    + error.message
+                showError(
+                    "Videoposnetka ni mogoče zagnati: " +
+                    error.message
                 );
             }
 
@@ -796,34 +1365,96 @@ playButton.onclick =
             video.pause();
         }
 
+
         updateControls();
-    };
+    }
+);
 
 
-muteButton.onclick =
+/* ============================================================
+   MUTE
+   ============================================================ */
+
+muteButton.addEventListener(
+    "click",
     () => {
 
         video.muted =
             !video.muted;
 
         updateControls();
-    };
+    }
+);
 
+
+/* ============================================================
+   ČASOVNICA
+   ============================================================ */
+
+seek.addEventListener(
+    "input",
+    () => {
+
+        if (!video.duration)
+            return;
+
+
+        video.currentTime =
+            (
+                Number(seek.value)
+                /
+                1000
+            )
+            *
+            video.duration;
+
+
+        render360();
+    }
+);
+
+
+/* ============================================================
+   KONTROLE
+   ============================================================ */
 
 function updateControls() {
 
     playButton.textContent =
-        video.paused ? "▶" : "Ⅱ";
+        video.paused
+        ? "▶"
+        : "Ⅱ";
 
 
     muteButton.textContent =
-        video.muted ? "🔇" : "🔊";
+        video.muted
+        ? "🔇"
+        : "🔊";
 
 
-    timeElement.textContent =
-        formatTime(video.currentTime)
-        + " / "
-        + formatTime(video.duration);
+    timeLabel.textContent =
+        formatTime(
+            video.currentTime
+        )
+        +
+        " / "
+        +
+        formatTime(
+            video.duration
+        );
+
+
+    if (video.duration) {
+
+        seek.value =
+            Math.round(
+                video.currentTime
+                /
+                video.duration
+                *
+                1000
+            );
+    }
 
 
     renderHotspots();
@@ -835,44 +1466,51 @@ video.addEventListener(
     updateControls
 );
 
+
 video.addEventListener(
     "play",
     updateControls
 );
+
 
 video.addEventListener(
     "pause",
     updateControls
 );
 
+
 video.addEventListener(
     "seeked",
-    render
+    () => {
+
+        render360();
+
+        updateControls();
+    }
 );
 
 
-/* =========================================================
-   TELEFON
-   ========================================================= */
+/* ============================================================
+   INFO
+   ============================================================ */
 
-document.body.addEventListener(
+closeInfo.addEventListener(
     "click",
     () => {
 
-        /*
-           Nekateri telefoni zahtevajo prvo
-           uporabnikovo interakcijo, preden
-           dovolijo video/audio.
-        */
-
-    },
-    { once: true }
+        info.style.display =
+            "none";
+    }
 );
 
 
+/* ============================================================
+   RESIZE
+   ============================================================ */
+
 window.addEventListener(
     "resize",
-    resize
+    resizeCanvas
 );
 
 </script>
