@@ -679,8 +679,6 @@ textarea:focus-visible{
         ">
       </a-entity>
 
-
-
     </a-camera>
 
   </a-entity>
@@ -1000,7 +998,6 @@ const mouseCursor =
 
 const reticle =
   $("reticle");
-
 
 
 const vrInfo =
@@ -3219,84 +3216,6 @@ function installPointerControls(){
 
 
 /* =========================================================
-   TOUCH VERTICAL LOOK ASSIST
-
-   Na telefonu v navadnem (ne-VR) pogledu A-Frame še naprej
-   skrbi za običajno vodoravno vlečenje. Ta dodatek poskrbi,
-   da vlečenje s prstom gor/dol zanesljivo spreminja tudi pitch.
-   V načinu dodajanja hotspota ga ne uporabljamo, da ostane
-   obstoječi tap/drag način za postavljanje točk nespremenjen.
-========================================================= */
-
-let verticalTouchTracking = false;
-let verticalTouchPointerId = null;
-let verticalTouchStartY = 0;
-let verticalTouchStartPitch = 0;
-
-const VERTICAL_TOUCH_SENSITIVITY = 0.004;
-const VERTICAL_TOUCH_LIMIT = THREE.MathUtils.degToRad(88);
-
-function getLookControls(){
-  return camera && camera.components
-    ? camera.components["look-controls"]
-    : null;
-}
-
-function installVerticalTouchLook(){
-  if(!sceneCanvas) sceneCanvas = scene.canvas;
-  if(!sceneCanvas) return;
-
-  sceneCanvas.addEventListener("pointerdown", event=>{
-    if(
-      event.pointerType !== "touch" ||
-      scene.is("vr-mode") ||
-      addMode
-    ) return;
-
-    const look = getLookControls();
-    if(!look || !look.pitchObject) return;
-
-    verticalTouchTracking = true;
-    verticalTouchPointerId = event.pointerId;
-    verticalTouchStartY = event.clientY;
-    verticalTouchStartPitch = look.pitchObject.rotation.x;
-  }, true);
-
-  sceneCanvas.addEventListener("pointermove", event=>{
-    if(
-      !verticalTouchTracking ||
-      event.pointerId !== verticalTouchPointerId ||
-      scene.is("vr-mode") ||
-      addMode
-    ) return;
-
-    const look = getLookControls();
-    if(!look || !look.pitchObject) return;
-
-    const deltaY = event.clientY - verticalTouchStartY;
-    look.pitchObject.rotation.x = THREE.MathUtils.clamp(
-      verticalTouchStartPitch + deltaY * VERTICAL_TOUCH_SENSITIVITY,
-      -VERTICAL_TOUCH_LIMIT,
-      VERTICAL_TOUCH_LIMIT
-    );
-  }, true);
-
-  const stopVerticalTouch = event=>{
-    if(
-      verticalTouchPointerId === null ||
-      !event ||
-      event.pointerId === verticalTouchPointerId
-    ){
-      verticalTouchTracking = false;
-      verticalTouchPointerId = null;
-    }
-  };
-
-  sceneCanvas.addEventListener("pointerup", stopVerticalTouch, true);
-  sceneCanvas.addEventListener("pointercancel", stopVerticalTouch, true);
-}
-
-/* =========================================================
    MAP EVENTS
 ========================================================= */
 mapBtn.addEventListener("click", showMap);
@@ -3671,7 +3590,6 @@ reticle.addEventListener(
     }
 
 
-
     if(
       target.classList.contains(
         "vr-close"
@@ -3954,7 +3872,6 @@ scene.addEventListener(
     );
 
 
-
     await acquireWakeLock();
 
 
@@ -3978,7 +3895,6 @@ scene.addEventListener(
     /*
       Najprej ugasnemo gaze.
     */
-
 
     setVRGazeEnabled(
       false
@@ -4128,8 +4044,6 @@ scene.addEventListener(
 
     installPointerControls();
 
-  installVerticalTouchLook();
-
 
     setFov(
       normalFov
@@ -4151,7 +4065,6 @@ scene.addEventListener(
     setVRGazeEnabled(
       false
     );
-
 
 
     /*
@@ -4210,7 +4123,6 @@ function uiLoop(){
   requestAnimationFrame(
     uiLoop
   );
-
 
 
   if(
