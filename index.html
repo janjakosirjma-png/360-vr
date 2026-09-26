@@ -1,566 +1,2024 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<title>360° Panorama</title>
+
+<script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+button, input, textarea {
+    font: inherit;
+}
+
+#viewer {
+    position: fixed;
+    inset: 0;
+    background: #000;
+}
+
+a-scene {
+    width: 100%;
+    height: 100%;
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
+#toolbar {
+    position: fixed;
+    z-index: 10000;
+    top: 14px;
+    left: 14px;
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+
+    padding: 8px;
+
+    border-radius: 14px;
+    background: rgba(15,15,15,.88);
+
+    box-shadow: 0 8px 30px rgba(0,0,0,.35);
+}
+
+.toolButton {
+    height: 42px;
+    padding: 0 14px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: rgba(255,255,255,.14);
+    color: white;
+
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#addBtn {
+    background: #2563eb;
+}
+
+#addBtn.active {
+    background: #16a34a;
+}
+
+#cardboardBtn {
+    background: #7c3aed;
+}
+
+.separator {
+    width: 1px;
+    height: 25px;
+    background: rgba(255,255,255,.22);
+}
+
+/* =========================
+   INSTRUCTION
+========================= */
+
+#instruction {
+    position: fixed;
+    z-index: 10000;
+
+    left: 50%;
+    bottom: 25px;
+
+    transform: translateX(-50%);
+
+    display: none;
+
+    padding: 11px 18px;
+
+    border-radius: 30px;
+
+    background: rgba(0,0,0,.82);
+    color: white;
+
+    pointer-events: none;
+}
+
+/* =========================
+   POPUP
+========================= */
+
+#popup {
+    position: fixed;
+    z-index: 20000;
+
+    display: none;
+
+    width: 330px;
+    max-width: calc(100vw - 30px);
+
+    padding: 18px;
+
+    border-radius: 14px;
+
+    background: white;
+    color: #222;
+
+    box-shadow: 0 15px 45px rgba(0,0,0,.4);
+}
+
+#popup::before {
+    content: "";
+
+    position: absolute;
+
+    left: -9px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-right: 9px solid white;
+}
+
+#popup.openLeft::before {
+    left: auto;
+    right: -9px;
+
+    border-right: 0;
+    border-left: 9px solid white;
+}
+
+#popupClose {
+    position: absolute;
+
+    top: 9px;
+    right: 9px;
+
+    width: 30px;
+    height: 30px;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: #eee;
+
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#reader,
+#editor {
+    display: none;
+}
+
+#readerTitle {
+    margin: 0 35px 10px 0;
+}
+
+#readerDescription {
+    margin-bottom: 17px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+#editBtn {
+    width: 100%;
+
+    padding: 10px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #2563eb;
+    color: white;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.fieldLabel {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 12px;
+    font-weight: bold;
+}
+
+#titleInput,
+#descriptionInput {
+    width: 100%;
+
+    padding: 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+#titleInput {
+    margin-bottom: 12px;
+}
+
+#descriptionInput {
+    min-height: 120px;
+
+    margin-bottom: 12px;
+
+    resize: vertical;
+}
+
+.editorButtons {
+    display: flex;
+    gap: 7px;
+}
+
+.editorButtons button {
+    padding: 9px 12px;
+
+    border: 0;
+    border-radius: 8px;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#saveBtn {
+    flex: 1;
+
+    background: #16a34a;
+    color: white;
+}
+
+#cancelBtn {
+    background: #ddd;
+}
+
+#deleteBtn {
+    background: #dc2626;
+    color: white;
+}
+
+/* =========================
+   CARDBOARD START
+========================= */
+
+#cardboardStart {
+    position: fixed;
+    inset: 0;
+
+    z-index: 50000;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0,0,0,.93);
+}
+
+#cardboardStartBox {
+    width: 390px;
+    max-width: 100%;
+
+    padding: 24px;
+
+    border-radius: 18px;
+
+    background: white;
+    color: #111;
+
+    text-align: center;
+}
+
+#cardboardStartBox h2 {
+    margin-top: 0;
+}
+
+#startCardboardBtn,
+#cancelCardboardBtn {
+    width: 100%;
+
+    padding: 13px;
+
+    border: 0;
+    border-radius: 10px;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#startCardboardBtn {
+    background: #7c3aed;
+    color: white;
+}
+
+#cancelCardboardBtn {
+    margin-top: 8px;
+    background: #ddd;
+}
+
+/* =========================
+   PERMISSION
+========================= */
+
+#permissionPanel {
+    position: fixed;
+    inset: 0;
+
+    z-index: 60000;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0,0,0,.94);
+}
+
+#permissionBox {
+    width: 360px;
+    max-width: 100%;
+
+    padding: 24px;
+
+    border-radius: 16px;
+
+    background: white;
+    color: #111;
+
+    text-align: center;
+}
+
+#permissionBtn {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: #7c3aed;
+    color: white;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* =========================
+   CARDBOARD UI
+========================= */
+
+#cardboardUI {
+    position: fixed;
+    inset: 0;
+
+    z-index: 30000;
+
+    display: none;
+
+    pointer-events: none;
+}
+
+.gaze {
+    position: absolute;
+
+    top: 50%;
+
+    width: 24px;
+    height: 24px;
+
+    transform: translate(-50%,-50%);
+
+    border: 2px solid white;
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 3px #000,
+        0 0 8px #000;
+}
+
+.gaze::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 4px;
+    height: 4px;
+
+    transform: translate(-50%,-50%);
+
+    border-radius: 50%;
+
+    background: white;
+}
+
+#gazeLeft {
+    left: 25%;
+}
+
+#gazeRight {
+    left: 75%;
+}
+
+.gaze.active {
+    animation: gazeProgress 1.2s linear forwards;
+}
+
+@keyframes gazeProgress {
+    from {
+        transform: translate(-50%,-50%) scale(1);
+    }
+
+    to {
+        transform: translate(-50%,-50%) scale(1.7);
+    }
+}
+
+#exitCardboardBtn {
+    position: absolute;
+
+    top: 12px;
+    right: 12px;
+
+    z-index: 31000;
+
+    width: 45px;
+    height: 45px;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: rgba(0,0,0,.72);
+    color: white;
+
+    font-size: 27px;
+
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+@media(max-width:650px) {
+    #toolbar {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+
+        justify-content: center;
+    }
+
+    .toolButton {
+        height: 38px;
+        padding: 0 10px;
+        font-size: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="viewer">
+
+<a-scene
+    id="scene"
+    embedded
+    vr-mode-ui="enabled:false"
+    renderer="antialias:true; colorManagement:true"
+    loading-screen="enabled:true"
+    cursor="rayOrigin:mouse"
+    raycaster="objects:.clickable;far:100">
+
+    <a-assets>
+        <img
+            id="panoramaImage"
+            src="360.jpg?v=200"
+            crossorigin="anonymous">
+    </a-assets>
+
+    <a-sky
+        id="sky"
+        src="#panoramaImage"
+        rotation="0 -90 0">
+    </a-sky>
+
+    <a-entity id="hotspotContainer"></a-entity>
+
+    <a-entity id="cameraRig">
+        <a-camera
+            id="camera"
+            position="0 0 0"
+            look-controls="enabled:true;magicWindowTrackingEnabled:false"
+            wasd-controls="enabled:false">
+        </a-camera>
+    </a-entity>
+
+</a-scene>
+
+</div>
+
+
+<!-- NORMALNI GUMBI -->
+
+<div id="toolbar">
+
+    <button id="addBtn" class="toolButton">
+        + Dodaj hotspot
+    </button>
+
+    <div class="separator"></div>
+
+    <button id="zoomInBtn" class="toolButton">
+        +
+    </button>
+
+    <button id="zoomOutBtn" class="toolButton">
+        −
+    </button>
+
+    <div class="separator"></div>
+
+    <button id="fullscreenBtn" class="toolButton">
+        ⛶ Fullscreen
+    </button>
+
+    <button id="cardboardBtn" class="toolButton">
+        🥽 CARDBOARD
+    </button>
+
+</div>
+
+
+<div id="instruction">
+    Klikni na mesto v panorami.
+</div>
+
+
+<!-- HOTSPOT POPUP -->
+
+<div id="popup">
+
+    <button id="popupClose">×</button>
+
+    <div id="reader">
+
+        <h2 id="readerTitle"></h2>
+
+        <div id="readerDescription"></div>
+
+        <button id="editBtn">
+            Uredi
+        </button>
+
+    </div>
+
+    <div id="editor">
+
+        <label class="fieldLabel">
+            Naslov
+        </label>
+
+        <input
+            id="titleInput"
+            type="text"
+            placeholder="Naslov hotspota">
+
+        <label class="fieldLabel">
+            Opis
+        </label>
+
+        <textarea
+            id="descriptionInput"
+            placeholder="Opis..."></textarea>
+
+        <div class="editorButtons">
+
+            <button id="saveBtn">
+                Shrani
+            </button>
+
+            <button id="cancelBtn">
+                Prekliči
+            </button>
+
+            <button id="deleteBtn">
+                Izbriši
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CARDBOARD START -->
+
+<div id="cardboardStart">
+
+    <div id="cardboardStartBox">
+
+        <h2>🥽 Cardboard</h2>
+
+        <p>
+            Obrni telefon vodoravno.
+        </p>
+
+        <p>
+            Prikaz bo razdeljen na dve ukrivljeni sliki:
+            eno za levo in eno za desno oko.
+        </p>
+
+        <p>
+            Zaslon bo med ogledom ostal prižgan,
+            če telefon podpira Wake Lock.
+        </p>
+
+        <button id="startCardboardBtn">
+            ZAŽENI CARDBOARD
+        </button>
+
+        <button id="cancelCardboardBtn">
+            Prekliči
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- IOS PERMISSION -->
+
+<div id="permissionPanel">
+
+    <div id="permissionBox">
+
+        <h2>Senzor gibanja</h2>
+
+        <p>
+            Dovoli uporabo senzorjev telefona.
+        </p>
+
+        <button id="permissionBtn">
+            DOVOLI IN ZAŽENI
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- CARDBOARD OVERLAY -->
+
+<div id="cardboardUI">
+
+    <div id="gazeLeft" class="gaze"></div>
+    <div id="gazeRight" class="gaze"></div>
+
+    <button id="exitCardboardBtn">
+        ×
+    </button>
+
+</div>
+
+
 <script>
 
 /* ============================================================
-   CARDBOARD – DVE KOPIJI ISTEGA UKRIVLJENEGA POGLEDA
-   ============================================================ */
+   ELEMENTI
+============================================================ */
+
+const scene =
+    document.querySelector("#scene");
+
+const cameraEl =
+    document.querySelector("#camera");
+
+const hotspotContainer =
+    document.querySelector("#hotspotContainer");
+
+const toolbar =
+    document.querySelector("#toolbar");
+
+const addBtn =
+    document.querySelector("#addBtn");
+
+const zoomInBtn =
+    document.querySelector("#zoomInBtn");
+
+const zoomOutBtn =
+    document.querySelector("#zoomOutBtn");
+
+const fullscreenBtn =
+    document.querySelector("#fullscreenBtn");
+
+const cardboardBtn =
+    document.querySelector("#cardboardBtn");
+
+const instruction =
+    document.querySelector("#instruction");
+
+const popup =
+    document.querySelector("#popup");
+
+const popupClose =
+    document.querySelector("#popupClose");
+
+const reader =
+    document.querySelector("#reader");
+
+const editor =
+    document.querySelector("#editor");
+
+const readerTitle =
+    document.querySelector("#readerTitle");
+
+const readerDescription =
+    document.querySelector("#readerDescription");
+
+const editBtn =
+    document.querySelector("#editBtn");
+
+const titleInput =
+    document.querySelector("#titleInput");
+
+const descriptionInput =
+    document.querySelector("#descriptionInput");
+
+const saveBtn =
+    document.querySelector("#saveBtn");
+
+const cancelBtn =
+    document.querySelector("#cancelBtn");
+
+const deleteBtn =
+    document.querySelector("#deleteBtn");
+
+const cardboardStart =
+    document.querySelector("#cardboardStart");
+
+const startCardboardBtn =
+    document.querySelector("#startCardboardBtn");
+
+const cancelCardboardBtn =
+    document.querySelector("#cancelCardboardBtn");
+
+const permissionPanel =
+    document.querySelector("#permissionPanel");
+
+const permissionBtn =
+    document.querySelector("#permissionBtn");
+
+const cardboardUI =
+    document.querySelector("#cardboardUI");
+
+const gazeLeft =
+    document.querySelector("#gazeLeft");
+
+const gazeRight =
+    document.querySelector("#gazeRight");
+
+const exitCardboardBtn =
+    document.querySelector("#exitCardboardBtn");
+
+
+/* ============================================================
+   STORAGE
+============================================================ */
+
+const STORAGE_KEY =
+    "stable-360-hotspots-v5";
+
+let hotspots = [];
+
+try {
+
+    hotspots =
+        JSON.parse(
+            localStorage.getItem(STORAGE_KEY)
+        ) || [];
+
+}
+catch(error) {
+
+    hotspots = [];
+
+}
+
+
+function saveHotspots() {
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(hotspots)
+    );
+
+}
+
+
+/* ============================================================
+   STATE
+============================================================ */
+
+let selectedHotspotId = null;
+
+let addMode = false;
+
+let pointerStartX = 0;
+let pointerStartY = 0;
+let pointerDistance = 0;
+
+
+/* ============================================================
+   CARDBOARD NASTAVITVE
+
+   DVE MANJŠI KOPIJI UKRIVLJENEGA POGLEDA.
+============================================================ */
 
 const CB = {
+
     eyeSeparation: 0.064,
+
     fov: 78,
 
     /*
-       Vsako oko zavzame približno 42 % zaslona.
-       To pomeni:
-       LEVO  = center -0.50
-       DESNO = center +0.50
+       Širina posamezne slike v clip prostoru.
+
+       Cel zaslon = 2.0.
+       Posamezna polovica = 1.0.
+
+       0.86 pomeni, da ostane nekaj črnega roba.
     */
-    eyeWidth: 0.84,
-    eyeHeight: 1.55,
+
+    eyeWidth: 0.86,
 
     /*
-       Ukrivljenost iz prve verzije,
-       ki je na tvoji sliki izgledala pravilno.
+       Višina posamezne ukrivljene slike.
+       Cel zaslon = 2.0.
     */
+
+    eyeHeight: 1.58,
+
+    /*
+       Ukrivljenost.
+    */
+
     k1: 0.20,
+
     k2: 0.07
+
 };
 
 
-let cardboardMode = false;
+/* ============================================================
+   SPHERICAL
+============================================================ */
 
-let renderer = null;
-let world = null;
-let vrCamera = null;
-let stereoCamera = null;
+function sphericalToVector(
+    yaw,
+    pitch,
+    radius = 8
+) {
 
-let leftTarget = null;
-let rightTarget = null;
+    return new THREE.Vector3(
 
-let cardboardOutputScene = null;
-let cardboardOutputCamera = null;
+        radius *
+        Math.cos(pitch) *
+        Math.sin(yaw),
 
-let leftEye = null;
-let rightEye = null;
+        radius *
+        Math.sin(pitch),
 
-let cardboardAnimationId = null;
+        -radius *
+        Math.cos(pitch) *
+        Math.cos(yaw)
 
-let originalFov = 80;
-let originalAspect = 1;
+    );
+
+}
+
+
+function directionToSpherical(direction) {
+
+    return {
+
+        yaw:
+            Math.atan2(
+                direction.x,
+                -direction.z
+            ),
+
+        pitch:
+            Math.asin(
+                THREE.MathUtils.clamp(
+                    direction.y,
+                    -1,
+                    1
+                )
+            )
+
+    };
+
+}
 
 
 /* ============================================================
-   SHADER
+   HOTSPOT FACE CAMERA
+============================================================ */
 
-   To je ista radialna deformacija kot pri tvojem velikem
-   prikazu. Ne dodajamo več dodatne superellipse maske.
-   ============================================================ */
+AFRAME.registerComponent(
+    "face-camera",
+    {
 
-const cardboardVertexShader = `
+        tick: function() {
 
-varying vec2 vUv;
-
-void main() {
-
-    vUv = uv;
-
-    gl_Position = vec4(
-        position.xy,
-        0.0,
-        1.0
-    );
-}
-
-`;
+            if(cardboardMode)
+                return;
 
 
-const cardboardFragmentShader = `
-
-precision highp float;
-
-uniform sampler2D eyeTexture;
-
-uniform float k1;
-uniform float k2;
-
-varying vec2 vUv;
+            const cam =
+                cameraEl.object3D;
 
 
-void main() {
-
-    /*
-       0..1 -> -1..1
-    */
-
-    vec2 p = vUv * 2.0 - 1.0;
+            if(!cam)
+                return;
 
 
-    /*
-       Ista horizontalna korekcija kot pri
-       prvem ukrivljenem prikazu.
-    */
-
-    vec2 q = p;
-
-    q.x *= 1.04;
+            const p =
+                new THREE.Vector3();
 
 
-    float r2 = dot(q, q);
+            cam.getWorldPosition(p);
 
 
-    /*
-       Radialna deformacija.
-    */
+            this.el.object3D.lookAt(p);
 
-    float factor =
-        1.0 +
-        k1 * r2 +
-        k2 * r2 * r2;
+        }
 
-
-    vec2 distorted = q * factor;
-
-
-    distorted.x /= 1.04;
-
-
-    vec2 uv =
-        distorted * 0.5 + 0.5;
-
-
-    /*
-       Kar pade izven slike je ČRNO.
-       Zaradi tega dobimo ukrivljene robove,
-       kot na tvoji fotografiji.
-    */
-
-    if (
-        uv.x < 0.0 ||
-        uv.x > 1.0 ||
-        uv.y < 0.0 ||
-        uv.y > 1.0
-    ) {
-
-        gl_FragColor = vec4(
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        );
-
-        return;
     }
-
-
-    gl_FragColor =
-        texture2D(
-            eyeTexture,
-            uv
-        );
-}
-
-`;
+);
 
 
 /* ============================================================
-   USTVARI LEVO + DESNO OKO
-   ============================================================ */
+   HOTSPOT
+============================================================ */
 
-function createCardboardOutput() {
+function createHotspotEntity(
+    hotspot,
+    number
+) {
 
-    const canvas = renderer.domElement;
+    const root =
+        document.createElement(
+            "a-entity"
+        );
 
-    const dpr = Math.min(
-        window.devicePixelRatio || 1,
-        2
+
+    root.dataset.id =
+        hotspot.id;
+
+
+    root.classList.add(
+        "clickable"
     );
 
 
-    /*
-       Vsako oko renderiramo v svojo kakovostno teksturo.
-    */
+    root.setAttribute(
+        "face-camera",
+        ""
+    );
 
-    const targetWidth = Math.max(
-        700,
-        Math.floor(
-            canvas.clientWidth *
+
+    const p =
+        sphericalToVector(
+            hotspot.yaw,
+            hotspot.pitch
+        );
+
+
+    root.setAttribute(
+        "position",
+        `${p.x} ${p.y} ${p.z}`
+    );
+
+
+    const border =
+        document.createElement(
+            "a-circle"
+        );
+
+
+    border.setAttribute(
+        "radius",
+        "0.26"
+    );
+
+
+    border.setAttribute(
+        "color",
+        "#ffffff"
+    );
+
+
+    border.setAttribute(
+        "material",
+        "shader:flat;side:double"
+    );
+
+
+    const dot =
+        document.createElement(
+            "a-circle"
+        );
+
+
+    dot.setAttribute(
+        "radius",
+        "0.20"
+    );
+
+
+    dot.setAttribute(
+        "position",
+        "0 0 0.01"
+    );
+
+
+    dot.setAttribute(
+        "color",
+        "#ef4444"
+    );
+
+
+    dot.setAttribute(
+        "material",
+        "shader:flat;side:double"
+    );
+
+
+    const numberText =
+        document.createElement(
+            "a-text"
+        );
+
+
+    numberText.setAttribute(
+        "value",
+        String(number)
+    );
+
+
+    numberText.setAttribute(
+        "align",
+        "center"
+    );
+
+
+    numberText.setAttribute(
+        "anchor",
+        "center"
+    );
+
+
+    numberText.setAttribute(
+        "baseline",
+        "center"
+    );
+
+
+    numberText.setAttribute(
+        "color",
+        "#ffffff"
+    );
+
+
+    numberText.setAttribute(
+        "width",
+        "1"
+    );
+
+
+    numberText.setAttribute(
+        "position",
+        "0 0 0.025"
+    );
+
+
+    root.appendChild(border);
+
+    root.appendChild(dot);
+
+    root.appendChild(numberText);
+
+
+    root.addEventListener(
+        "click",
+        event => {
+
+            if(cardboardMode)
+                return;
+
+
+            event.stopPropagation();
+
+
+            stopAddMode();
+
+
+            openReader(
+                hotspot.id
+            );
+
+        }
+    );
+
+
+    hotspotContainer.appendChild(
+        root
+    );
+
+}
+
+
+function renderHotspots() {
+
+    hotspotContainer.innerHTML =
+        "";
+
+
+    hotspots.forEach(
+        (hotspot,index) => {
+
+            createHotspotEntity(
+                hotspot,
+                index + 1
+            );
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   SCREEN -> DIRECTION
+============================================================ */
+
+function screenToDirection(
+    clientX,
+    clientY
+) {
+
+    const cam =
+        cameraEl.getObject3D(
+            "camera"
+        );
+
+
+    if(!cam)
+        return null;
+
+
+    const rect =
+        scene.canvas.getBoundingClientRect();
+
+
+    const x =
+        (
+            (clientX - rect.left) /
+            rect.width
+        ) * 2 - 1;
+
+
+    const y =
+        -(
+            (
+                (clientY - rect.top) /
+                rect.height
+            ) * 2 - 1
+        );
+
+
+    const vector =
+        new THREE.Vector3(
+            x,
+            y,
+            0.5
+        );
+
+
+    vector.unproject(cam);
+
+
+    const cameraPosition =
+        new THREE.Vector3();
+
+
+    cam.getWorldPosition(
+        cameraPosition
+    );
+
+
+    return vector
+        .sub(cameraPosition)
+        .normalize();
+
+}
+
+
+/* ============================================================
+   ADD HOTSPOT
+============================================================ */
+
+addBtn.addEventListener(
+    "click",
+    () => {
+
+        if(cardboardMode)
+            return;
+
+
+        closePopup();
+
+
+        addMode =
+            !addMode;
+
+
+        if(addMode) {
+
+            addBtn.classList.add(
+                "active"
+            );
+
+
+            addBtn.textContent =
+                "Klikni v panoramo";
+
+
+            instruction.style.display =
+                "block";
+
+        }
+        else {
+
+            stopAddMode();
+
+        }
+
+    }
+);
+
+
+function stopAddMode() {
+
+    addMode =
+        false;
+
+
+    addBtn.classList.remove(
+        "active"
+    );
+
+
+    addBtn.textContent =
+        "+ Dodaj hotspot";
+
+
+    instruction.style.display =
+        "none";
+
+}
+
+
+/* ============================================================
+   POINTER
+============================================================ */
+
+scene.addEventListener(
+    "pointerdown",
+    event => {
+
+        pointerStartX =
+            event.clientX;
+
+
+        pointerStartY =
+            event.clientY;
+
+
+        pointerDistance =
+            0;
+
+    }
+);
+
+
+scene.addEventListener(
+    "pointermove",
+    event => {
+
+        const dx =
+            event.clientX -
+            pointerStartX;
+
+
+        const dy =
+            event.clientY -
+            pointerStartY;
+
+
+        pointerDistance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+    }
+);
+
+
+/* ============================================================
+   PLACE HOTSPOT
+============================================================ */
+
+scene.addEventListener(
+    "click",
+    event => {
+
+        if(
+            !addMode ||
+            cardboardMode ||
+            pointerDistance > 8
+        )
+            return;
+
+
+        const direction =
+            screenToDirection(
+                event.clientX,
+                event.clientY
+            );
+
+
+        if(!direction)
+            return;
+
+
+        const spherical =
+            directionToSpherical(
+                direction
+            );
+
+
+        const hotspot = {
+
+            id:
+                "hs-" +
+                Date.now() +
+                "-" +
+                Math.random()
+                    .toString(36)
+                    .slice(2,7),
+
+            yaw:
+                spherical.yaw,
+
+            pitch:
+                spherical.pitch,
+
+            title:
+                "",
+
+            description:
+                ""
+
+        };
+
+
+        hotspots.push(
+            hotspot
+        );
+
+
+        saveHotspots();
+
+        stopAddMode();
+
+        renderHotspots();
+
+
+        openEditor(
+            hotspot.id
+        );
+
+    }
+);
+
+
+/* ============================================================
+   POPUP POSITION
+============================================================ */
+
+function getHotspotScreenPosition(
+    hotspot
+) {
+
+    const cam =
+        cameraEl.getObject3D(
+            "camera"
+        );
+
+
+    if(!cam)
+        return null;
+
+
+    const p =
+        sphericalToVector(
+            hotspot.yaw,
+            hotspot.pitch
+        );
+
+
+    const cameraPosition =
+        new THREE.Vector3();
+
+
+    const cameraDirection =
+        new THREE.Vector3();
+
+
+    cam.getWorldPosition(
+        cameraPosition
+    );
+
+
+    cam.getWorldDirection(
+        cameraDirection
+    );
+
+
+    const toHotspot =
+        p.clone()
+         .sub(cameraPosition)
+         .normalize();
+
+
+    if(
+        cameraDirection.dot(
+            toHotspot
+        ) <= 0
+    )
+        return null;
+
+
+    p.project(cam);
+
+
+    return {
+
+        x:
+            (p.x + 1) *
             0.5 *
-            dpr
-        )
-    );
+            window.innerWidth,
 
+        y:
+            (-p.y + 1) *
+            0.5 *
+            window.innerHeight
 
-    const targetHeight = Math.max(
-        700,
-        Math.floor(
-            canvas.clientHeight *
-            dpr
-        )
-    );
+    };
 
-
-    leftTarget =
-        new THREE.WebGLRenderTarget(
-            targetWidth,
-            targetHeight,
-            {
-                minFilter: THREE.LinearFilter,
-                magFilter: THREE.LinearFilter,
-                format: THREE.RGBAFormat,
-                depthBuffer: true
-            }
-        );
-
-
-    rightTarget =
-        new THREE.WebGLRenderTarget(
-            targetWidth,
-            targetHeight,
-            {
-                minFilter: THREE.LinearFilter,
-                magFilter: THREE.LinearFilter,
-                format: THREE.RGBAFormat,
-                depthBuffer: true
-            }
-        );
-
-
-    cardboardOutputScene =
-        new THREE.Scene();
-
-
-    cardboardOutputCamera =
-        new THREE.Camera();
-
-
-    /* --------------------------------------------------------
-       LEVO OKO
-       -------------------------------------------------------- */
-
-    const leftMaterial =
-        new THREE.ShaderMaterial({
-
-            uniforms: {
-
-                eyeTexture: {
-                    value: leftTarget.texture
-                },
-
-                k1: {
-                    value: CB.k1
-                },
-
-                k2: {
-                    value: CB.k2
-                }
-            },
-
-            vertexShader:
-                cardboardVertexShader,
-
-            fragmentShader:
-                cardboardFragmentShader,
-
-            depthTest: false,
-            depthWrite: false
-        });
-
-
-    leftEye =
-        new THREE.Mesh(
-
-            new THREE.PlaneGeometry(
-                CB.eyeWidth,
-                CB.eyeHeight
-            ),
-
-            leftMaterial
-        );
-
-
-    /*
-       Clip-space:
-
-       -1 = skrajno levo
-        0 = sredina
-       +1 = skrajno desno
-
-       Levo oko postavimo na -0.5.
-    */
-
-    leftEye.position.set(
-        -0.50,
-        0,
-        0
-    );
-
-
-    /* --------------------------------------------------------
-       DESNO OKO
-       -------------------------------------------------------- */
-
-    const rightMaterial =
-        new THREE.ShaderMaterial({
-
-            uniforms: {
-
-                eyeTexture: {
-                    value: rightTarget.texture
-                },
-
-                k1: {
-                    value: CB.k1
-                },
-
-                k2: {
-                    value: CB.k2
-                }
-            },
-
-            vertexShader:
-                cardboardVertexShader,
-
-            fragmentShader:
-                cardboardFragmentShader,
-
-            depthTest: false,
-            depthWrite: false
-        });
-
-
-    rightEye =
-        new THREE.Mesh(
-
-            new THREE.PlaneGeometry(
-                CB.eyeWidth,
-                CB.eyeHeight
-            ),
-
-            rightMaterial
-        );
-
-
-    rightEye.position.set(
-        0.50,
-        0,
-        0
-    );
-
-
-    cardboardOutputScene.add(
-        leftEye
-    );
-
-
-    cardboardOutputScene.add(
-        rightEye
-    );
 }
 
 
-/* ============================================================
-   CARDBOARD RENDER
-   ============================================================ */
+function positionPopup() {
 
-function renderCardboard() {
-
-    if (
-        !renderer ||
-        !vrCamera ||
-        !stereoCamera ||
-        !leftTarget ||
-        !rightTarget
-    ) {
+    if(
+        cardboardMode ||
+        !selectedHotspotId ||
+        popup.style.display === "none"
+    )
         return;
+
+
+    const hotspot =
+        hotspots.find(
+            h =>
+                h.id ===
+                selectedHotspotId
+        );
+
+
+    if(!hotspot)
+        return;
+
+
+    const screenPosition =
+        getHotspotScreenPosition(
+            hotspot
+        );
+
+
+    if(!screenPosition) {
+
+        popup.style.visibility =
+            "hidden";
+
+        return;
+
     }
 
 
-    const canvas =
-        renderer.domElement;
+    popup.style.visibility =
+        "visible";
 
 
     const width =
-        Math.max(
-            canvas.clientWidth,
-            1
-        );
+        popup.offsetWidth;
 
 
     const height =
-        Math.max(
-            canvas.clientHeight,
-            1
+        popup.offsetHeight;
+
+
+    const gap =
+        32;
+
+
+    let left;
+
+    let top =
+        screenPosition.y -
+        height / 2;
+
+
+    if(
+        screenPosition.x <
+        window.innerWidth / 2
+    ) {
+
+        popup.classList.remove(
+            "openLeft"
         );
 
 
-    /*
-       Kamera za POSAMEZNO oko.
+        left =
+            screenPosition.x +
+            gap;
 
-       Ker ima vsako oko polovico telefona,
-       mora biti aspect polovica širine.
-    */
+    }
+    else {
 
-    vrCamera.aspect =
-        (width * 0.5) /
-        height;
-
-
-    vrCamera.fov =
-        CB.fov;
+        popup.classList.add(
+            "openLeft"
+        );
 
 
-    vrCamera.updateProjectionMatrix();
+        left =
+            screenPosition.x -
+            width -
+            gap;
+
+    }
 
 
-    vrCamera.updateMatrixWorld(
-        true
-    );
+    left =
+        Math.max(
+            10,
+            Math.min(
+                left,
+                window.innerWidth -
+                width -
+                10
+            )
+        );
 
 
-    /*
-       Three.js naredi pravi levi in desni pogled.
-    */
-
-    stereoCamera.eyeSep =
-        CB.eyeSeparation;
-
-
-    stereoCamera.update(
-        vrCamera
-    );
-
-
-    /* ========================================================
-       1. LEVO OKO
-       ======================================================== */
-
-    renderer.setRenderTarget(
-        leftTarget
-    );
+    top =
+        Math.max(
+            10,
+            Math.min(
+                top,
+                window.innerHeight -
+                height -
+                10
+            )
+        );
 
 
-    renderer.setScissorTest(
-        false
-    );
+    popup.style.left =
+        left + "px";
 
 
-    renderer.setClearColor(
-        0x000000,
-        1
-    );
+    popup.style.top =
+        top + "px";
 
-
-    renderer.clear(
-        true,
-        true,
-        true
-    );
-
-
-    renderer.render(
-        world,
-        stereoCamera.cameraL
-    );
-
-
-    /* ========================================================
-       2. DESNO OKO
-       ======================================================== */
-
-    renderer.setRenderTarget(
-        rightTarget
-    );
-
-
-    renderer.setClearColor(
-        0x000000,
-        1
-    );
-
-
-    renderer.clear(
-        true,
-        true,
-        true
-    );
-
-
-    renderer.render(
-        world,
-        stereoCamera.cameraR
-    );
-
-
-    /* ========================================================
-       3. OBE SLIKI NA TELEFON
-       ======================================================== */
-
-    renderer.setRenderTarget(
-        null
-    );
-
-
-    renderer.setScissorTest(
-        false
-    );
-
-
-    renderer.setClearColor(
-        0x000000,
-        1
-    );
-
-
-    renderer.clear(
-        true,
-        true,
-        true
-    );
-
-
-    renderer.render(
-        cardboardOutputScene,
-        cardboardOutputCamera
-    );
 }
+
+
+(function popupLoop() {
+
+    positionPopup();
+
+    requestAnimationFrame(
+        popupLoop
+    );
+
+})();
+
+
+/* ============================================================
+   READER
+============================================================ */
+
+function openReader(id) {
+
+    const hotspot =
+        hotspots.find(
+            h => h.id === id
+        );
+
+
+    if(!hotspot)
+        return;
+
+
+    selectedHotspotId =
+        id;
+
+
+    readerTitle.textContent =
+        hotspot.title ||
+        "Brez naslova";
+
+
+    readerDescription.textContent =
+        hotspot.description ||
+        "Ni opisa.";
+
+
+    editor.style.display =
+        "none";
+
+
+    reader.style.display =
+        "block";
+
+
+    popup.style.display =
+        "block";
+
+}
+
+
+/* ============================================================
+   EDITOR
+============================================================ */
+
+function openEditor(id) {
+
+    const hotspot =
+        hotspots.find(
+            h => h.id === id
+        );
+
+
+    if(!hotspot)
+        return;
+
+
+    selectedHotspotId =
+        id;
+
+
+    titleInput.value =
+        hotspot.title || "";
+
+
+    descriptionInput.value =
+        hotspot.description || "";
+
+
+    reader.style.display =
+        "none";
+
+
+    editor.style.display =
+        "block";
+
+
+    popup.style.display =
+        "block";
+
+}
+
+
+function closePopup() {
+
+    popup.style.display =
+        "none";
+
+
+    selectedHotspotId =
+        null;
+
+}
+
+
+popupClose.addEventListener(
+    "click",
+    closePopup
+);
+
+
+editBtn.addEventListener(
+    "click",
+    () => {
+
+        if(selectedHotspotId) {
+
+            openEditor(
+                selectedHotspotId
+            );
+
+        }
+
+    }
+);
+
+
+saveBtn.addEventListener(
+    "click",
+    () => {
+
+        const hotspot =
+            hotspots.find(
+                h =>
+                    h.id ===
+                    selectedHotspotId
+            );
+
+
+        if(!hotspot)
+            return;
+
+
+        hotspot.title =
+            titleInput.value.trim();
+
+
+        hotspot.description =
+            descriptionInput.value.trim();
+
+
+        saveHotspots();
+
+
+        openReader(
+            hotspot.id
+        );
+
+    }
+);
+
+
+cancelBtn.addEventListener(
+    "click",
+    () => {
+
+        const hotspot =
+            hotspots.find(
+                h =>
+                    h.id ===
+                    selectedHotspotId
+            );
+
+
+        if(
+            hotspot &&
+            (
+                hotspot.title ||
+                hotspot.description
+            )
+        ) {
+
+            openReader(
+                hotspot.id
+            );
+
+        }
+        else {
+
+            closePopup();
+
+        }
+
+    }
+);
+
+
+deleteBtn.addEventListener(
+    "click",
+    () => {
+
+        if(!selectedHotspotId)
+            return;
+
+
+        hotspots =
+            hotspots.filter(
+                h =>
+                    h.id !==
+                    selectedHotspotId
+            );
+
+
+        saveHotspots();
+
+        closePopup();
+
+        renderHotspots();
+
+    }
+);
+
+
+/* ============================================================
+   NORMAL ZOOM
+============================================================ */
+
+function changeZoom(amount) {
+
+    const cam =
+        cameraEl.getObject3D(
+            "camera"
+        );
+
+
+    if(!cam)
+        return;
+
+
+    cam.fov =
+        THREE.MathUtils.clamp(
+            cam.fov + amount,
+            30,
+            100
+        );
+
+
+    cam.updateProjectionMatrix();
+
+}
+
+
+zoomInBtn.addEventListener(
+    "click",
+    () => changeZoom(-10)
+);
+
+
+zoomOutBtn.addEventListener(
+    "click",
+    () => changeZoom(10)
+);
+
+
+scene.addEventListener(
+    "wheel",
+    event => {
+
+        if(cardboardMode)
+            return;
+
+
+        event.preventDefault();
+
+
+        changeZoom(
+            event.deltaY > 0
+                ? 5
+                : -5
+        );
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* ============================================================
+   FULLSCREEN
+============================================================ */
+
+fullscreenBtn.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            if(
+                !document.fullscreenElement &&
+                document.documentElement.requestFullscreen
+            ) {
+
+                await document
+                    .documentElement
+                    .requestFullscreen();
+
+            }
+            else if(
+                document.fullscreenElement &&
+                document.exitFullscreen
+            ) {
+
+                await document
+                    .exitFullscreen();
+
+            }
+
+        }
+        catch(error) {}
+
+    }
+);
 
 
 /* ============================================================
    WAKE LOCK
-   ============================================================ */
+============================================================ */
 
 let wakeLock = null;
 
 
 async function requestWakeLock() {
 
-    if (!("wakeLock" in navigator)) {
+    if(
+        !("wakeLock" in navigator)
+    ) {
 
         console.log(
-            "Telefon ne podpira Wake Lock API."
+            "Wake Lock API ni na voljo."
         );
 
         return;
+
     }
 
 
     try {
 
-        if (
+        if(
             wakeLock &&
             !wakeLock.released
-        ) {
+        )
             return;
-        }
 
 
         wakeLock =
-            await navigator.wakeLock.request(
-                "screen"
-            );
+            await navigator
+                .wakeLock
+                .request("screen");
 
 
         console.log(
-            "Zaslon ostane prižgan."
+            "Wake Lock je aktiven."
         );
 
 
@@ -568,27 +2026,29 @@ async function requestWakeLock() {
             "release",
             () => {
 
-                wakeLock = null;
+                wakeLock =
+                    null;
 
             }
         );
 
     }
-    catch (error) {
+    catch(error) {
 
         console.log(
             "Wake Lock:",
             error
         );
+
     }
+
 }
 
 
 async function releaseWakeLock() {
 
-    if (!wakeLock) {
+    if(!wakeLock)
         return;
-    }
 
 
     try {
@@ -596,36 +2056,36 @@ async function releaseWakeLock() {
         await wakeLock.release();
 
     }
-    catch (error) {}
+    catch(error) {}
 
 
-    wakeLock = null;
+    wakeLock =
+        null;
+
 }
 
-
-/*
-   Če telefon za trenutek zapusti browser
-   in se vrne, ponovno zahtevamo Wake Lock.
-*/
 
 document.addEventListener(
     "visibilitychange",
     () => {
 
-        if (
+        if(
             cardboardMode &&
-            document.visibilityState === "visible"
+            document.visibilityState ===
+            "visible"
         ) {
 
             requestWakeLock();
+
         }
+
     }
 );
 
 
 /* ============================================================
-   GYROSCOPE
-   ============================================================ */
+   DEVICE ORIENTATION
+============================================================ */
 
 let deviceAlpha = 0;
 let deviceBeta = 0;
@@ -636,22 +2096,25 @@ let hasOrientation = false;
 
 function orientationHandler(event) {
 
-    if (event.alpha === null) {
+    if(event.alpha === null)
         return;
-    }
 
 
     deviceAlpha =
         event.alpha || 0;
 
+
     deviceBeta =
         event.beta || 0;
+
 
     deviceGamma =
         event.gamma || 0;
 
 
-    hasOrientation = true;
+    hasOrientation =
+        true;
+
 }
 
 
@@ -682,12 +2145,11 @@ const orientationQ1 =
 
 function updatePhoneOrientation(object) {
 
-    if (
+    if(
         !object ||
         !hasOrientation
-    ) {
+    )
         return;
-    }
 
 
     const alpha =
@@ -708,12 +2170,14 @@ function updatePhoneOrientation(object) {
         );
 
 
-    let orient = 0;
+    let orient =
+        0;
 
 
-    if (
+    if(
         screen.orientation &&
-        typeof screen.orientation.angle === "number"
+        typeof screen.orientation.angle ===
+        "number"
     ) {
 
         orient =
@@ -722,14 +2186,16 @@ function updatePhoneOrientation(object) {
             );
 
     }
-    else if (
-        typeof window.orientation === "number"
+    else if(
+        typeof window.orientation ===
+        "number"
     ) {
 
         orient =
             THREE.MathUtils.degToRad(
                 window.orientation
             );
+
     }
 
 
@@ -741,9 +2207,10 @@ function updatePhoneOrientation(object) {
     );
 
 
-    object.quaternion.setFromEuler(
-        orientationEuler
-    );
+    object.quaternion
+        .setFromEuler(
+            orientationEuler
+        );
 
 
     object.quaternion.multiply(
@@ -753,28 +2220,522 @@ function updatePhoneOrientation(object) {
 
     object.quaternion.multiply(
 
-        orientationQ0.setFromAxisAngle(
-            zee,
-            -orient
-        )
+        orientationQ0
+            .setFromAxisAngle(
+                zee,
+                -orient
+            )
 
     );
+
 }
 
 
 /* ============================================================
-   ENTER CARDBOARD
-   ============================================================ */
+   CARDBOARD VARIABLES
+============================================================ */
 
-async function enterCardboard() {
+let cardboardMode = false;
 
-    if (cardboardMode) {
+let renderer = null;
+
+let world = null;
+
+let vrCamera = null;
+
+let stereoCamera = null;
+
+let leftTarget = null;
+
+let rightTarget = null;
+
+let outputScene = null;
+
+let outputCamera = null;
+
+let leftEye = null;
+
+let rightEye = null;
+
+let cardboardAnimationId = null;
+
+let cardboardInfoGroup = null;
+
+let originalFov = 80;
+
+let originalAspect = 1;
+
+
+/* ============================================================
+   SHADER
+
+   ISTA UKRIVLJENA SLIKA,
+   SAMO ENKRAT LEVO IN ENKRAT DESNO.
+============================================================ */
+
+const eyeVertexShader = `
+
+varying vec2 vUv;
+
+void main() {
+
+    vUv = uv;
+
+    gl_Position =
+        vec4(
+            position.xy,
+            0.0,
+            1.0
+        );
+
+}
+
+`;
+
+
+const eyeFragmentShader = `
+
+precision highp float;
+
+uniform sampler2D eyeTexture;
+
+uniform float k1;
+uniform float k2;
+
+varying vec2 vUv;
+
+
+void main() {
+
+    vec2 p =
+        vUv * 2.0 - 1.0;
+
+
+    vec2 q =
+        p;
+
+
+    q.x *=
+        1.04;
+
+
+    float r2 =
+        dot(
+            q,
+            q
+        );
+
+
+    float factor =
+        1.0 +
+        k1 * r2 +
+        k2 * r2 * r2;
+
+
+    vec2 distorted =
+        q * factor;
+
+
+    distorted.x /=
+        1.04;
+
+
+    vec2 uv =
+        distorted * 0.5 +
+        0.5;
+
+
+    /*
+       Zunaj deformirane slike
+       ostane črna.
+    */
+
+    if(
+        uv.x < 0.0 ||
+        uv.x > 1.0 ||
+        uv.y < 0.0 ||
+        uv.y > 1.0
+    ) {
+
+        gl_FragColor =
+            vec4(
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            );
+
         return;
+
     }
 
 
-    cardboardMode = true;
+    gl_FragColor =
+        texture2D(
+            eyeTexture,
+            uv
+        );
 
+}
+
+`;
+
+
+/* ============================================================
+   CREATE TWO EYES
+============================================================ */
+
+function createCardboardOutput() {
+
+    const canvas =
+        renderer.domElement;
+
+
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+
+    const targetWidth =
+        Math.max(
+            640,
+            Math.floor(
+                canvas.clientWidth *
+                0.5 *
+                dpr
+            )
+        );
+
+
+    const targetHeight =
+        Math.max(
+            640,
+            Math.floor(
+                canvas.clientHeight *
+                dpr
+            )
+        );
+
+
+    leftTarget =
+        new THREE.WebGLRenderTarget(
+            targetWidth,
+            targetHeight,
+            {
+                minFilter:
+                    THREE.LinearFilter,
+
+                magFilter:
+                    THREE.LinearFilter,
+
+                format:
+                    THREE.RGBAFormat,
+
+                depthBuffer:
+                    true
+            }
+        );
+
+
+    rightTarget =
+        new THREE.WebGLRenderTarget(
+            targetWidth,
+            targetHeight,
+            {
+                minFilter:
+                    THREE.LinearFilter,
+
+                magFilter:
+                    THREE.LinearFilter,
+
+                format:
+                    THREE.RGBAFormat,
+
+                depthBuffer:
+                    true
+            }
+        );
+
+
+    outputScene =
+        new THREE.Scene();
+
+
+    outputCamera =
+        new THREE.Camera();
+
+
+    /*
+       LEVO OKO
+    */
+
+    const leftMaterial =
+        new THREE.ShaderMaterial({
+
+            uniforms: {
+
+                eyeTexture: {
+                    value:
+                        leftTarget.texture
+                },
+
+                k1: {
+                    value:
+                        CB.k1
+                },
+
+                k2: {
+                    value:
+                        CB.k2
+                }
+
+            },
+
+            vertexShader:
+                eyeVertexShader,
+
+            fragmentShader:
+                eyeFragmentShader,
+
+            depthTest:
+                false,
+
+            depthWrite:
+                false
+
+        });
+
+
+    leftEye =
+        new THREE.Mesh(
+
+            new THREE.PlaneGeometry(
+                CB.eyeWidth,
+                CB.eyeHeight
+            ),
+
+            leftMaterial
+
+        );
+
+
+    /*
+       -0.5 = sredina leve polovice.
+    */
+
+    leftEye.position.set(
+        -0.5,
+        0,
+        0
+    );
+
+
+    /*
+       DESNO OKO
+    */
+
+    const rightMaterial =
+        new THREE.ShaderMaterial({
+
+            uniforms: {
+
+                eyeTexture: {
+                    value:
+                        rightTarget.texture
+                },
+
+                k1: {
+                    value:
+                        CB.k1
+                },
+
+                k2: {
+                    value:
+                        CB.k2
+                }
+
+            },
+
+            vertexShader:
+                eyeVertexShader,
+
+            fragmentShader:
+                eyeFragmentShader,
+
+            depthTest:
+                false,
+
+            depthWrite:
+                false
+
+        });
+
+
+    rightEye =
+        new THREE.Mesh(
+
+            new THREE.PlaneGeometry(
+                CB.eyeWidth,
+                CB.eyeHeight
+            ),
+
+            rightMaterial
+
+        );
+
+
+    /*
+       +0.5 = sredina desne polovice.
+    */
+
+    rightEye.position.set(
+        0.5,
+        0,
+        0
+    );
+
+
+    outputScene.add(
+        leftEye
+    );
+
+
+    outputScene.add(
+        rightEye
+    );
+
+}
+
+
+/* ============================================================
+   CARDBOARD START
+============================================================ */
+
+cardboardBtn.addEventListener(
+    "click",
+    () => {
+
+        stopAddMode();
+
+        closePopup();
+
+
+        cardboardStart.style.display =
+            "flex";
+
+    }
+);
+
+
+cancelCardboardBtn.addEventListener(
+    "click",
+    () => {
+
+        cardboardStart.style.display =
+            "none";
+
+    }
+);
+
+
+startCardboardBtn.addEventListener(
+    "click",
+    async () => {
+
+        cardboardStart.style.display =
+            "none";
+
+
+        /*
+           iPhone/iPad
+        */
+
+        if(
+            typeof DeviceOrientationEvent !==
+                "undefined" &&
+
+            typeof DeviceOrientationEvent
+                .requestPermission ===
+                "function"
+        ) {
+
+            permissionPanel.style.display =
+                "flex";
+
+            return;
+
+        }
+
+
+        await enterCardboard();
+
+    }
+);
+
+
+permissionBtn.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            const result =
+                await DeviceOrientationEvent
+                    .requestPermission();
+
+
+            if(
+                result !==
+                "granted"
+            ) {
+
+                alert(
+                    "Senzorji niso dovoljeni."
+                );
+
+                return;
+
+            }
+
+
+            permissionPanel.style.display =
+                "none";
+
+
+            await enterCardboard();
+
+        }
+        catch(error) {
+
+            alert(
+                "Senzorjev ni bilo mogoče zagnati."
+            );
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   ENTER CARDBOARD
+============================================================ */
+
+async function enterCardboard() {
+
+    if(cardboardMode)
+        return;
+
+
+    cardboardMode =
+        true;
+
+
+    /*
+       Wake Lock.
+    */
 
     await requestWakeLock();
 
@@ -785,17 +2746,19 @@ async function enterCardboard() {
 
     try {
 
-        if (
+        if(
             !document.fullscreenElement &&
             document.documentElement.requestFullscreen
         ) {
 
-            await document.documentElement
+            await document
+                .documentElement
                 .requestFullscreen();
+
         }
 
     }
-    catch (error) {}
+    catch(error) {}
 
 
     /*
@@ -804,7 +2767,7 @@ async function enterCardboard() {
 
     try {
 
-        if (
+        if(
             screen.orientation &&
             screen.orientation.lock
         ) {
@@ -812,10 +2775,11 @@ async function enterCardboard() {
             await screen.orientation.lock(
                 "landscape"
             );
+
         }
 
     }
-    catch (error) {}
+    catch(error) {}
 
 
     window.addEventListener(
@@ -855,17 +2819,21 @@ async function enterCardboard() {
         );
 
 
-    if (
+    if(
         !renderer ||
         !world ||
         !vrCamera
     ) {
 
-        cardboardMode = false;
+        cardboardMode =
+            false;
+
 
         await releaseWakeLock();
 
+
         return;
+
     }
 
 
@@ -896,18 +2864,762 @@ async function enterCardboard() {
 
 
     cardboardLoop();
+
+}
+
+
+/* ============================================================
+   HOTSPOTS FACE VR CAMERA
+============================================================ */
+
+const vrCameraPosition =
+    new THREE.Vector3();
+
+
+function orientHotspotsToCamera() {
+
+    if(!vrCamera)
+        return;
+
+
+    vrCamera.getWorldPosition(
+        vrCameraPosition
+    );
+
+
+    document
+        .querySelectorAll(
+            "#hotspotContainer > a-entity"
+        )
+        .forEach(
+            entity => {
+
+                entity.object3D.lookAt(
+                    vrCameraPosition
+                );
+
+            }
+        );
+
+}
+
+
+/* ============================================================
+   CARDBOARD RENDER
+============================================================ */
+
+function renderCardboard() {
+
+    if(
+        !renderer ||
+        !vrCamera ||
+        !stereoCamera ||
+        !leftTarget ||
+        !rightTarget
+    )
+        return;
+
+
+    const canvas =
+        renderer.domElement;
+
+
+    const width =
+        Math.max(
+            canvas.clientWidth,
+            1
+        );
+
+
+    const height =
+        Math.max(
+            canvas.clientHeight,
+            1
+        );
+
+
+    /*
+       Kamera posameznega očesa.
+    */
+
+    vrCamera.aspect =
+        (width * 0.5) /
+        height;
+
+
+    vrCamera.fov =
+        CB.fov;
+
+
+    vrCamera.updateProjectionMatrix();
+
+
+    vrCamera.updateMatrixWorld(
+        true
+    );
+
+
+    stereoCamera.eyeSep =
+        CB.eyeSeparation;
+
+
+    stereoCamera.update(
+        vrCamera
+    );
+
+
+    /*
+       LEVO OKO
+    */
+
+    renderer.setRenderTarget(
+        leftTarget
+    );
+
+
+    renderer.setScissorTest(
+        false
+    );
+
+
+    renderer.setClearColor(
+        0x000000,
+        1
+    );
+
+
+    renderer.clear(
+        true,
+        true,
+        true
+    );
+
+
+    renderer.render(
+        world,
+        stereoCamera.cameraL
+    );
+
+
+    /*
+       DESNO OKO
+    */
+
+    renderer.setRenderTarget(
+        rightTarget
+    );
+
+
+    renderer.clear(
+        true,
+        true,
+        true
+    );
+
+
+    renderer.render(
+        world,
+        stereoCamera.cameraR
+    );
+
+
+    /*
+       ČRN ZASLON + OBE UKRIVLJENI SLIKI.
+    */
+
+    renderer.setRenderTarget(
+        null
+    );
+
+
+    renderer.setScissorTest(
+        false
+    );
+
+
+    renderer.setClearColor(
+        0x000000,
+        1
+    );
+
+
+    renderer.clear(
+        true,
+        true,
+        true
+    );
+
+
+    renderer.render(
+        outputScene,
+        outputCamera
+    );
+
+}
+
+
+/* ============================================================
+   GAZE
+============================================================ */
+
+const gazeRaycaster =
+    new THREE.Raycaster();
+
+
+const gazeCenter =
+    new THREE.Vector2(
+        0,
+        0
+    );
+
+
+const GAZE_TIME =
+    1200;
+
+
+let gazeTargetId = null;
+
+let gazeStartedAt = 0;
+
+let gazeActivated = false;
+
+
+function updateGaze() {
+
+    if(!vrCamera)
+        return;
+
+
+    gazeRaycaster.setFromCamera(
+        gazeCenter,
+        vrCamera
+    );
+
+
+    const targets =
+        [];
+
+
+    document
+        .querySelectorAll(
+            "#hotspotContainer > a-entity"
+        )
+        .forEach(
+            entity => {
+
+                entity.object3D.traverse(
+                    child => {
+
+                        if(child.isMesh) {
+
+                            child.userData.hotspotId =
+                                entity.dataset.id;
+
+
+                            targets.push(
+                                child
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+    const hits =
+        gazeRaycaster.intersectObjects(
+            targets,
+            false
+        );
+
+
+    const id =
+        hits.length
+            ? hits[0]
+                .object
+                .userData
+                .hotspotId
+            : null;
+
+
+    if(!id) {
+
+        resetGaze();
+
+        return;
+
+    }
+
+
+    if(
+        gazeTargetId !==
+        id
+    ) {
+
+        gazeTargetId =
+            id;
+
+
+        gazeStartedAt =
+            performance.now();
+
+
+        gazeActivated =
+            false;
+
+
+        gazeLeft.classList.remove(
+            "active"
+        );
+
+
+        gazeRight.classList.remove(
+            "active"
+        );
+
+
+        void gazeLeft.offsetWidth;
+
+
+        gazeLeft.classList.add(
+            "active"
+        );
+
+
+        gazeRight.classList.add(
+            "active"
+        );
+
+
+        return;
+
+    }
+
+
+    if(
+        !gazeActivated &&
+        performance.now() -
+        gazeStartedAt >=
+        GAZE_TIME
+    ) {
+
+        gazeActivated =
+            true;
+
+
+        const hotspot =
+            hotspots.find(
+                h =>
+                    h.id ===
+                    gazeTargetId
+            );
+
+
+        if(hotspot) {
+
+            showCardboardInfo(
+                hotspot
+            );
+
+        }
+
+    }
+
+}
+
+
+function resetGaze() {
+
+    gazeTargetId =
+        null;
+
+
+    gazeStartedAt =
+        0;
+
+
+    gazeActivated =
+        false;
+
+
+    gazeLeft.classList.remove(
+        "active"
+    );
+
+
+    gazeRight.classList.remove(
+        "active"
+    );
+
+}
+
+
+/* ============================================================
+   CARDBOARD INFO
+============================================================ */
+
+function showCardboardInfo(
+    hotspot
+) {
+
+    removeCardboardInfo();
+
+
+    const group =
+        new THREE.Group();
+
+
+    const panel =
+        new THREE.Mesh(
+
+            new THREE.PlaneGeometry(
+                2.7,
+                1.45
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                color:
+                    0xffffff,
+
+                transparent:
+                    true,
+
+                opacity:
+                    0.96,
+
+                side:
+                    THREE.DoubleSide
+
+            })
+
+        );
+
+
+    group.add(
+        panel
+    );
+
+
+    const textCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    textCanvas.width =
+        1024;
+
+
+    textCanvas.height =
+        512;
+
+
+    const ctx =
+        textCanvas.getContext(
+            "2d"
+        );
+
+
+    ctx.clearRect(
+        0,
+        0,
+        1024,
+        512
+    );
+
+
+    ctx.fillStyle =
+        "#111";
+
+
+    ctx.font =
+        "bold 54px Arial";
+
+
+    drawWrappedText(
+        ctx,
+        hotspot.title ||
+        "Brez naslova",
+        70,
+        95,
+        880,
+        64,
+        2
+    );
+
+
+    ctx.fillStyle =
+        "#333";
+
+
+    ctx.font =
+        "34px Arial";
+
+
+    drawWrappedText(
+        ctx,
+        hotspot.description ||
+        "Ni opisa.",
+        70,
+        225,
+        880,
+        48,
+        5
+    );
+
+
+    const texture =
+        new THREE.CanvasTexture(
+            textCanvas
+        );
+
+
+    const textPlane =
+        new THREE.Mesh(
+
+            new THREE.PlaneGeometry(
+                2.7,
+                1.4
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                map:
+                    texture,
+
+                transparent:
+                    true,
+
+                side:
+                    THREE.DoubleSide
+
+            })
+
+        );
+
+
+    textPlane.position.z =
+        0.01;
+
+
+    group.add(
+        textPlane
+    );
+
+
+    const cameraPosition =
+        new THREE.Vector3();
+
+
+    const direction =
+        new THREE.Vector3();
+
+
+    vrCamera.getWorldPosition(
+        cameraPosition
+    );
+
+
+    vrCamera.getWorldDirection(
+        direction
+    );
+
+
+    group.position.copy(
+
+        cameraPosition
+            .clone()
+            .add(
+
+                direction
+                    .clone()
+                    .multiplyScalar(
+                        2.8
+                    )
+
+            )
+
+    );
+
+
+    group.lookAt(
+        cameraPosition
+    );
+
+
+    world.add(
+        group
+    );
+
+
+    cardboardInfoGroup =
+        group;
+
+
+    resetGaze();
+
+}
+
+
+/* ============================================================
+   WRAPPED TEXT
+============================================================ */
+
+function drawWrappedText(
+    ctx,
+    text,
+    x,
+    y,
+    maxWidth,
+    lineHeight,
+    maxLines
+) {
+
+    const words =
+        String(text)
+            .split(/\s+/);
+
+
+    let line =
+        "";
+
+
+    let lineNumber =
+        0;
+
+
+    for(
+        let i = 0;
+        i < words.length;
+        i++
+    ) {
+
+        const test =
+            line +
+            words[i] +
+            " ";
+
+
+        if(
+            ctx.measureText(test).width >
+            maxWidth &&
+            line !== ""
+        ) {
+
+            ctx.fillText(
+                line,
+                x,
+                y +
+                lineNumber *
+                lineHeight
+            );
+
+
+            lineNumber++;
+
+
+            if(
+                lineNumber >=
+                maxLines
+            )
+                return;
+
+
+            line =
+                words[i] + " ";
+
+        }
+        else {
+
+            line =
+                test;
+
+        }
+
+    }
+
+
+    if(
+        lineNumber <
+        maxLines
+    ) {
+
+        ctx.fillText(
+            line,
+            x,
+            y +
+            lineNumber *
+            lineHeight
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   REMOVE INFO
+============================================================ */
+
+function removeCardboardInfo() {
+
+    if(
+        !cardboardInfoGroup ||
+        !world
+    )
+        return;
+
+
+    world.remove(
+        cardboardInfoGroup
+    );
+
+
+    cardboardInfoGroup.traverse(
+        child => {
+
+            if(child.geometry) {
+
+                child.geometry.dispose();
+
+            }
+
+
+            if(child.material) {
+
+                if(child.material.map) {
+
+                    child.material.map.dispose();
+
+                }
+
+
+                child.material.dispose();
+
+            }
+
+        }
+    );
+
+
+    cardboardInfoGroup =
+        null;
+
 }
 
 
 /* ============================================================
    CARDBOARD LOOP
-   ============================================================ */
+============================================================ */
 
 function cardboardLoop() {
 
-    if (!cardboardMode) {
+    if(!cardboardMode)
         return;
-    }
 
 
     cardboardAnimationId =
@@ -921,48 +3633,57 @@ function cardboardLoop() {
     );
 
 
-    vrCamera.updateMatrixWorld(
-        true
-    );
+    if(vrCamera) {
 
+        vrCamera.updateMatrixWorld(
+            true
+        );
 
-    /*
-       Te funkcije že imaš v celi kodi:
-       - orientHotspotsToCamera()
-       - updateGaze()
-    */
+    }
+
 
     orientHotspotsToCamera();
 
+
     updateGaze();
 
+
     renderCardboard();
+
 }
 
 
 /* ============================================================
-   EXIT
-   ============================================================ */
+   EXIT CARDBOARD
+============================================================ */
+
+exitCardboardBtn.addEventListener(
+    "click",
+    exitCardboard
+);
+
 
 async function exitCardboard() {
 
-    if (!cardboardMode) {
+    if(!cardboardMode)
         return;
-    }
 
 
-    cardboardMode = false;
+    cardboardMode =
+        false;
 
 
-    if (cardboardAnimationId) {
+    if(cardboardAnimationId) {
 
         cancelAnimationFrame(
             cardboardAnimationId
         );
+
     }
 
 
-    cardboardAnimationId = null;
+    cardboardAnimationId =
+        null;
 
 
     window.removeEventListener(
@@ -976,6 +3697,7 @@ async function exitCardboard() {
 
 
     removeCardboardInfo();
+
 
     resetGaze();
 
@@ -995,7 +3717,7 @@ async function exitCardboard() {
     );
 
 
-    if (vrCamera) {
+    if(vrCamera) {
 
         vrCamera.fov =
             originalFov;
@@ -1006,75 +3728,159 @@ async function exitCardboard() {
 
 
         vrCamera.updateProjectionMatrix();
+
     }
 
 
-    if (leftTarget) {
+    if(leftTarget) {
 
         leftTarget.dispose();
 
-        leftTarget = null;
+        leftTarget =
+            null;
+
     }
 
 
-    if (rightTarget) {
+    if(rightTarget) {
 
         rightTarget.dispose();
 
-        rightTarget = null;
+        rightTarget =
+            null;
+
     }
 
 
-    if (leftEye) {
+    if(leftEye) {
 
         leftEye.geometry.dispose();
 
         leftEye.material.dispose();
 
-        leftEye = null;
+        leftEye =
+            null;
+
     }
 
 
-    if (rightEye) {
+    if(rightEye) {
 
         rightEye.geometry.dispose();
 
         rightEye.material.dispose();
 
-        rightEye = null;
+        rightEye =
+            null;
+
     }
 
 
-    cardboardOutputScene = null;
-    cardboardOutputCamera = null;
+    outputScene =
+        null;
+
+
+    outputCamera =
+        null;
+
+
+    stereoCamera =
+        null;
+
+
+    if(renderer) {
+
+        renderer.setRenderTarget(
+            null
+        );
+
+
+        renderer.setScissorTest(
+            false
+        );
+
+    }
 
 
     try {
 
-        if (
+        if(
             screen.orientation &&
             screen.orientation.unlock
         ) {
 
             screen.orientation.unlock();
+
         }
 
     }
-    catch (error) {}
+    catch(error) {}
 
 
     try {
 
-        if (
+        if(
             document.fullscreenElement &&
             document.exitFullscreen
         ) {
 
-            await document.exitFullscreen();
+            await document
+                .exitFullscreen();
+
         }
 
     }
-    catch (error) {}
+    catch(error) {}
+
 }
 
+
+/* ============================================================
+   ESC
+============================================================ */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key !==
+            "Escape"
+        )
+            return;
+
+
+        if(cardboardMode) {
+
+            exitCardboard();
+
+            return;
+
+        }
+
+
+        closePopup();
+
+        stopAddMode();
+
+    }
+);
+
+
+/* ============================================================
+   LOAD
+============================================================ */
+
+scene.addEventListener(
+    "loaded",
+    () => {
+
+        renderHotspots();
+
+    }
+);
+
 </script>
+
+</body>
+</html>
