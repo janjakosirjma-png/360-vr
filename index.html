@@ -410,6 +410,48 @@ textarea:focus-visible{
     flex-wrap:wrap;
   }
 }
+
+
+/* =========================================================
+   TOUR MAP
+========================================================= */
+#mapBtn{background:#0f766e;}
+#locationBadge{
+  display:flex;align-items:center;min-height:42px;padding:0 12px;border-radius:9px;
+  background:#fff;color:#111;font-size:13px;font-weight:800;white-space:nowrap;
+}
+#mapOverlay{
+  position:fixed;inset:0;z-index:19000;display:flex;align-items:center;justify-content:center;
+  padding:18px;background:radial-gradient(circle at 50% 20%,rgba(18,68,92,.96),rgba(4,14,24,.98));
+  color:#fff;overflow:auto;touch-action:manipulation;
+}
+#mapPanel{
+  position:relative;width:min(980px,96vw);height:min(690px,92vh);min-height:560px;
+  border:1px solid rgba(255,255,255,.22);border-radius:28px;overflow:hidden;
+  background:linear-gradient(145deg,rgba(15,118,110,.22),rgba(30,58,95,.3)),#071521;
+  box-shadow:0 28px 90px rgba(0,0,0,.55);
+}
+#mapPanel:before{
+  content:"";position:absolute;inset:0;opacity:.23;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);
+  background-size:34px 34px;
+}
+#mapHeader{position:absolute;z-index:4;left:28px;right:28px;top:22px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;}
+#mapHeader h1{margin:0 0 5px;font-size:clamp(25px,4vw,42px);letter-spacing:.04em;}
+#mapHeader p{margin:0;color:#c7e7ef;font-size:14px;line-height:1.4;}
+#mapClose{background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);flex:0 0 auto;}
+#tourMap{position:absolute;inset:105px 22px 24px;}
+.map-route{position:absolute;height:8px;background:linear-gradient(90deg,#67e8f9,#facc15);border-radius:99px;transform-origin:left center;opacity:.75;box-shadow:0 0 18px rgba(103,232,249,.35);}
+.map-zone{position:absolute;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.055);border-radius:28px;transform:rotate(-4deg);}
+.map-zone.z1{left:5%;top:10%;width:34%;height:34%;}.map-zone.z2{right:4%;top:7%;width:35%;height:32%;transform:rotate(5deg)}
+.map-zone.z3{left:22%;bottom:4%;width:54%;height:35%;transform:rotate(2deg)}
+.map-point{position:absolute;z-index:3;transform:translate(-50%,-50%);min-width:126px;min-height:70px;padding:10px 14px;border-radius:18px;background:#fff;color:#10243e;border:4px solid #67e8f9;box-shadow:0 10px 30px rgba(0,0,0,.35);text-align:center;}
+.map-point:hover,.map-point:focus-visible{transform:translate(-50%,-50%) scale(1.06);}
+.map-point .pin{display:block;font-size:24px;line-height:1}.map-point .name{display:block;margin-top:4px;font-size:14px;font-weight:900;letter-spacing:.04em}.map-point .sub{display:block;margin-top:2px;font-size:10px;color:#52657a;font-weight:700}
+.map-point.active{border-color:#facc15;background:#fff7c2;}
+#mapLegend{position:absolute;z-index:4;right:25px;bottom:18px;padding:9px 12px;border-radius:12px;background:rgba(0,0,0,.45);font-size:12px;color:#dff7ff;}
+@media(max-width:650px){#mapPanel{min-height:610px;height:94vh}#tourMap{inset:125px 8px 18px}.map-point{min-width:92px;min-height:62px;padding:8px;font-size:12px}.map-point .name{font-size:11px}#mapLegend{display:none}#locationBadge{display:none}}
+
 </style>
 </head>
 
@@ -649,6 +691,9 @@ textarea:focus-visible{
 
 <div id="toolbar">
 
+  <button id="mapBtn">🗺 ZEMLJEVID</button>
+  <div id="locationBadge" aria-live="polite">📍 JANJA</div>
+
   <button id="addBtn">
     + Dodaj hotspot
   </button>
@@ -673,6 +718,31 @@ textarea:focus-visible{
 
 <div id="hint">
   Tapni točno mesto v panorami
+</div>
+
+<!-- =======================================================
+     TOUR MAP - 5 TOČK
+======================================================== -->
+<div id="mapOverlay" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+  <div id="mapPanel">
+    <div id="mapHeader">
+      <div><h1 id="mapTitle">🗺 360° ZEMLJEVID</h1><p>Izberi točko. Za zdaj vseh pet uporablja isto panoramo <strong>360.jpg</strong>.</p></div>
+      <button id="mapClose" type="button" aria-label="Zapri zemljevid">×</button>
+    </div>
+    <div id="tourMap">
+      <div class="map-zone z1"></div><div class="map-zone z2"></div><div class="map-zone z3"></div>
+      <div class="map-route" style="left:18%;top:24%;width:29%;transform:rotate(13deg)"></div>
+      <div class="map-route" style="left:45%;top:31%;width:30%;transform:rotate(-17deg)"></div>
+      <div class="map-route" style="left:30%;top:62%;width:28%;transform:rotate(-12deg)"></div>
+      <div class="map-route" style="left:56%;top:56%;width:25%;transform:rotate(22deg)"></div>
+      <button class="map-point" data-point-id="janja" style="left:16%;top:22%"><span class="pin">📍</span><span class="name">JANJA</span><span class="sub">360° TOČKA 1</span></button>
+      <button class="map-point" data-point-id="alenka" style="left:46%;top:31%"><span class="pin">📍</span><span class="name">ALENKA</span><span class="sub">360° TOČKA 2</span></button>
+      <button class="map-point" data-point-id="tocka3" style="left:77%;top:20%"><span class="pin">📍</span><span class="name">TOČKA 3</span><span class="sub">360° PANORAMA</span></button>
+      <button class="map-point" data-point-id="tocka4" style="left:29%;top:67%"><span class="pin">📍</span><span class="name">TOČKA 4</span><span class="sub">360° PANORAMA</span></button>
+      <button class="map-point" data-point-id="tocka5" style="left:73%;top:70%"><span class="pin">📍</span><span class="name">TOČKA 5</span><span class="sub">360° PANORAMA</span></button>
+      <div id="mapLegend">Vsaka točka ima svoje ločene hotspote.</div>
+    </div>
+  </div>
 </div>
 
 <!-- =======================================================
@@ -964,6 +1034,13 @@ const vrBtn =
 const hint =
   $("hint");
 
+const mapBtn = $("mapBtn");
+const locationBadge = $("locationBadge");
+const mapOverlay = $("mapOverlay");
+const mapClose = $("mapClose");
+const sky = $("sky");
+const panoramaImage = $("panoramaImage");
+
 
 const popup =
   $("popup");
@@ -1048,50 +1125,71 @@ vrInfo.setAttribute(
 const STORAGE_KEY =
   "stable-360-hotspots-v5";
 
+/* Pet ločenih lokacij. Za zdaj vse uporabljajo isto sliko.
+   Kasneje spremeni samo panorama, npr. "alenka.jpg". */
+const TOUR_POINTS = [
+  {id:"janja",  name:"JANJA",   panorama:"360.jpg"},
+  {id:"alenka", name:"ALENKA", panorama:"360.jpg"},
+  {id:"tocka3", name:"TOČKA 3",panorama:"360.jpg"},
+  {id:"tocka4", name:"TOČKA 4",panorama:"360.jpg"},
+  {id:"tocka5", name:"TOČKA 5",panorama:"360.jpg"}
+];
 
-let hotspots =
-  [];
+let currentPointId = localStorage.getItem("stable-360-current-point") || "janja";
+let hotspots = [];
 
+function pointStorageKey(id){ return STORAGE_KEY + "-point-" + id; }
+function currentPoint(){ return TOUR_POINTS.find(p=>p.id===currentPointId) || TOUR_POINTS[0]; }
 
-try{
-
-  hotspots =
-    JSON.parse(
-      localStorage.getItem(
-        STORAGE_KEY
-      )
-    ) || [];
-
+function loadHotspotsForPoint(id){
+  let loaded = [];
+  try{
+    const raw = localStorage.getItem(pointStorageKey(id));
+    if(raw){ loaded = JSON.parse(raw) || []; }
+    else if(id === "janja"){
+      /* Migracija: obstoječi hotspoti iz zadnje delujoče verzije ostanejo pri JANJI. */
+      loaded = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      localStorage.setItem(pointStorageKey(id), JSON.stringify(loaded));
+    }
+  }catch(e){ loaded = []; }
+  hotspots = loaded;
 }
-catch(e){
-
-  hotspots =
-    [];
-
-}
-
 
 function saveHotspots(){
-
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(
-      hotspots
-    )
-  );
-
+  localStorage.setItem(pointStorageKey(currentPointId), JSON.stringify(hotspots));
+  /* Janja ostaja kompatibilna s starim ključem. */
+  if(currentPointId === "janja") localStorage.setItem(STORAGE_KEY, JSON.stringify(hotspots));
 }
 
+function getHotspot(id){ return hotspots.find(hotspot=>hotspot.id===id); }
 
-function getHotspot(id){
-
-  return hotspots.find(
-    hotspot =>
-      hotspot.id === id
-  );
-
+function updateMapActiveState(){
+  document.querySelectorAll(".map-point").forEach(btn=>btn.classList.toggle("active",btn.dataset.pointId===currentPointId));
 }
 
+function showMap(){
+  if(scene.is("vr-mode")) return;
+  closePopup(); stopAddMode(); updateMapActiveState();
+  mapOverlay.style.display = "flex";
+}
+
+function hideMap(){ mapOverlay.style.display = "none"; }
+
+function switchTourPoint(id){
+  const point = TOUR_POINTS.find(p=>p.id===id);
+  if(!point) return;
+  closePopup(); stopAddMode(); hideVRInfo();
+  currentPointId = point.id;
+  localStorage.setItem("stable-360-current-point", currentPointId);
+  loadHotspotsForPoint(currentPointId);
+  panoramaImage.setAttribute("src", point.panorama);
+  sky.setAttribute("src", point.panorama);
+  locationBadge.textContent = "📍 " + point.name;
+  renderHotspots(); updateMapActiveState(); hideMap();
+  announceToScreenReader("Odprta lokacija " + point.name);
+}
+
+loadHotspotsForPoint(currentPointId);
 
 /* =========================================================
    SPHERICAL COORDINATES
@@ -2351,6 +2449,8 @@ document.addEventListener(
   "keydown",
   event=>{
 
+    if(event.key === "Escape" && mapOverlay.style.display !== "none"){ hideMap(); return; }
+
     if(
       event.key === "Escape" &&
       popup.style.display !== "none"
@@ -3116,6 +3216,16 @@ function installPointerControls(){
 
 
 /* =========================================================
+   MAP EVENTS
+========================================================= */
+mapBtn.addEventListener("click", showMap);
+mapClose.addEventListener("click", hideMap);
+mapOverlay.addEventListener("click", event=>{ if(event.target===mapOverlay) hideMap(); });
+document.querySelectorAll(".map-point").forEach(button=>{
+  button.addEventListener("click", ()=>switchTourPoint(button.dataset.pointId));
+});
+
+/* =========================================================
    ZOOM
 ========================================================= */
 
@@ -3591,6 +3701,8 @@ async function releaseWakeLock(){
 vrBtn.onclick =
   ()=>{
 
+    hideMap();
+
     stopDictation();
 
     stopSpeaking();
@@ -3920,6 +4032,12 @@ document.addEventListener(
 scene.addEventListener(
   "loaded",
   ()=>{
+
+    const point = currentPoint();
+    panoramaImage.setAttribute("src", point.panorama);
+    sky.setAttribute("src", point.panorama);
+    locationBadge.textContent = "📍 " + point.name;
+    updateMapActiveState();
 
     renderHotspots();
 
