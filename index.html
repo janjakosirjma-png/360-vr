@@ -3,236 +3,265 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slika 260 – Hotspoti</title>
+
+  <title>360° Hotspot aplikacija</title>
+
+  <script src="https://www.marzipano.net/demos/common/marzipano.js"></script>
 
   <style>
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
+      width: 100%;
+      height: 100%;
       font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      color: #222;
+      overflow: hidden;
     }
 
-    header {
-      padding: 16px 24px;
-      background: white;
-      border-bottom: 1px solid #ddd;
+    /* ==============================
+       360 VIEWER
+    ============================== */
+
+    #pano {
+      position: absolute;
+      inset: 0;
+      background: #111;
     }
 
-    header h1 {
-      margin: 0 0 5px;
-      font-size: 22px;
-    }
+    /* ==============================
+       ZGORNJI UI
+    ============================== */
 
-    header p {
-      margin: 0;
-      color: #666;
-    }
+    #topbar {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
 
-    .toolbar {
-      padding: 12px 24px;
-      background: white;
       display: flex;
       gap: 10px;
-      align-items: center;
+
+      padding: 10px;
+
+      background: rgba(255,255,255,.95);
+      border-radius: 12px;
+
+      box-shadow: 0 4px 20px rgba(0,0,0,.25);
     }
 
     button {
       border: 0;
-      border-radius: 7px;
-      padding: 9px 14px;
-      cursor: pointer;
+      border-radius: 8px;
+      padding: 10px 16px;
+
       font-size: 14px;
+      font-weight: 600;
+
+      cursor: pointer;
     }
 
-    #addModeBtn {
+    #addBtn {
       background: #2563eb;
       color: white;
     }
 
-    #addModeBtn.active {
+    #addBtn.active {
       background: #16a34a;
     }
 
-    .workspace {
-      padding: 25px;
-      display: flex;
-      justify-content: center;
-    }
-
-    #imageContainer {
-      position: relative;
-      display: inline-block;
-      max-width: 100%;
-    }
-
-    #mainImage {
-      display: block;
-      max-width: 100%;
-      height: auto;
-      user-select: none;
-    }
-
-    /* -------------------------
+    /* ==============================
        HOTSPOT
-    -------------------------- */
+    ============================== */
 
     .hotspot {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-
-      transform: translate(-50%, -50%);
+      width: 34px;
+      height: 34px;
 
       border-radius: 50%;
+
       background: #ef4444;
 
       border: 3px solid white;
 
       box-shadow:
-        0 2px 8px rgba(0,0,0,.35),
-        0 0 0 2px rgba(239,68,68,.25);
-
-      cursor: pointer;
-      z-index: 5;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
+        0 3px 10px rgba(0,0,0,.4),
+        0 0 0 4px rgba(239,68,68,.25);
 
       color: white;
-      font-size: 12px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      font-size: 13px;
       font-weight: bold;
 
-      transition: transform .15s;
+      cursor: pointer;
+
+      transition:
+        transform .15s ease,
+        background .15s ease;
     }
 
     .hotspot:hover {
-      transform: translate(-50%, -50%) scale(1.15);
+      transform: scale(1.18);
+      background: #dc2626;
     }
 
-    /* -------------------------
+    /* ==============================
        POPUP
-    -------------------------- */
+    ============================== */
 
-    #popup {
+    .popup {
       position: absolute;
-      display: none;
 
-      width: 280px;
+      left: 45px;
+      top: 50%;
+
+      transform: translateY(-50%);
+
+      width: 290px;
 
       background: white;
 
       border-radius: 12px;
 
-      padding: 16px;
+      padding: 18px;
 
       box-shadow:
-        0 10px 35px rgba(0,0,0,.25);
+        0 8px 35px rgba(0,0,0,.35);
 
-      z-index: 50;
+      color: #222;
+
+      cursor: default;
+
+      z-index: 100;
     }
 
-    #popupTitle {
-      font-size: 15px;
-      font-weight: bold;
-      margin-bottom: 10px;
+    /* če je hotspot na desni strani,
+       lahko JS popup obrne na levo */
+
+    .popup.left {
+      left: auto;
+      right: 45px;
     }
 
-    /* -------------------------
-       BRALNI POGLED
-    -------------------------- */
-
-    #viewMode {
-      display: none;
+    .popup h3 {
+      margin: 0 35px 10px 0;
+      font-size: 17px;
     }
 
-    #viewDescription {
-      font-size: 14px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-
-      padding: 10px 0 14px 0;
-    }
-
-    #editBtn {
-      background: #2563eb;
-      color: white;
-      width: 100%;
-    }
-
-    /* -------------------------
-       UREJANJE
-    -------------------------- */
-
-    #editMode {
-      display: none;
-    }
-
-    #description {
-      width: 100%;
-      min-height: 110px;
-
-      resize: vertical;
-
-      padding: 10px;
-
-      margin: 5px 0 12px 0;
-
-      border: 1px solid #ccc;
-      border-radius: 7px;
-
-      font-family: inherit;
-      font-size: 14px;
-    }
-
-    .popupButtons {
-      display: flex;
-      gap: 7px;
-    }
-
-    #saveBtn {
-      background: #16a34a;
-      color: white;
-      flex: 1;
-    }
-
-    #deleteBtn {
-      background: #dc2626;
-      color: white;
-    }
-
-    #cancelBtn {
-      background: #e5e7eb;
-    }
-
-    #closeBtn {
+    .closeBtn {
       position: absolute;
 
-      right: 8px;
       top: 8px;
+      right: 8px;
 
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
 
       padding: 0;
 
       border-radius: 50%;
 
-      background: #f3f4f6;
-      color: #555;
+      background: #f1f1f1;
 
-      font-size: 18px;
+      color: #444;
+
+      font-size: 20px;
     }
 
-    .hint {
-      padding: 8px 24px;
-      font-size: 13px;
-      color: #666;
+    /* ==============================
+       BRALNI POGLED
+    ============================== */
+
+    .readerText {
+      margin: 10px 0 15px;
+
+      line-height: 1.5;
+      font-size: 14px;
+
+      white-space: pre-wrap;
+    }
+
+    .editBtn {
+      width: 100%;
+
+      background: #2563eb;
+      color: white;
+    }
+
+    /* ==============================
+       EDITOR
+    ============================== */
+
+    .editor textarea {
+      width: 100%;
+      min-height: 120px;
+
+      resize: vertical;
+
+      padding: 10px;
+
+      margin: 5px 0 12px;
+
+      border: 1px solid #ccc;
+      border-radius: 8px;
+
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .editorButtons {
+      display: flex;
+      gap: 7px;
+    }
+
+    .saveBtn {
+      flex: 1;
+
+      background: #16a34a;
+      color: white;
+    }
+
+    .deleteBtn {
+      background: #dc2626;
+      color: white;
+    }
+
+    .cancelBtn {
+      background: #e5e7eb;
+      color: #222;
+    }
+
+    /* ==============================
+       NAVODILO
+    ============================== */
+
+    #message {
+      position: fixed;
+
+      bottom: 20px;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      z-index: 1000;
+
+      padding: 10px 18px;
+
+      background: rgba(0,0,0,.75);
+      color: white;
+
+      border-radius: 20px;
+
+      font-size: 14px;
+
+      display: none;
     }
 
   </style>
@@ -240,738 +269,748 @@
 
 <body>
 
-<header>
-  <h1>Slika 260</h1>
-  <p>Interaktivna slika z opisnimi točkami</p>
-</header>
+<div id="pano"></div>
 
 
-<div class="toolbar">
+<div id="topbar">
 
-  <button id="addModeBtn">
+  <button id="addBtn">
     + Dodaj hotspot
   </button>
 
 </div>
 
 
-<div class="hint">
-  Klikni »Dodaj hotspot«, nato klikni na želeno mesto na sliki.
-</div>
-
-
-<div class="workspace">
-
-  <div id="imageContainer">
-
-    <img
-      id="mainImage"
-      src="slika260.jpg"
-      alt="Slika 260"
-    >
-
-
-    <!-- POPUP -->
-
-    <div id="popup">
-
-      <button id="closeBtn">×</button>
-
-      <div id="popupTitle">
-        Hotspot
-      </div>
-
-
-      <!-- BRALNI POGLED -->
-
-      <div id="viewMode">
-
-        <div id="viewDescription"></div>
-
-        <button id="editBtn">
-          Uredi
-        </button>
-
-      </div>
-
-
-      <!-- UREJANJE -->
-
-      <div id="editMode">
-
-        <textarea
-          id="description"
-          placeholder="Vpiši opis..."
-        ></textarea>
-
-        <div class="popupButtons">
-
-          <button id="saveBtn">
-            Shrani
-          </button>
-
-          <button id="deleteBtn">
-            Izbriši
-          </button>
-
-          <button id="cancelBtn">
-            Prekliči
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
+<div id="message">
+  Obrni 360° sliko na želeno mesto in klikni nanjo.
 </div>
 
 
 <script>
 
-const container =
-  document.getElementById("imageContainer");
+/* =========================================================
+   NASTAVITEV 360° SLIKE
 
-const image =
-  document.getElementById("mainImage");
+   Če je datoteka v isti mapi kot index.html:
+   panorama.jpg
 
-const addModeBtn =
-  document.getElementById("addModeBtn");
+   Če imaš drugo ime, spremeni SAMO spodnjo vrstico.
+========================================================= */
 
-const popup =
-  document.getElementById("popup");
-
-const popupTitle =
-  document.getElementById("popupTitle");
-
-const viewMode =
-  document.getElementById("viewMode");
-
-const editMode =
-  document.getElementById("editMode");
-
-const viewDescription =
-  document.getElementById("viewDescription");
-
-const description =
-  document.getElementById("description");
-
-const editBtn =
-  document.getElementById("editBtn");
-
-const saveBtn =
-  document.getElementById("saveBtn");
-
-const deleteBtn =
-  document.getElementById("deleteBtn");
-
-const cancelBtn =
-  document.getElementById("cancelBtn");
-
-const closeBtn =
-  document.getElementById("closeBtn");
+const IMAGE = "panorama.jpg";
 
 
-let addMode = false;
-let selectedHotspotId = null;
+/* =========================================================
+   MARZIPANO
+========================================================= */
+
+const panoElement =
+  document.getElementById("pano");
 
 
-/* =========================
+const viewer =
+  new Marzipano.Viewer(panoElement);
+
+
+/*
+  Equirectangular 360° slika.
+*/
+
+const source =
+  Marzipano.ImageUrlSource.fromString(IMAGE);
+
+
+const geometry =
+  new Marzipano.EquirectGeometry([
+    {
+      width: 4000
+    }
+  ]);
+
+
+const limiter =
+  Marzipano.RectilinearView.limit.traditional(
+    4096,
+    100 * Math.PI / 180
+  );
+
+
+const view =
+  new Marzipano.RectilinearView(
+    {
+      yaw: 0,
+      pitch: 0,
+      fov: Math.PI / 2
+    },
+    limiter
+  );
+
+
+const scene =
+  viewer.createScene({
+    source: source,
+    geometry: geometry,
+    view: view,
+    pinFirstLevel: true
+  });
+
+
+scene.switchTo();
+
+
+/* =========================================================
    PODATKI
-========================= */
+========================================================= */
 
 let hotspots =
   JSON.parse(
-    localStorage.getItem("slika260-hotspots")
+    localStorage.getItem("360-hotspots")
   ) || [];
 
 
-function saveHotspots() {
+let addMode = false;
+
+let hotspotElements = [];
+
+
+const addBtn =
+  document.getElementById("addBtn");
+
+
+const message =
+  document.getElementById("message");
+
+
+function saveData() {
 
   localStorage.setItem(
-    "slika260-hotspots",
+    "360-hotspots",
     JSON.stringify(hotspots)
   );
 
 }
 
 
-/* =========================
-   DODAJANJE
-========================= */
+/* =========================================================
+   DODAJ HOTSPOT
+========================================================= */
 
-addModeBtn.addEventListener("click", () => {
+addBtn.addEventListener("click", () => {
 
   addMode = !addMode;
-
-  popup.style.display = "none";
 
 
   if (addMode) {
 
-    addModeBtn.textContent =
-      "Klikni na sliko...";
+    addBtn.classList.add("active");
 
-    addModeBtn.classList.add("active");
+    addBtn.textContent =
+      "Klikni na 360° sliko";
+
+    message.style.display =
+      "block";
 
   }
 
   else {
 
-    addModeBtn.textContent =
-      "+ Dodaj hotspot";
-
-    addModeBtn.classList.remove("active");
+    stopAddMode();
 
   }
 
 });
 
 
-/* =========================
-   KLIK NA SLIKO
-========================= */
-
-image.addEventListener("click", event => {
-
-  if (!addMode)
-    return;
-
-
-  const rect =
-    image.getBoundingClientRect();
-
-
-  const x =
-    ((event.clientX - rect.left)
-    / rect.width) * 100;
-
-
-  const y =
-    ((event.clientY - rect.top)
-    / rect.height) * 100;
-
-
-  const hotspot = {
-
-    id: Date.now(),
-
-    x: x,
-    y: y,
-
-    description: ""
-
-  };
-
-
-  hotspots.push(hotspot);
-
-  saveHotspots();
-
-  renderHotspots();
-
+function stopAddMode() {
 
   addMode = false;
 
-  addModeBtn.textContent =
+  addBtn.classList.remove("active");
+
+  addBtn.textContent =
     "+ Dodaj hotspot";
 
-  addModeBtn.classList.remove("active");
+  message.style.display =
+    "none";
+
+}
 
 
-  /* nov hotspot se takoj ureja */
+/* =========================================================
+   KLIK NA PANORAMO
+========================================================= */
 
-  openPopup(hotspot, true);
+panoElement.addEventListener(
+  "click",
+  function(event) {
 
-});
-
-
-/* =========================
-   PRIKAZ HOTSPOTOV
-========================= */
-
-function renderHotspots() {
-
-  document
-    .querySelectorAll(".hotspot")
-    .forEach(el => el.remove());
+    if (!addMode)
+      return;
 
 
-  hotspots.forEach((hotspot, index) => {
+    /*
+      Če kliknemo gumb ali hotspot,
+      ne dodajamo nove točke.
+    */
 
-    const el =
-      document.createElement("div");
-
-
-    el.className = "hotspot";
-
-    el.style.left =
-      hotspot.x + "%";
-
-    el.style.top =
-      hotspot.y + "%";
+    if (
+      event.target.closest(".hotspot") ||
+      event.target.closest("#topbar")
+    ) {
+      return;
+    }
 
 
-    el.textContent =
-      index + 1;
+    const rect =
+      panoElement.getBoundingClientRect();
 
 
-    el.addEventListener(
-      "click",
-      event => {
+    /*
+      Pretvorimo klik na zaslonu
+      v yaw + pitch 360° panorame.
+    */
 
-        event.stopPropagation();
+    const coordinates =
+      view.screenToCoordinates({
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      });
 
-        /*
-        Obstoječ hotspot se odpre
-        v BRALNEM načinu.
-        */
 
-        openPopup(
-          hotspot,
-          false
-        );
+    if (!coordinates)
+      return;
 
+
+    const hotspot = {
+
+      id:
+        Date.now(),
+
+      yaw:
+        coordinates.yaw,
+
+      pitch:
+        coordinates.pitch,
+
+      description:
+        ""
+
+    };
+
+
+    hotspots.push(hotspot);
+
+    saveData();
+
+
+    const element =
+      createHotspot(
+        hotspot,
+        hotspots.length
+      );
+
+
+    stopAddMode();
+
+
+    /*
+      Nov hotspot se takoj
+      odpre v načinu urejanja.
+    */
+
+    openEditor(
+      element,
+      hotspot
+    );
+
+  }
+);
+
+
+/* =========================================================
+   USTVARJANJE HOTSPOTA
+========================================================= */
+
+function createHotspot(
+  hotspot,
+  number
+) {
+
+  const element =
+    document.createElement("div");
+
+
+  element.className =
+    "hotspot";
+
+
+  element.textContent =
+    number;
+
+
+  /*
+    Klik na obstoječi hotspot:
+    BRALNI POGLED.
+  */
+
+  element.addEventListener(
+    "click",
+    function(event) {
+
+      event.stopPropagation();
+
+
+      /*
+        Če smo kliknili nekaj
+        znotraj popupa, tukaj končamo.
+      */
+
+      if (
+        event.target.closest(".popup")
+      ) {
+        return;
+      }
+
+
+      closeAllPopups();
+
+
+      openReader(
+        element,
+        hotspot
+      );
+
+    }
+  );
+
+
+  scene.hotspotContainer()
+    .createHotspot(
+      element,
+      {
+        yaw: hotspot.yaw,
+        pitch: hotspot.pitch
       }
     );
 
 
-    container.appendChild(el);
-
+  hotspotElements.push({
+    hotspot,
+    element
   });
+
+
+  return element;
 
 }
 
 
-/* =========================
-   POPUP
-========================= */
+/* =========================================================
+   BRALNI POGLED
+========================================================= */
 
-function openPopup(
-  hotspot,
-  startEditing = false
+function openReader(
+  element,
+  hotspot
 ) {
 
-  selectedHotspotId =
-    hotspot.id;
+  closeAllPopups();
 
 
-  description.value =
-    hotspot.description || "";
+  const popup =
+    document.createElement("div");
 
 
-  viewDescription.textContent =
+  popup.className =
+    "popup";
+
+
+  /*
+    Popup lahko obrnemo na levo,
+    če je hotspot na desni polovici.
+  */
+
+  setPopupSide(
+    popup,
+    hotspot
+  );
+
+
+  const title =
+    document.createElement("h3");
+
+  title.textContent =
+    "Opis";
+
+
+  const close =
+    document.createElement("button");
+
+  close.className =
+    "closeBtn";
+
+  close.textContent =
+    "×";
+
+
+  const text =
+    document.createElement("div");
+
+  text.className =
+    "readerText";
+
+
+  text.textContent =
     hotspot.description ||
     "Ta hotspot še nima opisa.";
 
 
-  popupTitle.textContent =
-    "Hotspot";
+  const edit =
+    document.createElement("button");
+
+  edit.className =
+    "editBtn";
+
+  edit.textContent =
+    "Uredi";
 
 
-  popup.style.display =
-    "block";
+  close.onclick =
+    function(event) {
 
+      event.stopPropagation();
+
+      popup.remove();
+
+    };
+
+
+  edit.onclick =
+    function(event) {
+
+      event.stopPropagation();
+
+      popup.remove();
+
+      openEditor(
+        element,
+        hotspot
+      );
+
+    };
+
+
+  popup.appendChild(title);
+
+  popup.appendChild(close);
+
+  popup.appendChild(text);
+
+  popup.appendChild(edit);
+
+
+  element.appendChild(popup);
+
+}
+
+
+/* =========================================================
+   EDITOR
+========================================================= */
+
+function openEditor(
+  element,
+  hotspot
+) {
+
+  closeAllPopups();
+
+
+  const popup =
+    document.createElement("div");
+
+
+  popup.className =
+    "popup";
+
+
+  setPopupSide(
+    popup,
+    hotspot
+  );
+
+
+  const title =
+    document.createElement("h3");
+
+  title.textContent =
+    "Uredi hotspot";
+
+
+  const close =
+    document.createElement("button");
+
+  close.className =
+    "closeBtn";
+
+  close.textContent =
+    "×";
+
+
+  const editor =
+    document.createElement("div");
+
+  editor.className =
+    "editor";
+
+
+  const textarea =
+    document.createElement("textarea");
+
+
+  textarea.placeholder =
+    "Vpiši opis...";
+
+
+  textarea.value =
+    hotspot.description || "";
+
+
+  const buttons =
+    document.createElement("div");
+
+  buttons.className =
+    "editorButtons";
+
+
+  const save =
+    document.createElement("button");
+
+  save.className =
+    "saveBtn";
+
+  save.textContent =
+    "Shrani";
+
+
+  const remove =
+    document.createElement("button");
+
+  remove.className =
+    "deleteBtn";
+
+  remove.textContent =
+    "Izbriši";
+
+
+  const cancel =
+    document.createElement("button");
+
+  cancel.className =
+    "cancelBtn";
+
+  cancel.textContent =
+    "Prekliči";
+
+
+  /* SHRANI */
+
+  save.onclick =
+    function(event) {
+
+      event.stopPropagation();
+
+
+      hotspot.description =
+        textarea.value.trim();
+
+
+      saveData();
+
+
+      popup.remove();
+
+
+      /*
+        Po shranjevanju takoj
+        pokažemo BRALNI pogled.
+      */
+
+      openReader(
+        element,
+        hotspot
+      );
+
+    };
+
+
+  /* IZBRIŠI */
+
+  remove.onclick =
+    function(event) {
+
+      event.stopPropagation();
+
+
+      hotspots =
+        hotspots.filter(
+          h => h.id !== hotspot.id
+        );
+
+
+      saveData();
+
+
+      /*
+        Marzipano hotspot najlažje
+        ponovno izrišemo.
+      */
+
+      location.reload();
+
+    };
+
+
+  /* PREKLIČI */
+
+  cancel.onclick =
+    function(event) {
+
+      event.stopPropagation();
+
+      popup.remove();
+
+      openReader(
+        element,
+        hotspot
+      );
+
+    };
+
+
+  /* X */
+
+  close.onclick =
+    function(event) {
+
+      event.stopPropagation();
+
+      popup.remove();
+
+    };
+
+
+  buttons.appendChild(save);
+
+  buttons.appendChild(remove);
+
+  buttons.appendChild(cancel);
+
+
+  editor.appendChild(textarea);
+
+  editor.appendChild(buttons);
+
+
+  popup.appendChild(title);
+
+  popup.appendChild(close);
+
+  popup.appendChild(editor);
+
+
+  element.appendChild(popup);
+
+
+  setTimeout(
+    () => textarea.focus(),
+    50
+  );
+
+}
+
+
+/* =========================================================
+   POPUP DESNO / LEVO
+========================================================= */
+
+function setPopupSide(
+  popup,
+  hotspot
+) {
 
   /*
-  Najprej pokažemo pravi način,
-  da lahko browser izračuna
-  dejansko velikost popup-a.
-  */
-
-  if (startEditing) {
-
-    showEditMode();
-
-  }
-
-  else {
-
-    showViewMode();
-
-  }
-
-
-  /*
-  Počakamo en frame,
-  nato popup postavimo
-  neposredno ob hotspot.
+    Pretvorimo koordinato hotspota
+    nazaj v screen pozicijo.
   */
 
   requestAnimationFrame(() => {
 
-    positionPopup(hotspot);
+    const screen =
+      view.coordinatesToScreen({
+        yaw: hotspot.yaw,
+        pitch: hotspot.pitch
+      });
+
+
+    if (!screen)
+      return;
+
+
+    /*
+      Če je hotspot na desni polovici
+      ekrana, popup damo LEVO.
+    */
+
+    if (
+      screen.x >
+      window.innerWidth / 2
+    ) {
+
+      popup.classList.add("left");
+
+    }
+
+    else {
+
+      popup.classList.remove("left");
+
+    }
 
   });
 
 }
 
 
-/* =========================
-   POZICIJA POPUPA
-========================= */
+/* =========================================================
+   ZAPRI VSE POPUPE
+========================================================= */
 
-function positionPopup(hotspot) {
+function closeAllPopups() {
 
-  const containerWidth =
-    container.clientWidth;
-
-  const containerHeight =
-    container.clientHeight;
-
-
-  /*
-  Dejanska pozicija hotspota
-  v pixelih.
-  */
-
-  const hotspotX =
-    containerWidth *
-    hotspot.x / 100;
-
-  const hotspotY =
-    containerHeight *
-    hotspot.y / 100;
-
-
-  const popupWidth =
-    popup.offsetWidth;
-
-  const popupHeight =
-    popup.offsetHeight;
-
-
-  const gap = 18;
-
-
-  /*
-  Privzeto:
-  popup desno od hotspota.
-  */
-
-  let left =
-    hotspotX + gap;
-
-  let top =
-    hotspotY -
-    popupHeight / 2;
-
-
-  /*
-  Če ni prostora desno,
-  ga prestavimo LEVO.
-  */
-
-  if (
-    left + popupWidth >
-    containerWidth
-  ) {
-
-    left =
-      hotspotX -
-      popupWidth -
-      gap;
-
-  }
-
-
-  /*
-  Če gre zgoraj ven.
-  */
-
-  if (top < 5) {
-
-    top = 5;
-
-  }
-
-
-  /*
-  Če gre spodaj ven.
-  */
-
-  if (
-    top + popupHeight >
-    containerHeight
-  ) {
-
-    top =
-      containerHeight -
-      popupHeight -
-      5;
-
-  }
-
-
-  /*
-  Dodatna zaščita za
-  zelo majhne slike.
-  */
-
-  if (left < 5) {
-
-    left = 5;
-
-  }
-
-
-  popup.style.left =
-    left + "px";
-
-  popup.style.top =
-    top + "px";
+  document
+    .querySelectorAll(".popup")
+    .forEach(
+      popup => popup.remove()
+    );
 
 }
 
 
-/* =========================
-   BRALNI NAČIN
-========================= */
+/* =========================================================
+   NALOŽI SHRANJENE HOTSPOTE
+========================================================= */
 
-function showViewMode() {
+hotspots.forEach(
+  (hotspot, index) => {
 
-  editMode.style.display =
-    "none";
-
-  viewMode.style.display =
-    "block";
-
-}
-
-
-/* =========================
-   UREJANJE
-========================= */
-
-function showEditMode() {
-
-  viewMode.style.display =
-    "none";
-
-  editMode.style.display =
-    "block";
-
-
-  setTimeout(() => {
-
-    description.focus();
-
-  }, 50);
-
-}
-
-
-/* =========================
-   GUMB UREDI
-========================= */
-
-editBtn.addEventListener(
-  "click",
-  () => {
-
-    const hotspot =
-      hotspots.find(
-        h =>
-        h.id === selectedHotspotId
-      );
-
-
-    if (!hotspot)
-      return;
-
-
-    description.value =
-      hotspot.description || "";
-
-
-    showEditMode();
-
-
-    requestAnimationFrame(() => {
-
-      positionPopup(hotspot);
-
-    });
+    createHotspot(
+      hotspot,
+      index + 1
+    );
 
   }
 );
-
-
-/* =========================
-   SHRANI
-========================= */
-
-saveBtn.addEventListener(
-  "click",
-  () => {
-
-    const hotspot =
-      hotspots.find(
-        h =>
-        h.id === selectedHotspotId
-      );
-
-
-    if (!hotspot)
-      return;
-
-
-    hotspot.description =
-      description.value.trim();
-
-
-    saveHotspots();
-
-
-    /*
-    Po shranjevanju NE zapremo.
-
-    Samo preklopimo v
-    lep bralni način.
-    */
-
-    viewDescription.textContent =
-      hotspot.description ||
-      "Ta hotspot še nima opisa.";
-
-
-    showViewMode();
-
-
-    requestAnimationFrame(() => {
-
-      positionPopup(hotspot);
-
-    });
-
-  }
-);
-
-
-/* =========================
-   PREKLIČI
-========================= */
-
-cancelBtn.addEventListener(
-  "click",
-  () => {
-
-    const hotspot =
-      hotspots.find(
-        h =>
-        h.id === selectedHotspotId
-      );
-
-
-    if (!hotspot)
-      return;
-
-
-    /*
-    Če hotspot nima opisa,
-    vseeno pokažemo reader.
-    */
-
-    viewDescription.textContent =
-      hotspot.description ||
-      "Ta hotspot še nima opisa.";
-
-
-    showViewMode();
-
-
-    requestAnimationFrame(() => {
-
-      positionPopup(hotspot);
-
-    });
-
-  }
-);
-
-
-/* =========================
-   IZBRIŠI
-========================= */
-
-deleteBtn.addEventListener(
-  "click",
-  () => {
-
-    hotspots =
-      hotspots.filter(
-        h =>
-        h.id !== selectedHotspotId
-      );
-
-
-    saveHotspots();
-
-
-    popup.style.display =
-      "none";
-
-
-    renderHotspots();
-
-  }
-);
-
-
-/* =========================
-   ZAPRI
-========================= */
-
-closeBtn.addEventListener(
-  "click",
-  () => {
-
-    popup.style.display =
-      "none";
-
-  }
-);
-
-
-/* =========================
-   RESIZE
-========================= */
-
-window.addEventListener(
-  "resize",
-  () => {
-
-    if (
-      popup.style.display !==
-      "block"
-    )
-      return;
-
-
-    const hotspot =
-      hotspots.find(
-        h =>
-        h.id === selectedHotspotId
-      );
-
-
-    if (hotspot) {
-
-      positionPopup(hotspot);
-
-    }
-
-  }
-);
-
-
-/* =========================
-   START
-========================= */
-
-renderHotspots();
 
 </script>
 
