@@ -5,13 +5,11 @@
 
 <meta
   name="viewport"
-  content="
-    width=device-width,
-    initial-scale=1.0,
-    maximum-scale=1.0,
-    user-scalable=no,
-    viewport-fit=cover
-  "
+  content="width=device-width,
+           initial-scale=1,
+           maximum-scale=1,
+           user-scalable=no,
+           viewport-fit=cover"
 >
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -44,11 +42,6 @@ textarea {
   font: inherit;
 }
 
-
-/* =====================================================
-   VIEWER
-===================================================== */
-
 #viewer {
   position: fixed;
   inset: 0;
@@ -66,30 +59,24 @@ a-scene {
 
 #toolbar {
   position: fixed;
-
   z-index: 10000;
 
   top: 15px;
   left: 15px;
 
   display: flex;
+  gap: 7px;
   align-items: center;
   flex-wrap: wrap;
-
-  gap: 7px;
 
   padding: 8px;
 
   border-radius: 14px;
 
-  background: rgba(15,15,15,.86);
+  background: rgba(15,15,15,.88);
 
-  backdrop-filter: blur(10px);
-
-  box-shadow:
-    0 8px 30px rgba(0,0,0,.35);
+  box-shadow: 0 8px 30px rgba(0,0,0,.35);
 }
-
 
 .tool-button {
   height: 42px;
@@ -103,32 +90,22 @@ a-scene {
 
   color: white;
 
-  font-size: 14px;
   font-weight: 700;
 
   cursor: pointer;
 }
 
-
-.tool-button:hover {
-  background: rgba(255,255,255,.22);
-}
-
-
 #addHotspotBtn {
   background: #2563eb;
 }
-
 
 #addHotspotBtn.active {
   background: #16a34a;
 }
 
-
 #cardboardBtn {
   background: #7c3aed;
 }
-
 
 .separator {
   width: 1px;
@@ -144,7 +121,6 @@ a-scene {
 
 #instruction {
   position: fixed;
-
   z-index: 10000;
 
   left: 50%;
@@ -154,8 +130,6 @@ a-scene {
 
   display: none;
 
-  max-width: calc(100% - 30px);
-
   padding: 11px 18px;
 
   border-radius: 30px;
@@ -164,27 +138,21 @@ a-scene {
 
   color: white;
 
-  text-align: center;
-
-  font-size: 14px;
-
   pointer-events: none;
 }
 
 
 /* =====================================================
-   HOTSPOT POPUP
+   POPUP
 ===================================================== */
 
 #popup {
   position: fixed;
-
   z-index: 20000;
 
   display: none;
 
   width: 330px;
-
   max-width: calc(100vw - 30px);
 
   padding: 18px;
@@ -195,10 +163,8 @@ a-scene {
 
   color: #222;
 
-  box-shadow:
-    0 15px 45px rgba(0,0,0,.4);
+  box-shadow: 0 15px 45px rgba(0,0,0,.4);
 }
-
 
 #popup::before {
   content: "";
@@ -215,7 +181,6 @@ a-scene {
   border-right: 9px solid white;
 }
 
-
 #popup.open-left::before {
   left: auto;
   right: -9px;
@@ -223,7 +188,6 @@ a-scene {
   border-right: 0;
   border-left: 9px solid white;
 }
-
 
 #popupClose {
   position: absolute;
@@ -237,49 +201,31 @@ a-scene {
   padding: 0;
 
   border: 0;
-
   border-radius: 50%;
 
-  background: #f1f3f5;
-
-  color: #444;
+  background: #eee;
 
   font-size: 20px;
 
   cursor: pointer;
 }
 
-
-/* =====================================================
-   READER
-===================================================== */
-
-#readerMode {
+#readerMode,
+#editorMode {
   display: none;
 }
 
-
 #readerTitle {
   margin: 0 35px 10px 0;
-
-  font-size: 20px;
-
-  line-height: 1.25;
 }
-
 
 #readerDescription {
-  margin: 0 0 17px;
-
-  color: #444;
-
-  font-size: 14px;
-
-  line-height: 1.55;
+  margin-bottom: 17px;
 
   white-space: pre-wrap;
-}
 
+  line-height: 1.5;
+}
 
 #editBtn {
   width: 100%;
@@ -287,40 +233,24 @@ a-scene {
   padding: 10px;
 
   border: 0;
-
   border-radius: 8px;
 
   background: #2563eb;
 
   color: white;
 
-  font-weight: 700;
-
-  cursor: pointer;
+  font-weight: bold;
 }
-
-
-/* =====================================================
-   EDITOR
-===================================================== */
-
-#editorMode {
-  display: none;
-}
-
 
 .field-label {
   display: block;
 
   margin: 0 0 5px;
 
-  color: #555;
-
   font-size: 12px;
 
-  font-weight: 700;
+  font-weight: bold;
 }
-
 
 #titleInput,
 #descriptionInput {
@@ -328,18 +258,13 @@ a-scene {
 
   padding: 10px;
 
-  border: 1px solid #d1d5db;
-
+  border: 1px solid #ccc;
   border-radius: 8px;
-
-  outline: none;
 }
-
 
 #titleInput {
   margin-bottom: 12px;
 }
-
 
 #descriptionInput {
   min-height: 120px;
@@ -349,26 +274,19 @@ a-scene {
   resize: vertical;
 }
 
-
 .editor-buttons {
   display: flex;
-
   gap: 7px;
 }
-
 
 .editor-buttons button {
   padding: 9px 12px;
 
   border: 0;
-
   border-radius: 8px;
 
-  font-weight: 700;
-
-  cursor: pointer;
+  font-weight: bold;
 }
-
 
 #saveBtn {
   flex: 1;
@@ -378,11 +296,9 @@ a-scene {
   color: white;
 }
 
-
 #cancelBtn {
-  background: #e5e7eb;
+  background: #ddd;
 }
-
 
 #deleteBtn {
   background: #dc2626;
@@ -392,12 +308,11 @@ a-scene {
 
 
 /* =====================================================
-   CARDBOARD START PANEL
+   CARDBOARD START
 ===================================================== */
 
 #cardboardStartPanel {
   position: fixed;
-
   inset: 0;
 
   z-index: 50000;
@@ -409,45 +324,21 @@ a-scene {
 
   padding: 20px;
 
-  background: rgba(0,0,0,.86);
+  background: rgba(0,0,0,.9);
 }
-
 
 #cardboardStartBox {
   width: 390px;
-
   max-width: 100%;
 
-  padding: 24px;
+  padding: 25px;
 
   border-radius: 18px;
 
   background: white;
 
-  color: #222;
-
   text-align: center;
-
-  box-shadow:
-    0 20px 70px rgba(0,0,0,.5);
 }
-
-
-#cardboardStartBox h2 {
-  margin: 0 0 10px;
-}
-
-
-#cardboardStartBox p {
-  margin: 0 0 18px;
-
-  color: #555;
-
-  font-size: 14px;
-
-  line-height: 1.5;
-}
-
 
 #startCardboardBtn {
   width: 100%;
@@ -455,18 +346,14 @@ a-scene {
   padding: 13px;
 
   border: 0;
-
   border-radius: 10px;
 
   background: #7c3aed;
 
   color: white;
 
-  font-weight: 700;
-
-  cursor: pointer;
+  font-weight: bold;
 }
-
 
 #cancelCardboardBtn {
   width: 100%;
@@ -476,26 +363,20 @@ a-scene {
   padding: 11px;
 
   border: 0;
-
   border-radius: 10px;
 
-  background: #e5e7eb;
+  background: #ddd;
 
-  color: #222;
-
-  font-weight: 700;
-
-  cursor: pointer;
+  font-weight: bold;
 }
 
 
 /* =====================================================
-   CARDBOARD UI
+   CARDBOARD OVERLAY
 ===================================================== */
 
 #cardboardUI {
   position: fixed;
-
   inset: 0;
 
   z-index: 30000;
@@ -505,46 +386,22 @@ a-scene {
   pointer-events: none;
 }
 
-
-/* meja med očesoma */
-
-#centerDivider {
-  position: absolute;
-
-  left: 50%;
-  top: 0;
-
-  width: 1px;
-  height: 100%;
-
-  transform: translateX(-50%);
-
-  background: rgba(255,255,255,.12);
-}
-
-
-/* =====================================================
-   GAZE
-===================================================== */
-
 .gaze {
   position: absolute;
 
   top: 50%;
 
-  width: 26px;
-  height: 26px;
+  width: 25px;
+  height: 25px;
 
-  transform: translate(-50%, -50%);
+  transform: translate(-50%,-50%);
 
   border: 2px solid white;
 
   border-radius: 50%;
 
-  box-shadow:
-    0 0 7px rgba(0,0,0,.9);
+  box-shadow: 0 0 8px black;
 }
-
 
 .gaze::after {
   content: "";
@@ -557,98 +414,70 @@ a-scene {
   width: 4px;
   height: 4px;
 
-  transform: translate(-50%, -50%);
-
-  border-radius: 50%;
+  transform: translate(-50%,-50%);
 
   background: white;
+
+  border-radius: 50%;
 }
-
-
-/*
-   Center levega očesa = 25 %
-   Center desnega očesa = 75 %
-*/
 
 #gazeLeft {
   left: 25%;
 }
 
-
 #gazeRight {
   left: 75%;
 }
 
-
 .gaze.active {
-  animation:
-    gazeProgress 1.2s linear forwards;
+  animation: gazeAnimation 1.2s linear forwards;
 }
 
-
-@keyframes gazeProgress {
+@keyframes gazeAnimation {
 
   from {
     transform:
-      translate(-50%, -50%)
+      translate(-50%,-50%)
       scale(1);
   }
 
   to {
     transform:
-      translate(-50%, -50%)
+      translate(-50%,-50%)
       scale(1.7);
   }
 
 }
 
-
-/* =====================================================
-   EXIT CARDBOARD
-===================================================== */
-
 #exitCardboardBtn {
   position: absolute;
 
-  top:
-    max(
-      10px,
-      env(safe-area-inset-top)
-    );
+  right: 12px;
+  top: 12px;
 
-  right:
-    max(
-      10px,
-      env(safe-area-inset-right)
-    );
-
-  z-index: 30100;
+  z-index: 31000;
 
   pointer-events: auto;
 
   padding: 10px 14px;
 
   border: 0;
-
   border-radius: 9px;
 
-  background: rgba(0,0,0,.78);
+  background: rgba(0,0,0,.75);
 
   color: white;
 
-  font-weight: 700;
-
-  cursor: pointer;
+  font-weight: bold;
 }
 
 
 /* =====================================================
-   PERMISSION PANEL
+   IOS PERMISSION
 ===================================================== */
 
 #permissionPanel {
   position: fixed;
-
   inset: 0;
 
   z-index: 60000;
@@ -660,13 +489,11 @@ a-scene {
 
   padding: 20px;
 
-  background: rgba(0,0,0,.88);
+  background: rgba(0,0,0,.9);
 }
-
 
 #permissionBox {
   width: 350px;
-
   max-width: 100%;
 
   padding: 24px;
@@ -678,35 +505,19 @@ a-scene {
   text-align: center;
 }
 
-
-#permissionBox h2 {
-  margin-top: 0;
-}
-
-
-#permissionBox p {
-  color: #555;
-
-  line-height: 1.5;
-}
-
-
 #permissionButton {
   width: 100%;
 
   padding: 12px;
 
   border: 0;
-
   border-radius: 9px;
 
   background: #7c3aed;
 
   color: white;
 
-  font-weight: 700;
-
-  cursor: pointer;
+  font-weight: bold;
 }
 
 
@@ -714,7 +525,7 @@ a-scene {
    MOBILE
 ===================================================== */
 
-@media (max-width: 650px) {
+@media(max-width:650px) {
 
   #toolbar {
     top: 8px;
@@ -724,18 +535,12 @@ a-scene {
     justify-content: center;
   }
 
-
   .tool-button {
     height: 38px;
 
     padding: 0 10px;
 
     font-size: 12px;
-  }
-
-
-  #popup {
-    width: 290px;
   }
 
 }
@@ -748,85 +553,77 @@ a-scene {
 
 
 <!-- =====================================================
-     A-FRAME
+     360 VIEWER
 ===================================================== -->
 
 <div id="viewer">
 
-  <a-scene
-    id="scene"
+<a-scene
+  id="scene"
 
-    embedded
+  embedded
 
-    vr-mode-ui="enabled: false"
+  vr-mode-ui="enabled:false"
 
-    renderer="
-      antialias: true;
-      colorManagement: true
-    "
+  renderer="
+    antialias:true;
+    colorManagement:true
+  "
 
-    loading-screen="enabled: true"
+  loading-screen="enabled:true"
 
-    cursor="rayOrigin: mouse"
+  cursor="rayOrigin:mouse"
 
-    raycaster="
-      objects: .clickable;
-      far: 100
-    "
+  raycaster="
+    objects:.clickable;
+    far:100
+  "
+>
+
+<a-assets>
+
+  <!--
+    Če telefon kaže staro 360 sliko,
+    povečaj v=20 na v=21.
+  -->
+
+  <img
+    id="panoramaImage"
+    src="360.jpg?v=20"
+    crossorigin="anonymous"
   >
 
-    <a-assets>
-
-      <!--
-        360.jpg mora biti v isti mapi.
-
-        Če zamenjaš sliko in telefon kaže staro:
-        spremeni ?v=10 v ?v=11
-      -->
-
-      <img
-        id="panoramaImage"
-        src="360.jpg?v=10"
-        crossorigin="anonymous"
-      >
-
-    </a-assets>
+</a-assets>
 
 
-    <a-sky
-      id="sky"
-
-      src="#panoramaImage"
-
-      rotation="0 -90 0"
-    ></a-sky>
+<a-sky
+  id="sky"
+  src="#panoramaImage"
+  rotation="0 -90 0"
+></a-sky>
 
 
-    <a-entity
-      id="hotspotContainer"
-    ></a-entity>
+<a-entity id="hotspotContainer"></a-entity>
 
 
-    <a-entity id="cameraRig">
+<a-entity id="cameraRig">
 
-      <a-camera
-        id="camera"
+  <a-camera
+    id="camera"
 
-        position="0 0 0"
+    position="0 0 0"
 
-        look-controls="
-          enabled: true;
-          magicWindowTrackingEnabled: false
-        "
+    look-controls="
+      enabled:true;
+      magicWindowTrackingEnabled:false
+    "
 
-        wasd-controls="
-          enabled: false
-        "
-      ></a-camera>
+    wasd-controls="enabled:false"
+  ></a-camera>
 
-    </a-entity>
+</a-entity>
 
-  </a-scene>
+</a-scene>
 
 </div>
 
@@ -837,56 +634,56 @@ a-scene {
 
 <div id="toolbar">
 
-  <button
-    id="addHotspotBtn"
-    class="tool-button"
-  >
-    + Dodaj hotspot
-  </button>
+<button
+  id="addHotspotBtn"
+  class="tool-button"
+>
++ Dodaj hotspot
+</button>
 
 
-  <div class="separator"></div>
+<div class="separator"></div>
 
 
-  <button
-    id="zoomInBtn"
-    class="tool-button"
-  >
-    +
-  </button>
+<button
+  id="zoomInBtn"
+  class="tool-button"
+>
++
+</button>
 
 
-  <button
-    id="zoomOutBtn"
-    class="tool-button"
-  >
-    −
-  </button>
+<button
+  id="zoomOutBtn"
+  class="tool-button"
+>
+−
+</button>
 
 
-  <div class="separator"></div>
+<div class="separator"></div>
 
 
-  <button
-    id="fullscreenBtn"
-    class="tool-button"
-  >
-    ⛶ Fullscreen
-  </button>
+<button
+  id="fullscreenBtn"
+  class="tool-button"
+>
+⛶ Fullscreen
+</button>
 
 
-  <button
-    id="cardboardBtn"
-    class="tool-button"
-  >
-    🥽 CARDBOARD
-  </button>
+<button
+  id="cardboardBtn"
+  class="tool-button"
+>
+🥽 CARDBOARD
+</button>
 
 </div>
 
 
 <div id="instruction">
-  Klikni na mesto v 360° panorami.
+Klikni na mesto v panorami.
 </div>
 
 
@@ -896,66 +693,64 @@ a-scene {
 
 <div id="popup">
 
-  <button id="popupClose">
-    ×
-  </button>
+<button id="popupClose">
+×
+</button>
 
 
-  <div id="readerMode">
+<div id="readerMode">
 
-    <h2 id="readerTitle"></h2>
+<h2 id="readerTitle"></h2>
 
-    <div id="readerDescription"></div>
+<div id="readerDescription"></div>
 
-    <button id="editBtn">
-      Uredi
-    </button>
+<button id="editBtn">
+Uredi
+</button>
 
-  </div>
-
-
-  <div id="editorMode">
-
-    <label class="field-label">
-      Naslov
-    </label>
+</div>
 
 
-    <input
-      id="titleInput"
-      type="text"
-      placeholder="Naslov hotspota"
-    >
+<div id="editorMode">
+
+<label class="field-label">
+Naslov
+</label>
+
+<input
+  id="titleInput"
+  type="text"
+  placeholder="Naslov hotspota"
+>
 
 
-    <label class="field-label">
-      Opis
-    </label>
+<label class="field-label">
+Opis
+</label>
+
+<textarea
+  id="descriptionInput"
+  placeholder="Opis..."
+></textarea>
 
 
-    <textarea
-      id="descriptionInput"
-      placeholder="Vpiši opis..."
-    ></textarea>
+<div class="editor-buttons">
 
+<button id="saveBtn">
+Shrani
+</button>
 
-    <div class="editor-buttons">
+<button id="cancelBtn">
+Prekliči
+</button>
 
-      <button id="saveBtn">
-        Shrani
-      </button>
+<button id="deleteBtn">
+Izbriši
+</button>
 
-      <button id="cancelBtn">
-        Prekliči
-      </button>
+</div>
 
-      <button id="deleteBtn">
-        Izbriši
-      </button>
-
-    </div>
-
-  </div>
+</div>
 
 </div>
 
@@ -966,33 +761,35 @@ a-scene {
 
 <div id="cardboardStartPanel">
 
-  <div id="cardboardStartBox">
+<div id="cardboardStartBox">
 
-    <h2>🥽 Cardboard</h2>
+<h2>🥽 Cardboard</h2>
 
-    <p>
-      Telefon obrni vodoravno in ga vstavi v
-      Esperanza Apocalypse.
-      <br><br>
-      Pogled se bo premikal z glavo.
-      Hotspot izbereš tako, da ga približno
-      1,2 sekunde gledaš.
-      <br><br>
-      Med Cardboard načinom bo aplikacija
-      poskušala ohraniti zaslon prižgan.
-    </p>
+<p>
+Telefon obrni vodoravno in ga vstavi v
+Esperanza Apocalypse.
+</p>
 
+<p>
+Prikaz uporablja dve optično ukrivljeni sliki,
+podobno kot Cardboard način.
+</p>
 
-    <button id="startCardboardBtn">
-      ZAŽENI CARDBOARD
-    </button>
+<p>
+Zaslon bo med ogledom ostal prižgan.
+</p>
 
 
-    <button id="cancelCardboardBtn">
-      Prekliči
-    </button>
+<button id="startCardboardBtn">
+ZAŽENI CARDBOARD
+</button>
 
-  </div>
+
+<button id="cancelCardboardBtn">
+Prekliči
+</button>
+
+</div>
 
 </div>
 
@@ -1003,50 +800,43 @@ a-scene {
 
 <div id="cardboardUI">
 
-  <div id="centerDivider"></div>
+<div
+  id="gazeLeft"
+  class="gaze"
+></div>
+
+<div
+  id="gazeRight"
+  class="gaze"
+></div>
 
 
-  <div
-    id="gazeLeft"
-    class="gaze"
-  ></div>
-
-
-  <div
-    id="gazeRight"
-    class="gaze"
-  ></div>
-
-
-  <button id="exitCardboardBtn">
-    ✕ Izhod
-  </button>
+<button id="exitCardboardBtn">
+✕
+</button>
 
 </div>
 
 
 <!-- =====================================================
-     IOS PERMISSION
+     SENSOR PERMISSION
 ===================================================== -->
 
 <div id="permissionPanel">
 
-  <div id="permissionBox">
+<div id="permissionBox">
 
-    <h2>Gibanje telefona</h2>
+<h2>Gibanje telefona</h2>
 
-    <p>
-      Dovoli uporabo senzorjev telefona,
-      da se 360° panorama premika skupaj
-      z glavo.
-    </p>
+<p>
+Dovoli uporabo senzorjev telefona.
+</p>
 
+<button id="permissionButton">
+Dovoli in zaženi
+</button>
 
-    <button id="permissionButton">
-      Dovoli in zaženi
-    </button>
-
-  </div>
+</div>
 
 </div>
 
@@ -1054,7 +844,7 @@ a-scene {
 <script>
 
 /* =====================================================
-   DOM
+   ELEMENTS
 ===================================================== */
 
 const scene =
@@ -1065,7 +855,6 @@ const camera =
 
 const hotspotContainer =
   document.querySelector("#hotspotContainer");
-
 
 const toolbar =
   document.querySelector("#toolbar");
@@ -1087,7 +876,6 @@ const cardboardBtn =
 
 const instruction =
   document.querySelector("#instruction");
-
 
 const popup =
   document.querySelector("#popup");
@@ -1125,7 +913,6 @@ const cancelBtn =
 const deleteBtn =
   document.querySelector("#deleteBtn");
 
-
 const cardboardStartPanel =
   document.querySelector("#cardboardStartPanel");
 
@@ -1134,7 +921,6 @@ const startCardboardBtn =
 
 const cancelCardboardBtn =
   document.querySelector("#cancelCardboardBtn");
-
 
 const cardboardUI =
   document.querySelector("#cardboardUI");
@@ -1148,7 +934,6 @@ const gazeRight =
 const exitCardboardBtn =
   document.querySelector("#exitCardboardBtn");
 
-
 const permissionPanel =
   document.querySelector("#permissionPanel");
 
@@ -1158,8 +943,6 @@ const permissionButton =
 
 /* =====================================================
    STORAGE
-
-   OHRANI ISTE HOTSPOTE IZ PREJŠNJE VERZIJE
 ===================================================== */
 
 const STORAGE_KEY =
@@ -1170,6 +953,16 @@ let hotspots =
   JSON.parse(
     localStorage.getItem(STORAGE_KEY)
   ) || [];
+
+
+function saveHotspots() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(hotspots)
+  );
+
+}
 
 
 /* =====================================================
@@ -1185,7 +978,6 @@ let addMode =
 let cardboardMode =
   false;
 
-
 let pointerStartX =
   0;
 
@@ -1198,8 +990,6 @@ let pointerDistance =
 
 /* =====================================================
    WAKE LOCK
-
-   TO PREPREČUJE UGAŠANJE ZASLONA
 ===================================================== */
 
 let wakeLock =
@@ -1213,26 +1003,19 @@ async function enableWakeLock() {
   ) {
 
     console.log(
-      "Ta brskalnik ne podpira Screen Wake Lock API."
+      "Wake Lock ni podprt."
     );
 
-    return false;
+    return;
 
   }
 
-
-  /*
-    Če je že aktiven, ne zahtevamo novega.
-  */
 
   if (
     wakeLock &&
     !wakeLock.released
-  ) {
-
-    return true;
-
-  }
+  )
+    return;
 
 
   try {
@@ -1244,7 +1027,7 @@ async function enableWakeLock() {
 
 
     console.log(
-      "WAKE LOCK AKTIVEN"
+      "Wake Lock AKTIVEN"
     );
 
 
@@ -1252,31 +1035,20 @@ async function enableWakeLock() {
       "release",
       () => {
 
-        console.log(
-          "Wake Lock je bil sproščen."
-        );
-
-
         wakeLock =
           null;
 
       }
     );
 
-
-    return true;
-
   }
 
-  catch (error) {
+  catch(error) {
 
     console.log(
-      "Wake Lock napaka:",
+      "Wake Lock:",
       error
     );
-
-
-    return false;
 
   }
 
@@ -1285,9 +1057,7 @@ async function enableWakeLock() {
 
 async function disableWakeLock() {
 
-  if (
-    !wakeLock
-  )
+  if (!wakeLock)
     return;
 
 
@@ -1297,7 +1067,7 @@ async function disableWakeLock() {
 
   }
 
-  catch (error) {}
+  catch(error) {}
 
 
   wakeLock =
@@ -1307,11 +1077,8 @@ async function disableWakeLock() {
 
 
 /*
-   Telefon lahko Wake Lock sprosti,
-   če gre stran za trenutek v background.
-
-   Ko se vrneš nazaj v Cardboard,
-   ga ponovno zahtevamo.
+   Če brskalnik Wake Lock začasno
+   sprosti, ga ob vrnitvi ponovno vključimo.
 */
 
 document.addEventListener(
@@ -1331,11 +1098,6 @@ document.addEventListener(
 );
 
 
-/*
-   Še dodatno preverjanje, če se
-   stran ponovno aktivira.
-*/
-
 window.addEventListener(
   "focus",
   async () => {
@@ -1353,21 +1115,7 @@ window.addEventListener(
 
 
 /* =====================================================
-   SAVE HOTSPOTS
-===================================================== */
-
-function saveHotspots() {
-
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(hotspots)
-  );
-
-}
-
-
-/* =====================================================
-   SPHERICAL -> VECTOR
+   SPHERICAL
 ===================================================== */
 
 function sphericalToVector(
@@ -1376,35 +1124,23 @@ function sphericalToVector(
   radius = 8
 ) {
 
-  const x =
+  return new THREE.Vector3(
+
     radius *
     Math.cos(pitch) *
-    Math.sin(yaw);
+    Math.sin(yaw),
 
-
-  const y =
     radius *
-    Math.sin(pitch);
+    Math.sin(pitch),
 
-
-  const z =
     -radius *
     Math.cos(pitch) *
-    Math.cos(yaw);
+    Math.cos(yaw)
 
-
-  return new THREE.Vector3(
-    x,
-    y,
-    z
   );
 
 }
 
-
-/* =====================================================
-   VECTOR -> SPHERICAL
-===================================================== */
 
 function directionToSpherical(
   direction
@@ -1440,11 +1176,9 @@ AFRAME.registerComponent(
   "face-camera",
   {
 
-    tick: function () {
+    tick:function() {
 
-      if (
-        cardboardMode
-      )
+      if(cardboardMode)
         return;
 
 
@@ -1452,24 +1186,18 @@ AFRAME.registerComponent(
         camera.object3D;
 
 
-      if (
-        !cam
-      )
+      if(!cam)
         return;
 
 
-      const position =
+      const p =
         new THREE.Vector3();
 
 
-      cam.getWorldPosition(
-        position
-      );
+      cam.getWorldPosition(p);
 
 
-      this.el.object3D.lookAt(
-        position
-      );
+      this.el.object3D.lookAt(p);
 
     }
 
@@ -1520,10 +1248,6 @@ function createHotspotEntity(
   );
 
 
-  /*
-     WHITE BORDER
-  */
-
   const border =
     document.createElement(
       "a-circle"
@@ -1535,22 +1259,16 @@ function createHotspotEntity(
     "0.26"
   );
 
-
   border.setAttribute(
     "color",
-    "#ffffff"
+    "#fff"
   );
-
 
   border.setAttribute(
     "material",
-    "shader: flat; side: double"
+    "shader:flat;side:double"
   );
 
-
-  /*
-     RED DOT
-  */
 
   const dot =
     document.createElement(
@@ -1563,28 +1281,21 @@ function createHotspotEntity(
     "0.20"
   );
 
-
   dot.setAttribute(
     "position",
     "0 0 0.01"
   );
-
 
   dot.setAttribute(
     "color",
     "#ef4444"
   );
 
-
   dot.setAttribute(
     "material",
-    "shader: flat; side: double"
+    "shader:flat;side:double"
   );
 
-
-  /*
-     NUMBER
-  */
 
   const text =
     document.createElement(
@@ -1597,36 +1308,30 @@ function createHotspotEntity(
     String(number)
   );
 
-
   text.setAttribute(
     "align",
     "center"
   );
-
 
   text.setAttribute(
     "anchor",
     "center"
   );
 
-
   text.setAttribute(
     "baseline",
     "center"
   );
 
-
   text.setAttribute(
     "color",
-    "#ffffff"
+    "#fff"
   );
-
 
   text.setAttribute(
     "width",
     "1"
   );
-
 
   text.setAttribute(
     "position",
@@ -1634,36 +1339,22 @@ function createHotspotEntity(
   );
 
 
-  root.appendChild(
-    border
-  );
-
-
-  root.appendChild(
-    dot
-  );
-
-
-  root.appendChild(
-    text
-  );
+  root.appendChild(border);
+  root.appendChild(dot);
+  root.appendChild(text);
 
 
   root.addEventListener(
     "click",
     event => {
 
-      if (
-        cardboardMode
-      )
+      if(cardboardMode)
         return;
 
 
       event.stopPropagation();
 
-
       stopAddMode();
-
 
       openReader(
         hotspot.id
@@ -1691,7 +1382,7 @@ function renderHotspots() {
 
 
   hotspots.forEach(
-    (hotspot, index) => {
+    (hotspot,index) => {
 
       createHotspotEntity(
         hotspot,
@@ -1705,7 +1396,7 @@ function renderHotspots() {
 
 
 /* =====================================================
-   SCREEN -> DIRECTION
+   SCREEN DIRECTION
 ===================================================== */
 
 function screenToDirection(
@@ -1719,9 +1410,7 @@ function screenToDirection(
     );
 
 
-  if (
-    !cam
-  )
+  if(!cam)
     return null;
 
 
@@ -1734,19 +1423,16 @@ function screenToDirection(
     (
       (clientX - rect.left)
       / rect.width
-    )
-    * 2 - 1;
+    ) * 2 - 1;
 
 
   const y =
     -(
       (
-        clientY -
-        rect.top
+        clientY - rect.top
       )
       / rect.height
-      * 2
-      - 1
+      * 2 - 1
     );
 
 
@@ -1754,42 +1440,36 @@ function screenToDirection(
     new THREE.Vector3(
       x,
       y,
-      0.5
+      .5
     );
 
 
-  vector.unproject(
-    cam
-  );
+  vector.unproject(cam);
 
 
-  const cameraPosition =
+  const cp =
     new THREE.Vector3();
 
 
-  cam.getWorldPosition(
-    cameraPosition
-  );
+  cam.getWorldPosition(cp);
 
 
   return vector
-    .sub(cameraPosition)
+    .sub(cp)
     .normalize();
 
 }
 
 
 /* =====================================================
-   ADD HOTSPOT
+   ADD MODE
 ===================================================== */
 
 addHotspotBtn.addEventListener(
   "click",
   () => {
 
-    if (
-      cardboardMode
-    )
+    if(cardboardMode)
       return;
 
 
@@ -1800,9 +1480,7 @@ addHotspotBtn.addEventListener(
     closePopup();
 
 
-    if (
-      addMode
-    ) {
+    if(addMode) {
 
       addHotspotBtn
         .classList
@@ -1850,20 +1528,18 @@ function stopAddMode() {
 
 
 /* =====================================================
-   DRAG DETECTION
+   POINTER
 ===================================================== */
 
 scene.addEventListener(
   "pointerdown",
-  event => {
+  e => {
 
     pointerStartX =
-      event.clientX;
-
+      e.clientX;
 
     pointerStartY =
-      event.clientY;
-
+      e.clientY;
 
     pointerDistance =
       0;
@@ -1874,22 +1550,21 @@ scene.addEventListener(
 
 scene.addEventListener(
   "pointermove",
-  event => {
+  e => {
 
     const dx =
-      event.clientX -
+      e.clientX -
       pointerStartX;
 
 
     const dy =
-      event.clientY -
+      e.clientY -
       pointerStartY;
 
 
     pointerDistance =
       Math.sqrt(
-        dx * dx +
-        dy * dy
+        dx*dx + dy*dy
       );
 
   }
@@ -1902,16 +1577,11 @@ scene.addEventListener(
 
 scene.addEventListener(
   "click",
-  event => {
+  e => {
 
-    if (
+    if(
       !addMode ||
-      cardboardMode
-    )
-      return;
-
-
-    if (
+      cardboardMode ||
       pointerDistance > 8
     )
       return;
@@ -1919,18 +1589,16 @@ scene.addEventListener(
 
     const direction =
       screenToDirection(
-        event.clientX,
-        event.clientY
+        e.clientX,
+        e.clientY
       );
 
 
-    if (
-      !direction
-    )
+    if(!direction)
       return;
 
 
-    const spherical =
+    const s =
       directionToSpherical(
         direction
       );
@@ -1946,34 +1614,25 @@ scene.addEventListener(
           .toString(36)
           .slice(2,7),
 
-      yaw:
-        spherical.yaw,
+      yaw:s.yaw,
 
-      pitch:
-        spherical.pitch,
+      pitch:s.pitch,
 
-      title:
-        "",
+      title:"",
 
-      description:
-        ""
+      description:""
 
     };
 
 
-    hotspots.push(
-      hotspot
-    );
+    hotspots.push(hotspot);
 
 
     saveHotspots();
 
-
     stopAddMode();
 
-
     renderHotspots();
-
 
     openEditor(
       hotspot.id
@@ -1984,7 +1643,7 @@ scene.addEventListener(
 
 
 /* =====================================================
-   HOTSPOT SCREEN POSITION
+   POPUP POSITION
 ===================================================== */
 
 function getHotspotScreenPosition(
@@ -1997,13 +1656,11 @@ function getHotspotScreenPosition(
     );
 
 
-  if (
-    !cam
-  )
+  if(!cam)
     return null;
 
 
-  const position =
+  const p =
     sphericalToVector(
       hotspot.yaw,
       hotspot.pitch
@@ -2028,57 +1685,42 @@ function getHotspotScreenPosition(
   );
 
 
-  const toHotspot =
-    position
-      .clone()
-      .sub(cameraPosition)
-      .normalize();
+  const direction =
+    p.clone()
+     .sub(cameraPosition)
+     .normalize();
 
 
-  if (
-    cameraDirection.dot(
-      toHotspot
-    ) <= 0
+  if(
+    cameraDirection.dot(direction)
+    <= 0
   )
     return null;
 
 
-  const projected =
-    position
-      .clone()
-      .project(
-        cam
-      );
+  p.project(cam);
 
 
   return {
 
     x:
-      (
-        projected.x + 1
-      )
-      / 2
-      * window.innerWidth,
+      (p.x + 1) /
+      2 *
+      window.innerWidth,
 
     y:
-      (
-        -projected.y + 1
-      )
-      / 2
-      * window.innerHeight
+      (-p.y + 1) /
+      2 *
+      window.innerHeight
 
   };
 
 }
 
 
-/* =====================================================
-   POPUP POSITION
-===================================================== */
-
 function positionPopup() {
 
-  if (
+  if(
     cardboardMode ||
     !selectedHotspotId ||
     popup.style.display === "none"
@@ -2094,9 +1736,7 @@ function positionPopup() {
     );
 
 
-  if (
-    !hotspot
-  )
+  if(!hotspot)
     return;
 
 
@@ -2106,9 +1746,7 @@ function positionPopup() {
     );
 
 
-  if (
-    !screen
-  ) {
+  if(!screen) {
 
     popup.style.visibility =
       "hidden";
@@ -2125,10 +1763,8 @@ function positionPopup() {
   const width =
     popup.offsetWidth;
 
-
   const height =
     popup.offsetHeight;
-
 
   const gap =
     32;
@@ -2136,13 +1772,12 @@ function positionPopup() {
 
   let left;
 
-
   let top =
     screen.y -
     height / 2;
 
 
-  if (
+  if(
     screen.x <
     window.innerWidth / 2
   ) {
@@ -2153,8 +1788,7 @@ function positionPopup() {
 
 
     left =
-      screen.x +
-      gap;
+      screen.x + gap;
 
   }
 
@@ -2207,23 +1841,15 @@ function positionPopup() {
 }
 
 
-/* =====================================================
-   POPUP LOOP
-===================================================== */
-
-function popupLoop() {
+(function popupLoop(){
 
   positionPopup();
-
 
   requestAnimationFrame(
     popupLoop
   );
 
-}
-
-
-popupLoop();
+})();
 
 
 /* =====================================================
@@ -2232,16 +1858,13 @@ popupLoop();
 
 function openReader(id) {
 
-  const hotspot =
+  const h =
     hotspots.find(
-      h =>
-        h.id === id
+      h => h.id === id
     );
 
 
-  if (
-    !hotspot
-  )
+  if(!h)
     return;
 
 
@@ -2250,12 +1873,12 @@ function openReader(id) {
 
 
   readerTitle.textContent =
-    hotspot.title ||
+    h.title ||
     "Brez naslova";
 
 
   readerDescription.textContent =
-    hotspot.description ||
+    h.description ||
     "Ni opisa.";
 
 
@@ -2270,11 +1893,6 @@ function openReader(id) {
   popup.style.display =
     "block";
 
-
-  requestAnimationFrame(
-    positionPopup
-  );
-
 }
 
 
@@ -2284,16 +1902,13 @@ function openReader(id) {
 
 function openEditor(id) {
 
-  const hotspot =
+  const h =
     hotspots.find(
-      h =>
-        h.id === id
+      h => h.id === id
     );
 
 
-  if (
-    !hotspot
-  )
+  if(!h)
     return;
 
 
@@ -2302,11 +1917,11 @@ function openEditor(id) {
 
 
   titleInput.value =
-    hotspot.title || "";
+    h.title || "";
 
 
   descriptionInput.value =
-    hotspot.description || "";
+    h.description || "";
 
 
   readerMode.style.display =
@@ -2320,23 +1935,14 @@ function openEditor(id) {
   popup.style.display =
     "block";
 
-
-  requestAnimationFrame(
-    positionPopup
-  );
-
 }
 
-
-/* =====================================================
-   SAVE
-===================================================== */
 
 saveBtn.addEventListener(
   "click",
   () => {
 
-    const hotspot =
+    const h =
       hotspots.find(
         h =>
           h.id ===
@@ -2344,17 +1950,15 @@ saveBtn.addEventListener(
       );
 
 
-    if (
-      !hotspot
-    )
+    if(!h)
       return;
 
 
-    hotspot.title =
+    h.title =
       titleInput.value.trim();
 
 
-    hotspot.description =
+    h.description =
       descriptionInput
         .value
         .trim();
@@ -2363,25 +1967,17 @@ saveBtn.addEventListener(
     saveHotspots();
 
 
-    openReader(
-      hotspot.id
-    );
+    openReader(h.id);
 
   }
 );
 
 
-/* =====================================================
-   EDIT
-===================================================== */
-
 editBtn.addEventListener(
   "click",
   () => {
 
-    if (
-      selectedHotspotId
-    ) {
+    if(selectedHotspotId) {
 
       openEditor(
         selectedHotspotId
@@ -2393,15 +1989,11 @@ editBtn.addEventListener(
 );
 
 
-/* =====================================================
-   CANCEL
-===================================================== */
-
 cancelBtn.addEventListener(
   "click",
   () => {
 
-    const hotspot =
+    const h =
       hotspots.find(
         h =>
           h.id ===
@@ -2409,17 +2001,15 @@ cancelBtn.addEventListener(
       );
 
 
-    if (
-      hotspot &&
+    if(
+      h &&
       (
-        hotspot.title ||
-        hotspot.description
+        h.title ||
+        h.description
       )
     ) {
 
-      openReader(
-        hotspot.id
-      );
+      openReader(h.id);
 
     }
 
@@ -2433,17 +2023,11 @@ cancelBtn.addEventListener(
 );
 
 
-/* =====================================================
-   DELETE
-===================================================== */
-
 deleteBtn.addEventListener(
   "click",
   () => {
 
-    if (
-      !selectedHotspotId
-    )
+    if(!selectedHotspotId)
       return;
 
 
@@ -2457,19 +2041,13 @@ deleteBtn.addEventListener(
 
     saveHotspots();
 
-
     closePopup();
-
 
     renderHotspots();
 
   }
 );
 
-
-/* =====================================================
-   CLOSE POPUP
-===================================================== */
 
 popupClose.addEventListener(
   "click",
@@ -2501,9 +2079,7 @@ function changeZoom(amount) {
     );
 
 
-  if (
-    !cam
-  )
+  if(!cam)
     return;
 
 
@@ -2522,50 +2098,36 @@ function changeZoom(amount) {
 
 zoomInBtn.addEventListener(
   "click",
-  () => {
-
-    changeZoom(-10);
-
-  }
+  () => changeZoom(-10)
 );
 
 
 zoomOutBtn.addEventListener(
   "click",
-  () => {
-
-    changeZoom(10);
-
-  }
+  () => changeZoom(10)
 );
 
 
-/* =====================================================
-   MOUSE WHEEL ZOOM
-===================================================== */
-
 scene.addEventListener(
   "wheel",
-  event => {
+  e => {
 
-    if (
-      cardboardMode
-    )
+    if(cardboardMode)
       return;
 
 
-    event.preventDefault();
+    e.preventDefault();
 
 
     changeZoom(
-      event.deltaY > 0
-        ? 5
-        : -5
+      e.deltaY > 0
+      ? 5
+      : -5
     );
 
   },
   {
-    passive: false
+    passive:false
   }
 );
 
@@ -2580,9 +2142,7 @@ fullscreenBtn.addEventListener(
 
     try {
 
-      if (
-        !document.fullscreenElement
-      ) {
+      if(!document.fullscreenElement) {
 
         await document
           .documentElement
@@ -2599,21 +2159,14 @@ fullscreenBtn.addEventListener(
 
     }
 
-    catch (error) {
-
-      console.log(
-        "Fullscreen ni na voljo.",
-        error
-      );
-
-    }
+    catch(error){}
 
   }
 );
 
 
 /* =====================================================
-   OPEN CARDBOARD PANEL
+   OPEN CARDBOARD
 ===================================================== */
 
 cardboardBtn.addEventListener(
@@ -2621,7 +2174,6 @@ cardboardBtn.addEventListener(
   () => {
 
     stopAddMode();
-
 
     closePopup();
 
@@ -2645,7 +2197,7 @@ cancelCardboardBtn.addEventListener(
 
 
 /* =====================================================
-   START CARDBOARD
+   START
 ===================================================== */
 
 startCardboardBtn.addEventListener(
@@ -2656,13 +2208,9 @@ startCardboardBtn.addEventListener(
       "none";
 
 
-    /*
-       iPhone / iPad
-    */
-
-    if (
+    if(
       typeof DeviceOrientationEvent !==
-        "undefined" &&
+      "undefined" &&
 
       typeof DeviceOrientationEvent
         .requestPermission ===
@@ -2672,25 +2220,16 @@ startCardboardBtn.addEventListener(
       permissionPanel.style.display =
         "flex";
 
-
       return;
 
     }
 
-
-    /*
-       Android
-    */
 
     await enterCardboard();
 
   }
 );
 
-
-/* =====================================================
-   IOS SENSOR PERMISSION
-===================================================== */
 
 permissionButton.addEventListener(
   "click",
@@ -2703,14 +2242,11 @@ permissionButton.addEventListener(
           .requestPermission();
 
 
-      if (
-        result !== "granted"
-      ) {
+      if(result !== "granted") {
 
         alert(
-          "Dostop do senzorjev ni dovoljen."
+          "Senzorji niso dovoljeni."
         );
-
 
         return;
 
@@ -2725,10 +2261,10 @@ permissionButton.addEventListener(
 
     }
 
-    catch (error) {
+    catch(error) {
 
       alert(
-        "Senzorjev ni bilo mogoče zagnati."
+        "Senzorjev ni mogoče zagnati."
       );
 
     }
@@ -2741,39 +2277,28 @@ permissionButton.addEventListener(
    DEVICE ORIENTATION
 ===================================================== */
 
-let deviceAlpha =
-  0;
-
-let deviceBeta =
-  0;
-
-let deviceGamma =
-  0;
+let deviceAlpha = 0;
+let deviceBeta = 0;
+let deviceGamma = 0;
 
 let hasOrientation =
   false;
 
 
-function orientationHandler(
-  event
-) {
+function orientationHandler(e) {
 
-  if (
-    event.alpha === null
-  )
+  if(e.alpha === null)
     return;
 
 
   deviceAlpha =
-    event.alpha || 0;
-
+    e.alpha || 0;
 
   deviceBeta =
-    event.beta || 0;
-
+    e.beta || 0;
 
   deviceGamma =
-    event.gamma || 0;
+    e.gamma || 0;
 
 
   hasOrientation =
@@ -2783,252 +2308,12 @@ function orientationHandler(
 
 
 /* =====================================================
-   PREPARE PHONE
-===================================================== */
-
-async function preparePhone() {
-
-  /*
-     FULLSCREEN
-  */
-
-  try {
-
-    if (
-      !document.fullscreenElement &&
-      document.documentElement.requestFullscreen
-    ) {
-
-      await document
-        .documentElement
-        .requestFullscreen();
-
-    }
-
-  }
-
-  catch (error) {
-
-    console.log(
-      "Fullscreen ni uspel:",
-      error
-    );
-
-  }
-
-
-  /*
-     LANDSCAPE
-  */
-
-  try {
-
-    if (
-      screen.orientation &&
-      screen.orientation.lock
-    ) {
-
-      await screen.orientation.lock(
-        "landscape"
-      );
-
-    }
-
-  }
-
-  catch (error) {
-
-    console.log(
-      "Landscape lock ni uspel:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   CARDBOARD VARIABLES
-===================================================== */
-
-let stereoRenderer =
-  null;
-
-let cardboardCamera =
-  null;
-
-let cardboardScene =
-  null;
-
-let cardboardAnimationId =
-  null;
-
-let cardboardInfoGroup =
-  null;
-
-
-/*
-   Originalne nastavitve kamere,
-   da jih po izhodu obnovimo.
-*/
-
-let originalCameraFov =
-  80;
-
-let originalCameraAspect =
-  1;
-
-
-/* =====================================================
-   ENTER CARDBOARD
-===================================================== */
-
-async function enterCardboard() {
-
-  if (
-    cardboardMode
-  )
-    return;
-
-
-  cardboardMode =
-    true;
-
-
-  /*
-     NAJPREJ WAKE LOCK.
-
-     Med Cardboard načinom
-     se zaslon ne sme ugasniti.
-  */
-
-  await enableWakeLock();
-
-
-  /*
-     Fullscreen + landscape.
-  */
-
-  await preparePhone();
-
-
-  window.addEventListener(
-    "deviceorientation",
-    orientationHandler,
-    true
-  );
-
-
-  toolbar.style.display =
-    "none";
-
-
-  popup.style.display =
-    "none";
-
-
-  instruction.style.display =
-    "none";
-
-
-  cardboardUI.style.display =
-    "block";
-
-
-  stereoRenderer =
-    scene.renderer;
-
-
-  cardboardScene =
-    scene.object3D;
-
-
-  cardboardCamera =
-    camera.getObject3D(
-      "camera"
-    );
-
-
-  if (
-    !cardboardCamera ||
-    !stereoRenderer
-  ) {
-
-    cardboardMode =
-      false;
-
-
-    await disableWakeLock();
-
-
-    alert(
-      "Cardboard renderer se ni mogel zagnati."
-    );
-
-
-    return;
-
-  }
-
-
-  /*
-     Zapomnimo normalno kamero.
-  */
-
-  originalCameraFov =
-    cardboardCamera.fov;
-
-
-  originalCameraAspect =
-    cardboardCamera.aspect;
-
-
-  /*
-     Normalni mouse/touch look ugasnemo.
-     Cardboard zdaj uporablja samo
-     orientacijo telefona.
-  */
-
-  camera.setAttribute(
-    "look-controls",
-    "enabled",
-    false
-  );
-
-
-  /*
-     Počakamo trenutek, da se fullscreen
-     in landscape stabilizirata.
-  */
-
-  setTimeout(
-    () => {
-
-      if (
-        cardboardMode
-      ) {
-
-        cardboardLoop();
-
-      }
-
-    },
-    100
-  );
-
-}
-
-
-/* =====================================================
-   PHONE ORIENTATION -> THREE
+   ORIENTATION QUATERNION
 ===================================================== */
 
 const zee =
   new THREE.Vector3(
-    0,
-    0,
-    1
+    0,0,1
   );
 
 
@@ -3042,10 +2327,10 @@ const orientationQ0 =
 
 const orientationQ1 =
   new THREE.Quaternion(
-    -Math.sqrt(0.5),
+    -Math.sqrt(.5),
     0,
     0,
-    Math.sqrt(0.5)
+    Math.sqrt(.5)
   );
 
 
@@ -3053,7 +2338,7 @@ function updateCardboardOrientation(
   object
 ) {
 
-  if (
+  if(
     !hasOrientation ||
     !object
   )
@@ -3082,10 +2367,10 @@ function updateCardboardOrientation(
     0;
 
 
-  if (
+  if(
     screen.orientation &&
-    typeof screen.orientation.angle ===
-      "number"
+    typeof screen.orientation.angle
+      === "number"
   ) {
 
     orient =
@@ -3095,9 +2380,9 @@ function updateCardboardOrientation(
 
   }
 
-  else if (
-    typeof window.orientation ===
-      "number"
+  else if(
+    typeof window.orientation
+      === "number"
   ) {
 
     orient =
@@ -3141,161 +2426,668 @@ function updateCardboardOrientation(
 
 
 /* =====================================================
-   SIMPLE 50 / 50 CARDBOARD
-
-   LEVO OKO  = 0% - 50%
-   DESNO OKO = 50% - 100%
-
-   CENTER:
-   LEVO  = 25%
-   DESNO = 75%
+   CARDBOARD RENDERER
 ===================================================== */
 
-const stereoCamera =
-  new THREE.StereoCamera();
+let renderer =
+  null;
+
+let world =
+  null;
+
+let vrCamera =
+  null;
+
+let stereoCamera =
+  null;
+
+let leftTarget =
+  null;
+
+let rightTarget =
+  null;
+
+let distortionScene =
+  null;
+
+let distortionCamera =
+  null;
+
+let leftDistortionMesh =
+  null;
+
+let rightDistortionMesh =
+  null;
+
+let cardboardAnimationId =
+  null;
+
+let cardboardInfoGroup =
+  null;
+
+let originalFov =
+  80;
 
 
-/*
-   Standardna približna človeška
-   stereo razdalja.
+/* =====================================================
+   DISTORTION SHADER
 
-   Uporabnik je ne nastavlja.
-*/
+   To naredi optično ukrivljene robove
+   podobne Cardboard/YouTube prikazu.
+===================================================== */
 
-stereoCamera.eyeSep =
-  0.064;
+const distortionVertexShader = `
+
+varying vec2 vUv;
+
+void main() {
+
+  vUv = uv;
+
+  gl_Position =
+    vec4(
+      position.xy,
+      0.0,
+      1.0
+    );
+
+}
+
+`;
 
 
-function renderCardboardStereo() {
+const distortionFragmentShader = `
 
-  if (
-    !cardboardMode ||
-    !stereoRenderer ||
-    !cardboardCamera ||
-    !cardboardScene
-  )
+precision highp float;
+
+uniform sampler2D eyeTexture;
+
+uniform float k1;
+uniform float k2;
+
+varying vec2 vUv;
+
+
+void main() {
+
+  /*
+     UV:
+     0..1 -> -1..1
+  */
+
+  vec2 p =
+    vUv * 2.0 - 1.0;
+
+
+  /*
+     Rahlo drugačna horizontalna
+     geometrija zaradi razmerja
+     telefonskega viewporta.
+  */
+
+  vec2 q = p;
+
+  q.x *= 1.04;
+
+
+  float r2 =
+    dot(q,q);
+
+
+  /*
+     Inverzna radialna korekcija.
+
+     S tem dobimo "pincushion"
+     pred-deformacijo, ki jo nato
+     leča vizualno popravi.
+  */
+
+  float factor =
+    1.0 +
+    k1 * r2 +
+    k2 * r2 * r2;
+
+
+  vec2 distorted =
+    q * factor;
+
+
+  distorted.x /= 1.04;
+
+
+  vec2 uv =
+    distorted * 0.5 + 0.5;
+
+
+  /*
+     Vse izven optičnega območja
+     postane ČRNO.
+  */
+
+  if(
+    uv.x < 0.0 ||
+    uv.x > 1.0 ||
+    uv.y < 0.0 ||
+    uv.y > 1.0
+  ) {
+
+    gl_FragColor =
+      vec4(
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      );
+
+    return;
+
+  }
+
+
+  /*
+     Dodatna optična maska.
+
+     Zaradi tega dobimo obliko
+     podobno screenshotu YouTube.
+  */
+
+  vec2 maskP = p;
+
+  maskP.x *= 0.91;
+
+  float maskR =
+    dot(
+      maskP,
+      maskP
+    );
+
+
+  if(maskR > 1.30) {
+
+    gl_FragColor =
+      vec4(
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      );
+
+    return;
+
+  }
+
+
+  gl_FragColor =
+    texture2D(
+      eyeTexture,
+      uv
+    );
+
+}
+
+`;
+
+
+/* =====================================================
+   CREATE DISTORTION SYSTEM
+===================================================== */
+
+function createDistortionSystem() {
+
+  const canvas =
+    renderer.domElement;
+
+
+  const pixelRatio =
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    );
+
+
+  const eyeWidth =
+    Math.max(
+      512,
+      Math.floor(
+        canvas.clientWidth /
+        2 *
+        pixelRatio
+      )
+    );
+
+
+  const eyeHeight =
+    Math.max(
+      512,
+      Math.floor(
+        canvas.clientHeight *
+        pixelRatio
+      )
+    );
+
+
+  leftTarget =
+    new THREE.WebGLRenderTarget(
+      eyeWidth,
+      eyeHeight,
+      {
+        minFilter:
+          THREE.LinearFilter,
+
+        magFilter:
+          THREE.LinearFilter,
+
+        format:
+          THREE.RGBAFormat,
+
+        depthBuffer:
+          true
+      }
+    );
+
+
+  rightTarget =
+    new THREE.WebGLRenderTarget(
+      eyeWidth,
+      eyeHeight,
+      {
+        minFilter:
+          THREE.LinearFilter,
+
+        magFilter:
+          THREE.LinearFilter,
+
+        format:
+          THREE.RGBAFormat,
+
+        depthBuffer:
+          true
+      }
+    );
+
+
+  distortionScene =
+    new THREE.Scene();
+
+
+  distortionCamera =
+    new THREE.Camera();
+
+
+  /*
+     Material za levo oko.
+  */
+
+  const leftMaterial =
+    new THREE.ShaderMaterial({
+
+      uniforms: {
+
+        eyeTexture: {
+          value:
+            leftTarget.texture
+        },
+
+        /*
+           Glavna ukrivljenost.
+        */
+
+        k1: {
+          value:
+            0.20
+        },
+
+        k2: {
+          value:
+            0.07
+        }
+
+      },
+
+      vertexShader:
+        distortionVertexShader,
+
+      fragmentShader:
+        distortionFragmentShader,
+
+      depthTest:
+        false,
+
+      depthWrite:
+        false
+
+    });
+
+
+  /*
+     Material za desno oko.
+  */
+
+  const rightMaterial =
+    leftMaterial.clone();
+
+
+  rightMaterial.uniforms =
+    THREE.UniformsUtils.clone(
+      leftMaterial.uniforms
+    );
+
+
+  rightMaterial.uniforms
+    .eyeTexture
+    .value =
+      rightTarget.texture;
+
+
+  /*
+     Fullscreen geometry.
+
+     Vsaka ravnina zavzame malo manj
+     kot polovico zaslona.
+
+     Tako dobimo črne robove kot
+     na YouTube screenshotu.
+  */
+
+  const geometry =
+    new THREE.PlaneGeometry(
+      1,
+      1.72
+    );
+
+
+  leftDistortionMesh =
+    new THREE.Mesh(
+      geometry,
+      leftMaterial
+    );
+
+
+  rightDistortionMesh =
+    new THREE.Mesh(
+      geometry.clone(),
+      rightMaterial
+    );
+
+
+  /*
+     Celoten clip-space je -1..+1.
+
+     Levo oko:
+     center približno -0.5
+
+     Desno oko:
+     center približno +0.5
+  */
+
+  leftDistortionMesh.position.x =
+    -0.50;
+
+
+  rightDistortionMesh.position.x =
+    0.50;
+
+
+  distortionScene.add(
+    leftDistortionMesh
+  );
+
+
+  distortionScene.add(
+    rightDistortionMesh
+  );
+
+}
+
+
+/* =====================================================
+   PREPARE PHONE
+===================================================== */
+
+async function preparePhone() {
+
+  try {
+
+    if(
+      !document.fullscreenElement &&
+      document.documentElement
+        .requestFullscreen
+    ) {
+
+      await document
+        .documentElement
+        .requestFullscreen();
+
+    }
+
+  }
+
+  catch(error){}
+
+
+  try {
+
+    if(
+      screen.orientation &&
+      screen.orientation.lock
+    ) {
+
+      await screen.orientation.lock(
+        "landscape"
+      );
+
+    }
+
+  }
+
+  catch(error){}
+
+}
+
+
+/* =====================================================
+   ENTER CARDBOARD
+===================================================== */
+
+async function enterCardboard() {
+
+  if(cardboardMode)
     return;
 
 
-  const renderer =
-    stereoRenderer;
+  cardboardMode =
+    true;
+
+
+  /*
+     TELEFON OSTANE PRIŽGAN
+  */
+
+  await enableWakeLock();
+
+
+  await preparePhone();
+
+
+  window.addEventListener(
+    "deviceorientation",
+    orientationHandler,
+    true
+  );
+
+
+  toolbar.style.display =
+    "none";
+
+
+  popup.style.display =
+    "none";
+
+
+  instruction.style.display =
+    "none";
+
+
+  cardboardUI.style.display =
+    "block";
+
+
+  renderer =
+    scene.renderer;
+
+
+  world =
+    scene.object3D;
+
+
+  vrCamera =
+    camera.getObject3D(
+      "camera"
+    );
+
+
+  if(
+    !renderer ||
+    !vrCamera
+  ) {
+
+    cardboardMode =
+      false;
+
+    await disableWakeLock();
+
+    return;
+
+  }
+
+
+  originalFov =
+    vrCamera.fov;
+
+
+  camera.setAttribute(
+    "look-controls",
+    "enabled",
+    false
+  );
+
+
+  stereoCamera =
+    new THREE.StereoCamera();
+
+
+  /*
+     Standardna stereo razdalja.
+  */
+
+  stereoCamera.eyeSep =
+    0.064;
+
+
+  createDistortionSystem();
+
+
+  setTimeout(
+    () => {
+
+      if(cardboardMode) {
+
+        cardboardLoop();
+
+      }
+
+    },
+    150
+  );
+
+}
+
+
+/* =====================================================
+   RENDER CARDBOARD
+===================================================== */
+
+function renderCardboard() {
+
+  if(
+    !renderer ||
+    !vrCamera ||
+    !stereoCamera
+  )
+    return;
 
 
   const canvas =
     renderer.domElement;
 
 
-  /*
-     CSS velikost zaslona.
-  */
-
-  const cssWidth =
+  const width =
     canvas.clientWidth;
 
 
-  const cssHeight =
+  const height =
     canvas.clientHeight;
 
 
-  if (
-    cssWidth <= 0 ||
-    cssHeight <= 0
+  if(
+    width <= 0 ||
+    height <= 0
   )
     return;
 
 
   /*
-     Dejanska WebGL velikost v pikah.
-
-     To je pomembno na telefonih
-     z visokim devicePixelRatio.
+     Vsako oko ima polovico zaslona.
   */
 
-  const bufferSize =
-    new THREE.Vector2();
-
-
-  renderer.getDrawingBufferSize(
-    bufferSize
-  );
-
-
-  const width =
-    Math.floor(
-      bufferSize.x
-    );
-
-
-  const height =
-    Math.floor(
-      bufferSize.y
-    );
-
-
-  const halfWidth =
-    Math.floor(
-      width / 2
-    );
+  vrCamera.aspect =
+    (width / 2) /
+    height;
 
 
   /*
-     Vsako oko dobi TOČNO polovico zaslona.
+     Približno Cardboard FOV.
 
-     Brez offseta.
-     Brez naše IPD kalibracije.
-     Brez spreminjanja centra.
+     Ker shader sliko še deformira,
+     je malo širši pogled bolj primeren.
   */
 
-  cardboardCamera.aspect =
-    (cssWidth / 2) /
-    cssHeight;
+  vrCamera.fov =
+    82;
 
 
-  /*
-     Stabilen Cardboard FOV.
-
-     Ni uporabniškega sliderja.
-  */
-
-  cardboardCamera.fov =
-    75;
+  vrCamera.updateProjectionMatrix();
 
 
-  cardboardCamera.updateProjectionMatrix();
-
-
-  cardboardCamera.updateMatrixWorld(
+  vrCamera.updateMatrixWorld(
     true
   );
 
 
   stereoCamera.update(
-    cardboardCamera
+    vrCamera
   );
 
 
-  renderer.autoClear =
-    false;
+  /*
+     -----------------------------------------
+     1. LEVO OKO -> OFFSCREEN TEXTURE
+     -----------------------------------------
+  */
+
+  renderer.setRenderTarget(
+    leftTarget
+  );
 
 
   renderer.setScissorTest(
-    true
+    false
   );
 
 
-  renderer.setViewport(
-    0,
-    0,
-    width,
-    height
-  );
-
-
-  renderer.setScissor(
-    0,
-    0,
-    width,
-    height
+  renderer.setClearColor(
+    0x000000,
+    1
   );
 
 
@@ -3306,55 +3098,44 @@ function renderCardboardStereo() {
   );
 
 
-  /* =================================================
-     LEVO OKO
-  ================================================= */
-
-  renderer.setViewport(
-    0,
-    0,
-    halfWidth,
-    height
-  );
-
-
-  renderer.setScissor(
-    0,
-    0,
-    halfWidth,
-    height
-  );
-
-
   renderer.render(
-    cardboardScene,
+    world,
     stereoCamera.cameraL
   );
 
 
-  /* =================================================
-     DESNO OKO
-  ================================================= */
+  /*
+     -----------------------------------------
+     2. DESNO OKO -> OFFSCREEN TEXTURE
+     -----------------------------------------
+  */
 
-  renderer.setViewport(
-    halfWidth,
-    0,
-    width - halfWidth,
-    height
+  renderer.setRenderTarget(
+    rightTarget
   );
 
 
-  renderer.setScissor(
-    halfWidth,
-    0,
-    width - halfWidth,
-    height
+  renderer.clear(
+    true,
+    true,
+    true
   );
 
 
   renderer.render(
-    cardboardScene,
+    world,
     stereoCamera.cameraR
+  );
+
+
+  /*
+     -----------------------------------------
+     3. DISTORTED OUTPUT -> TELEFON
+     -----------------------------------------
+  */
+
+  renderer.setRenderTarget(
+    null
   );
 
 
@@ -3363,39 +3144,42 @@ function renderCardboardStereo() {
   );
 
 
-  renderer.setViewport(
-    0,
-    0,
-    width,
-    height
+  renderer.setClearColor(
+    0x000000,
+    1
   );
 
 
-  renderer.autoClear =
-    true;
+  renderer.clear(
+    true,
+    true,
+    true
+  );
+
+
+  renderer.render(
+    distortionScene,
+    distortionCamera
+  );
 
 }
 
 
 /* =====================================================
-   HOTSPOTS FACE CAMERA
+   FACE HOTSPOTS
 ===================================================== */
 
 function orientHotspotsToCamera() {
 
-  if (
-    !cardboardCamera
-  )
+  if(!vrCamera)
     return;
 
 
-  const cameraPosition =
+  const p =
     new THREE.Vector3();
 
 
-  cardboardCamera.getWorldPosition(
-    cameraPosition
-  );
+  vrCamera.getWorldPosition(p);
 
 
   document
@@ -3405,9 +3189,7 @@ function orientHotspotsToCamera() {
     .forEach(
       entity => {
 
-        entity.object3D.lookAt(
-          cameraPosition
-        );
+        entity.object3D.lookAt(p);
 
       }
     );
@@ -3416,7 +3198,7 @@ function orientHotspotsToCamera() {
 
 
 /* =====================================================
-   GAZE RAYCASTER
+   GAZE
 ===================================================== */
 
 const gazeRaycaster =
@@ -3444,26 +3226,15 @@ let gazeActivated =
   false;
 
 
-/* =====================================================
-   UPDATE GAZE
-===================================================== */
-
 function updateGaze() {
 
-  if (
-    !cardboardCamera
-  )
+  if(!vrCamera)
     return;
 
 
-  /*
-     Ray gre naravnost iz sredine
-     pogleda uporabnika.
-  */
-
   gazeRaycaster.setFromCamera(
     gazeCenter,
-    cardboardCamera
+    vrCamera
   );
 
 
@@ -3481,17 +3252,13 @@ function updateGaze() {
         entity.object3D.traverse(
           child => {
 
-            if (
-              child.isMesh
-            ) {
+            if(child.isMesh) {
 
               child.userData.hotspotId =
                 entity.dataset.id;
 
 
-              targets.push(
-                child
-              );
+              targets.push(child);
 
             }
 
@@ -3509,22 +3276,16 @@ function updateGaze() {
     );
 
 
-  const targetId =
+  const id =
     hits.length
-      ? hits[0]
-          .object
-          .userData
-          .hotspotId
-      : null;
+    ? hits[0]
+        .object
+        .userData
+        .hotspotId
+    : null;
 
 
-  /*
-     Ne gledamo hotspota.
-  */
-
-  if (
-    !targetId
-  ) {
+  if(!id) {
 
     resetGaze();
 
@@ -3533,17 +3294,10 @@ function updateGaze() {
   }
 
 
-  /*
-     Nov hotspot.
-  */
-
-  if (
-    gazeTargetId !==
-    targetId
-  ) {
+  if(gazeTargetId !== id) {
 
     gazeTargetId =
-      targetId;
+      id;
 
 
     gazeStartedAt =
@@ -3582,22 +3336,18 @@ function updateGaze() {
   }
 
 
-  /*
-     Gledamo ga dovolj dolgo.
-  */
-
-  if (
+  if(
     !gazeActivated &&
     performance.now() -
-      gazeStartedAt >=
-      GAZE_TIME
+    gazeStartedAt >=
+    GAZE_TIME
   ) {
 
     gazeActivated =
       true;
 
 
-    const hotspot =
+    const h =
       hotspots.find(
         h =>
           h.id ===
@@ -3605,13 +3355,9 @@ function updateGaze() {
       );
 
 
-    if (
-      hotspot
-    ) {
+    if(h) {
 
-      showCardboardInfo(
-        hotspot
-      );
+      showCardboardInfo(h);
 
     }
 
@@ -3619,10 +3365,6 @@ function updateGaze() {
 
 }
 
-
-/* =====================================================
-   RESET GAZE
-===================================================== */
 
 function resetGaze() {
 
@@ -3651,12 +3393,10 @@ function resetGaze() {
 
 
 /* =====================================================
-   VR INFO PANEL
+   VR INFO
 ===================================================== */
 
-function showCardboardInfo(
-  hotspot
-) {
+function showCardboardInfo(hotspot) {
 
   removeCardboardInfo();
 
@@ -3665,82 +3405,55 @@ function showCardboardInfo(
     new THREE.Group();
 
 
-  /*
-     BACKGROUND
-  */
-
-  const panelGeometry =
-    new THREE.PlaneGeometry(
-      2.8,
-      1.5
-    );
-
-
-  const panelMaterial =
-    new THREE.MeshBasicMaterial({
-
-      color:
-        0xffffff,
-
-      transparent:
-        true,
-
-      opacity:
-        0.96,
-
-      side:
-        THREE.DoubleSide
-
-    });
-
-
   const panel =
     new THREE.Mesh(
-      panelGeometry,
-      panelMaterial
+
+      new THREE.PlaneGeometry(
+        2.7,
+        1.45
+      ),
+
+      new THREE.MeshBasicMaterial({
+
+        color:
+          0xffffff,
+
+        transparent:
+          true,
+
+        opacity:
+          .96,
+
+        side:
+          THREE.DoubleSide
+
+      })
+
     );
 
 
-  group.add(
-    panel
-  );
+  group.add(panel);
 
 
-  /*
-     TEXT CANVAS
-  */
-
-  const textCanvas =
+  const canvas =
     document.createElement(
       "canvas"
     );
 
 
-  textCanvas.width =
+  canvas.width =
     1024;
 
 
-  textCanvas.height =
+  canvas.height =
     512;
 
 
   const ctx =
-    textCanvas.getContext(
+    canvas.getContext(
       "2d"
     );
 
-
-  ctx.clearRect(
-    0,
-    0,
-    1024,
-    512
-  );
-
-
-  /*
-     TITLE
-  */
 
   ctx.fillStyle =
     "#111";
@@ -3753,7 +3466,7 @@ function showCardboardInfo(
   drawWrappedText(
     ctx,
     hotspot.title ||
-      "Brez naslova",
+    "Brez naslova",
     70,
     95,
     880,
@@ -3761,10 +3474,6 @@ function showCardboardInfo(
     2
   );
 
-
-  /*
-     DESCRIPTION
-  */
 
   ctx.fillStyle =
     "#333";
@@ -3777,9 +3486,9 @@ function showCardboardInfo(
   drawWrappedText(
     ctx,
     hotspot.description ||
-      "Ni opisa.",
+    "Ni opisa.",
     70,
-    230,
+    225,
     880,
     48,
     5
@@ -3788,62 +3497,42 @@ function showCardboardInfo(
 
   const texture =
     new THREE.CanvasTexture(
-      textCanvas
+      canvas
     );
 
 
-  if (
-    "colorSpace" in texture
-  ) {
-
-    texture.colorSpace =
-      THREE.SRGBColorSpace;
-
-  }
-
-
-  const textMaterial =
-    new THREE.MeshBasicMaterial({
-
-      map:
-        texture,
-
-      transparent:
-        true,
-
-      side:
-        THREE.DoubleSide
-
-    });
-
-
-  const textPlane =
+  const text =
     new THREE.Mesh(
 
       new THREE.PlaneGeometry(
-        2.8,
-        1.45
+        2.7,
+        1.4
       ),
 
-      textMaterial
+      new THREE.MeshBasicMaterial({
+
+        map:
+          texture,
+
+        transparent:
+          true,
+
+        side:
+          THREE.DoubleSide
+
+      })
 
     );
 
 
-  textPlane.position.z =
-    0.01;
+  text.position.z =
+    .01;
 
 
-  group.add(
-    textPlane
-  );
+  group.add(text);
 
 
-  /*
-     POSTAVIMO PRED UPORABNIKA
-  */
-
-  const cameraPosition =
+  const cp =
     new THREE.Vector3();
 
 
@@ -3851,41 +3540,30 @@ function showCardboardInfo(
     new THREE.Vector3();
 
 
-  cardboardCamera.getWorldPosition(
-    cameraPosition
-  );
+  vrCamera.getWorldPosition(cp);
 
 
-  cardboardCamera.getWorldDirection(
+  vrCamera.getWorldDirection(
     direction
   );
 
 
   group.position.copy(
 
-    cameraPosition
-      .clone()
-      .add(
+    cp.clone().add(
 
-        direction
-          .clone()
-          .multiplyScalar(
-            2.8
-          )
+      direction.clone()
+        .multiplyScalar(2.8)
 
-      )
+    )
 
   );
 
 
-  group.lookAt(
-    cameraPosition
-  );
+  group.lookAt(cp);
 
 
-  cardboardScene.add(
-    group
-  );
+  world.add(group);
 
 
   cardboardInfoGroup =
@@ -3898,7 +3576,7 @@ function showCardboardInfo(
 
 
 /* =====================================================
-   TEXT WRAP
+   WRAP TEXT
 ===================================================== */
 
 function drawWrappedText(
@@ -3919,31 +3597,25 @@ function drawWrappedText(
   let line =
     "";
 
-
   let lineNumber =
     0;
 
 
-  for (
+  for(
     let i = 0;
     i < words.length;
     i++
   ) {
 
-    const testLine =
+    const test =
       line +
       words[i] +
       " ";
 
 
-    const width =
-      ctx.measureText(
-        testLine
-      ).width;
-
-
-    if (
-      width > maxWidth &&
+    if(
+      ctx.measureText(test).width
+      > maxWidth &&
       line !== ""
     ) {
 
@@ -3959,36 +3631,29 @@ function drawWrappedText(
       lineNumber++;
 
 
-      if (
+      if(
         lineNumber >=
         maxLines
-      ) {
-
+      )
         return;
-
-      }
 
 
       line =
-        words[i] +
-        " ";
+        words[i] + " ";
 
     }
 
     else {
 
       line =
-        testLine;
+        test;
 
     }
 
   }
 
 
-  if (
-    lineNumber <
-    maxLines
-  ) {
+  if(lineNumber < maxLines) {
 
     ctx.fillText(
       line,
@@ -4004,18 +3669,16 @@ function drawWrappedText(
 
 
 /* =====================================================
-   REMOVE INFO PANEL
+   REMOVE VR INFO
 ===================================================== */
 
 function removeCardboardInfo() {
 
-  if (
-    !cardboardInfoGroup
-  )
+  if(!cardboardInfoGroup)
     return;
 
 
-  cardboardScene.remove(
+  world.remove(
     cardboardInfoGroup
   );
 
@@ -4023,26 +3686,14 @@ function removeCardboardInfo() {
   cardboardInfoGroup.traverse(
     child => {
 
-      if (
-        child.geometry
-      ) {
-
+      if(child.geometry)
         child.geometry.dispose();
 
-      }
 
+      if(child.material) {
 
-      if (
-        child.material
-      ) {
-
-        if (
-          child.material.map
-        ) {
-
+        if(child.material.map)
           child.material.map.dispose();
-
-        }
 
 
         child.material.dispose();
@@ -4065,9 +3716,7 @@ function removeCardboardInfo() {
 
 function cardboardLoop() {
 
-  if (
-    !cardboardMode
-  )
+  if(!cardboardMode)
     return;
 
 
@@ -4077,45 +3726,29 @@ function cardboardLoop() {
     );
 
 
-  /*
-     Kamera sledi telefonu.
-  */
-
   updateCardboardOrientation(
-    cardboardCamera
+    vrCamera
   );
 
 
-  cardboardCamera.updateMatrixWorld(
+  vrCamera.updateMatrixWorld(
     true
   );
 
 
-  /*
-     Hotspoti so obrnjeni proti uporabniku.
-  */
-
   orientHotspotsToCamera();
 
-
-  /*
-     Preveri pogled.
-  */
 
   updateGaze();
 
 
-  /*
-     Render 50 / 50.
-  */
-
-  renderCardboardStereo();
+  renderCardboard();
 
 }
 
 
 /* =====================================================
-   EXIT CARDBOARD
+   EXIT
 ===================================================== */
 
 exitCardboardBtn.addEventListener(
@@ -4126,9 +3759,7 @@ exitCardboardBtn.addEventListener(
 
 async function exitCardboard() {
 
-  if (
-    !cardboardMode
-  )
+  if(!cardboardMode)
     return;
 
 
@@ -4136,19 +3767,10 @@ async function exitCardboard() {
     false;
 
 
-  /*
-     WAKE LOCK IZKLOP.
-
-     Zdaj se telefon lahko spet
-     normalno ugasne.
-  */
-
   await disableWakeLock();
 
 
-  if (
-    cardboardAnimationId
-  ) {
+  if(cardboardAnimationId) {
 
     cancelAnimationFrame(
       cardboardAnimationId
@@ -4182,11 +3804,6 @@ async function exitCardboard() {
     "flex";
 
 
-  /*
-     Ponovno vključimo normalen
-     mouse/touch pogled.
-  */
-
   camera.setAttribute(
     "look-controls",
     "enabled",
@@ -4194,44 +3811,92 @@ async function exitCardboard() {
   );
 
 
-  /*
-     Obnovimo normalno kamero.
-  */
+  if(vrCamera) {
 
-  const normalCamera =
-    camera.getObject3D(
-      "camera"
-    );
+    vrCamera.fov =
+      originalFov;
 
 
-  if (
-    normalCamera
-  ) {
-
-    normalCamera.fov =
-      originalCameraFov;
-
-
-    normalCamera.aspect =
+    vrCamera.aspect =
       window.innerWidth /
       window.innerHeight;
 
 
-    normalCamera.updateProjectionMatrix();
+    vrCamera.updateProjectionMatrix();
 
   }
 
 
   /*
-     Obnovimo renderer.
+     Dispose VR render targets.
   */
 
-  if (
-    scene.renderer
-  ) {
+  if(leftTarget) {
 
-    const renderer =
-      scene.renderer;
+    leftTarget.dispose();
+
+    leftTarget =
+      null;
+
+  }
+
+
+  if(rightTarget) {
+
+    rightTarget.dispose();
+
+    rightTarget =
+      null;
+
+  }
+
+
+  if(leftDistortionMesh) {
+
+    leftDistortionMesh
+      .geometry
+      .dispose();
+
+
+    leftDistortionMesh
+      .material
+      .dispose();
+
+  }
+
+
+  if(rightDistortionMesh) {
+
+    rightDistortionMesh
+      .geometry
+      .dispose();
+
+
+    rightDistortionMesh
+      .material
+      .dispose();
+
+  }
+
+
+  distortionScene =
+    null;
+
+  distortionCamera =
+    null;
+
+  leftDistortionMesh =
+    null;
+
+  rightDistortionMesh =
+    null;
+
+
+  if(renderer) {
+
+    renderer.setRenderTarget(
+      null
+    );
 
 
     renderer.setScissorTest(
@@ -4239,36 +3904,17 @@ async function exitCardboard() {
     );
 
 
-    const size =
-      new THREE.Vector2();
-
-
-    renderer.getDrawingBufferSize(
-      size
+    renderer.setClearColor(
+      0x000000,
+      1
     );
-
-
-    renderer.setViewport(
-      0,
-      0,
-      size.x,
-      size.y
-    );
-
-
-    renderer.autoClear =
-      true;
 
   }
 
 
-  /*
-     Odkleni landscape.
-  */
-
   try {
 
-    if (
+    if(
       screen.orientation &&
       screen.orientation.unlock
     ) {
@@ -4279,16 +3925,12 @@ async function exitCardboard() {
 
   }
 
-  catch (error) {}
+  catch(error){}
 
-
-  /*
-     Zapusti fullscreen.
-  */
 
   try {
 
-    if (
+    if(
       document.fullscreenElement
     ) {
 
@@ -4299,7 +3941,7 @@ async function exitCardboard() {
 
   }
 
-  catch (error) {}
+  catch(error){}
 
 }
 
@@ -4310,17 +3952,13 @@ async function exitCardboard() {
 
 document.addEventListener(
   "keydown",
-  event => {
+  e => {
 
-    if (
-      event.key !== "Escape"
-    )
+    if(e.key !== "Escape")
       return;
 
 
-    if (
-      cardboardMode
-    ) {
+    if(cardboardMode) {
 
       exitCardboard();
 
@@ -4331,56 +3969,7 @@ document.addEventListener(
 
     closePopup();
 
-
     stopAddMode();
-
-
-    cardboardStartPanel.style.display =
-      "none";
-
-
-    permissionPanel.style.display =
-      "none";
-
-  }
-);
-
-
-/* =====================================================
-   RESIZE
-===================================================== */
-
-window.addEventListener(
-  "resize",
-  () => {
-
-    if (
-      cardboardMode
-    ) {
-
-      return;
-
-    }
-
-
-    const cam =
-      camera.getObject3D(
-        "camera"
-      );
-
-
-    if (
-      !cam
-    )
-      return;
-
-
-    cam.aspect =
-      window.innerWidth /
-      window.innerHeight;
-
-
-    cam.updateProjectionMatrix();
 
   }
 );
