@@ -2,126 +2,314 @@
 <html lang="sl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
 <title>360 Panorama</title>
 
 <style>
 *{box-sizing:border-box}
+
 html,body{
-  margin:0;width:100%;height:100%;overflow:hidden;
-  background:#000;font-family:Arial,sans-serif;
-}
-button,input,textarea{font:inherit}
-#canvas{
-  position:fixed;inset:0;width:100%;height:100%;
-  display:block;background:#000;touch-action:none;
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  font-family:Arial,sans-serif;
 }
 
-/* TOOLBAR */
+button,input,textarea{font:inherit}
+
+#canvas{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  background:#000;
+  touch-action:none;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
 #toolbar{
-  position:fixed;z-index:100;top:12px;left:12px;
-  display:flex;gap:7px;align-items:center;flex-wrap:wrap;
-  padding:8px;background:rgba(15,15,15,.88);border-radius:14px;
+  position:fixed;
+  z-index:100;
+  top:12px;
+  left:12px;
+  display:flex;
+  gap:7px;
+  align-items:center;
+  flex-wrap:wrap;
+  padding:8px;
+  background:rgba(15,15,15,.88);
+  border-radius:14px;
 }
+
 .tool{
-  min-height:42px;padding:0 13px;border:0;border-radius:9px;
-  background:#333;color:#fff;font-weight:700;cursor:pointer;
+  min-height:42px;
+  padding:0 13px;
+  border:0;
+  border-radius:9px;
+  background:#333;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
 }
+
 #addBtn{background:#2563eb}
 #addBtn.active{background:#16a34a}
 #cardboardBtn{background:#7c3aed}
 
 #hint{
-  position:fixed;z-index:120;display:none;left:50%;bottom:25px;
+  position:fixed;
+  z-index:120;
+  display:none;
+  left:50%;
+  bottom:25px;
   transform:translateX(-50%);
-  padding:11px 18px;background:rgba(0,0,0,.82);color:#fff;
-  border-radius:30px;pointer-events:none;
+  padding:11px 18px;
+  background:rgba(0,0,0,.82);
+  color:#fff;
+  border-radius:30px;
+  pointer-events:none;
 }
 
-/* HOTSPOT POPUP */
+/* =========================================================
+   HOTSPOT POPUP
+========================================================= */
+
 #popup{
-  position:fixed;z-index:200;display:none;width:330px;
-  max-width:calc(100vw - 24px);padding:18px;
-  background:#fff;color:#111;border-radius:14px;
+  position:fixed;
+  z-index:200;
+  display:none;
+  width:330px;
+  max-width:calc(100vw - 24px);
+  padding:18px;
+  background:#fff;
+  color:#111;
+  border-radius:14px;
   box-shadow:0 15px 45px rgba(0,0,0,.45);
 }
-#popupClose{
-  position:absolute;top:8px;right:8px;width:30px;height:30px;
-  padding:0;border:0;border-radius:50%;background:#eee;
-  font-size:20px;cursor:pointer;
-}
-#reader,#editor{display:none}
-#readerTitle{margin:0 35px 10px 0}
-#readerDescription{margin-bottom:15px;line-height:1.5;white-space:pre-wrap}
-#editBtn{
-  width:100%;padding:10px;border:0;border-radius:8px;
-  background:#2563eb;color:#fff;font-weight:bold;cursor:pointer;
-}
-.fieldLabel{display:block;margin:9px 0 4px;font-size:12px;font-weight:bold}
-#titleInput,#descriptionInput{
-  width:100%;padding:10px;border:1px solid #bbb;border-radius:8px;
-}
-#descriptionInput{min-height:115px;resize:vertical}
-.editorButtons{display:flex;gap:7px;margin-top:10px}
-.editorButtons button{
-  flex:1;padding:10px;border:0;border-radius:8px;font-weight:bold;cursor:pointer;
-}
-#saveBtn{background:#16a34a;color:#fff}
-#cancelBtn{background:#ddd}
-#deleteBtn{background:#dc2626;color:#fff}
 
-/* MODAL */
+#popupClose{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:30px;
+  height:30px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:#eee;
+  font-size:20px;
+  cursor:pointer;
+}
+
+#reader,#editor{display:none}
+
+#readerTitle{
+  margin:0 35px 10px 0;
+}
+
+#readerDescription{
+  margin-bottom:15px;
+  line-height:1.5;
+  white-space:pre-wrap;
+}
+
+#editBtn{
+  width:100%;
+  padding:10px;
+  border:0;
+  border-radius:8px;
+  background:#2563eb;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.fieldLabel{
+  display:block;
+  margin:9px 0 4px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+#titleInput,#descriptionInput{
+  width:100%;
+  padding:10px;
+  border:1px solid #bbb;
+  border-radius:8px;
+}
+
+#descriptionInput{
+  min-height:115px;
+  resize:vertical;
+}
+
+.editorButtons{
+  display:flex;
+  gap:7px;
+  margin-top:10px;
+}
+
+.editorButtons button{
+  flex:1;
+  padding:10px;
+  border:0;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#saveBtn{
+  background:#16a34a;
+  color:#fff;
+}
+
+#cancelBtn{
+  background:#ddd;
+}
+
+#deleteBtn{
+  background:#dc2626;
+  color:#fff;
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
 .modal{
-  position:fixed;inset:0;z-index:500;display:none;
-  align-items:center;justify-content:center;padding:20px;
+  position:fixed;
+  inset:0;
+  z-index:500;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
   background:rgba(0,0,0,.94);
 }
-.modalBox{
-  width:390px;max-width:100%;padding:24px;
-  background:#fff;color:#111;border-radius:17px;text-align:center;
-}
-.modalBox h2{margin-top:0}
-.modalBox button{
-  width:100%;margin-top:8px;padding:13px;border:0;
-  border-radius:9px;font-weight:bold;cursor:pointer;
-}
-#startCardboardBtn,#sensorBtn{background:#7c3aed;color:#fff}
-#cancelCardboardBtn{background:#ddd}
 
-/* CARDBOARD */
-#cardboardUI{
-  position:fixed;inset:0;z-index:300;display:none;pointer-events:none;
+.modalBox{
+  width:390px;
+  max-width:100%;
+  padding:24px;
+  background:#fff;
+  color:#111;
+  border-radius:17px;
+  text-align:center;
 }
+
+.modalBox h2{
+  margin-top:0;
+}
+
+.modalBox button{
+  width:100%;
+  margin-top:8px;
+  padding:13px;
+  border:0;
+  border-radius:9px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#startCardboardBtn,#sensorBtn{
+  background:#7c3aed;
+  color:#fff;
+}
+
+#cancelCardboardBtn{
+  background:#ddd;
+}
+
+/* =========================================================
+   CARDBOARD UI
+========================================================= */
+
+#cardboardUI{
+  position:fixed;
+  inset:0;
+  z-index:300;
+  display:none;
+  pointer-events:none;
+}
+
+/*
+  Retikla sta na optičnih centrih
+  obeh polovic zaslona.
+*/
+
 .reticle{
-  position:absolute;top:50%;width:24px;height:24px;
+  position:absolute;
+  top:50%;
+  width:24px;
+  height:24px;
   transform:translate(-50%,-50%);
-  border:2px solid #fff;border-radius:50%;
+  border:2px solid #fff;
+  border-radius:50%;
   box-shadow:0 0 3px #000,0 0 8px #000;
 }
+
 .reticle:after{
-  content:"";position:absolute;left:50%;top:50%;
-  width:4px;height:4px;transform:translate(-50%,-50%);
-  background:#fff;border-radius:50%;
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:4px;
+  height:4px;
+  transform:translate(-50%,-50%);
+  background:#fff;
+  border-radius:50%;
 }
+
 #reticleLeft{left:25%}
 #reticleRight{left:75%}
 
-.reticle.active{animation:gazeProgress 1.2s linear forwards}
+.reticle.active{
+  animation:gazeProgress 1.2s linear forwards;
+}
+
 @keyframes gazeProgress{
   from{transform:translate(-50%,-50%) scale(1)}
   to{transform:translate(-50%,-50%) scale(1.75)}
 }
 
 #exitCardboardBtn{
-  position:absolute;top:10px;right:10px;z-index:400;
-  width:46px;height:46px;padding:0;border:0;border-radius:50%;
-  background:rgba(0,0,0,.7);color:#fff;font-size:27px;
-  pointer-events:auto;cursor:pointer;
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:400;
+  width:46px;
+  height:46px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.7);
+  color:#fff;
+  font-size:27px;
+  pointer-events:auto;
+  cursor:pointer;
 }
 
 @media(max-width:700px){
-  #toolbar{top:7px;left:7px;right:7px;justify-content:center}
-  .tool{min-height:38px;padding:0 9px;font-size:12px}
+  #toolbar{
+    top:7px;
+    left:7px;
+    right:7px;
+    justify-content:center;
+  }
+
+  .tool{
+    min-height:38px;
+    padding:0 9px;
+    font-size:12px;
+  }
 }
 </style>
 </head>
@@ -138,9 +326,12 @@ button,input,textarea{font:inherit}
   <button id="cardboardBtn" class="tool">🥽 CARDBOARD</button>
 </div>
 
-<div id="hint">Klikni na mesto v panorami</div>
+<div id="hint">
+  Klikni na mesto v panorami
+</div>
 
 <div id="popup">
+
   <button id="popupClose">×</button>
 
   <div id="reader">
@@ -150,42 +341,83 @@ button,input,textarea{font:inherit}
   </div>
 
   <div id="editor">
-    <label class="fieldLabel">Naslov</label>
-    <input id="titleInput" type="text" placeholder="Naslov">
 
-    <label class="fieldLabel">Opis</label>
-    <textarea id="descriptionInput" placeholder="Opis..."></textarea>
+    <label class="fieldLabel">
+      Naslov
+    </label>
+
+    <input
+      id="titleInput"
+      type="text"
+      placeholder="Naslov">
+
+    <label class="fieldLabel">
+      Opis
+    </label>
+
+    <textarea
+      id="descriptionInput"
+      placeholder="Opis..."></textarea>
 
     <div class="editorButtons">
       <button id="saveBtn">Shrani</button>
       <button id="cancelBtn">Prekliči</button>
       <button id="deleteBtn">Izbriši</button>
     </div>
+
   </div>
 </div>
 
 <div id="cardboardStart" class="modal">
   <div class="modalBox">
+
     <h2>🥽 Cardboard</h2>
-    <p>Obrni telefon vodoravno.</p>
-    <p>Prikaz uporablja dve ločeni ukrivljeni Cardboard sliki.</p>
-    <button id="startCardboardBtn">ZAŽENI</button>
-    <button id="cancelCardboardBtn">Prekliči</button>
+
+    <p>
+      Obrni telefon vodoravno in ga vstavi v očala.
+    </p>
+
+    <button id="startCardboardBtn">
+      ZAŽENI
+    </button>
+
+    <button id="cancelCardboardBtn">
+      Prekliči
+    </button>
+
   </div>
 </div>
 
 <div id="sensorModal" class="modal">
   <div class="modalBox">
+
     <h2>Senzor gibanja</h2>
-    <p>Dovoli uporabo senzorjev telefona.</p>
-    <button id="sensorBtn">DOVOLI IN ZAŽENI</button>
+
+    <p>
+      Dovoli uporabo senzorjev telefona.
+    </p>
+
+    <button id="sensorBtn">
+      DOVOLI IN ZAŽENI
+    </button>
+
   </div>
 </div>
 
 <div id="cardboardUI">
-  <div id="reticleLeft" class="reticle"></div>
-  <div id="reticleRight" class="reticle"></div>
-  <button id="exitCardboardBtn">×</button>
+
+  <div
+    id="reticleLeft"
+    class="reticle"></div>
+
+  <div
+    id="reticleRight"
+    class="reticle"></div>
+
+  <button id="exitCardboardBtn">
+    ×
+  </button>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -197,45 +429,92 @@ button,input,textarea{font:inherit}
    ELEMENTI
 ========================================================= */
 
-const canvas = document.getElementById("canvas");
-const toolbar = document.getElementById("toolbar");
+const canvas =
+  document.getElementById("canvas");
 
-const addBtn = document.getElementById("addBtn");
-const zoomInBtn = document.getElementById("zoomInBtn");
-const zoomOutBtn = document.getElementById("zoomOutBtn");
-const fullscreenBtn = document.getElementById("fullscreenBtn");
-const cardboardBtn = document.getElementById("cardboardBtn");
+const toolbar =
+  document.getElementById("toolbar");
 
-const hint = document.getElementById("hint");
+const addBtn =
+  document.getElementById("addBtn");
 
-const popup = document.getElementById("popup");
-const popupClose = document.getElementById("popupClose");
+const zoomInBtn =
+  document.getElementById("zoomInBtn");
 
-const reader = document.getElementById("reader");
-const editor = document.getElementById("editor");
+const zoomOutBtn =
+  document.getElementById("zoomOutBtn");
 
-const readerTitle = document.getElementById("readerTitle");
-const readerDescription = document.getElementById("readerDescription");
+const fullscreenBtn =
+  document.getElementById("fullscreenBtn");
 
-const editBtn = document.getElementById("editBtn");
-const titleInput = document.getElementById("titleInput");
-const descriptionInput = document.getElementById("descriptionInput");
+const cardboardBtn =
+  document.getElementById("cardboardBtn");
 
-const saveBtn = document.getElementById("saveBtn");
-const cancelBtn = document.getElementById("cancelBtn");
-const deleteBtn = document.getElementById("deleteBtn");
+const hint =
+  document.getElementById("hint");
 
-const cardboardStart = document.getElementById("cardboardStart");
-const startCardboardBtn = document.getElementById("startCardboardBtn");
-const cancelCardboardBtn = document.getElementById("cancelCardboardBtn");
+const popup =
+  document.getElementById("popup");
 
-const sensorModal = document.getElementById("sensorModal");
-const sensorBtn = document.getElementById("sensorBtn");
+const popupClose =
+  document.getElementById("popupClose");
 
-const cardboardUI = document.getElementById("cardboardUI");
-const reticleLeft = document.getElementById("reticleLeft");
-const reticleRight = document.getElementById("reticleRight");
-const exitCardboardBtn = document.getElementById("exitCardboardBtn");
+const reader =
+  document.getElementById("reader");
+
+const editor =
+  document.getElementById("editor");
+
+const readerTitle =
+  document.getElementById("readerTitle");
+
+const readerDescription =
+  document.getElementById("readerDescription");
+
+const editBtn =
+  document.getElementById("editBtn");
+
+const titleInput =
+  document.getElementById("titleInput");
+
+const descriptionInput =
+  document.getElementById("descriptionInput");
+
+const saveBtn =
+  document.getElementById("saveBtn");
+
+const cancelBtn =
+  document.getElementById("cancelBtn");
+
+const deleteBtn =
+  document.getElementById("deleteBtn");
+
+const cardboardStart =
+  document.getElementById("cardboardStart");
+
+const startCardboardBtn =
+  document.getElementById("startCardboardBtn");
+
+const cancelCardboardBtn =
+  document.getElementById("cancelCardboardBtn");
+
+const sensorModal =
+  document.getElementById("sensorModal");
+
+const sensorBtn =
+  document.getElementById("sensorBtn");
+
+const cardboardUI =
+  document.getElementById("cardboardUI");
+
+const reticleLeft =
+  document.getElementById("reticleLeft");
+
+const reticleRight =
+  document.getElementById("reticleRight");
+
+const exitCardboardBtn =
+  document.getElementById("exitCardboardBtn");
 
 /* =========================================================
    THREE
@@ -246,60 +525,104 @@ if(typeof THREE === "undefined"){
   throw new Error("Three.js se ni naložil.");
 }
 
-const renderer = new THREE.WebGLRenderer({
-  canvas:canvas,
-  antialias:true
-});
+const renderer =
+  new THREE.WebGLRenderer({
+    canvas:canvas,
+    antialias:true,
+    powerPreference:"high-performance"
+  });
 
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,2));
-renderer.setClearColor(0x000000,1);
-
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(
-  75,
-  innerWidth / innerHeight,
-  0.01,
-  200
+renderer.setPixelRatio(
+  Math.min(
+    window.devicePixelRatio || 1,
+    2
+  )
 );
 
-camera.position.set(0,0,0);
+renderer.setClearColor(
+  0x000000,
+  1
+);
+
+const scene =
+  new THREE.Scene();
+
+const camera =
+  new THREE.PerspectiveCamera(
+    75,
+    innerWidth / innerHeight,
+    0.01,
+    200
+  );
+
+camera.position.set(
+  0,
+  0,
+  0
+);
 
 /* =========================================================
    360 PANORAMA
 ========================================================= */
 
-const sphereGeometry = new THREE.SphereGeometry(50,64,40);
-sphereGeometry.scale(-1,1,1);
+const sphereGeometry =
+  new THREE.SphereGeometry(
+    50,
+    64,
+    40
+  );
 
-const panoramaMaterial = new THREE.MeshBasicMaterial({
-  color:0xffffff
-});
-
-const panoramaSphere = new THREE.Mesh(
-  sphereGeometry,
-  panoramaMaterial
+sphereGeometry.scale(
+  -1,
+  1,
+  1
 );
 
-scene.add(panoramaSphere);
+const panoramaMaterial =
+  new THREE.MeshBasicMaterial({
+    color:0xffffff
+  });
 
-/*
-  POMEMBNO:
-  360.jpg mora biti v ISTI MAPI kot index.html.
-*/
-const textureLoader = new THREE.TextureLoader();
+const panoramaSphere =
+  new THREE.Mesh(
+    sphereGeometry,
+    panoramaMaterial
+  );
+
+scene.add(
+  panoramaSphere
+);
+
+const textureLoader =
+  new THREE.TextureLoader();
 
 textureLoader.load(
   "360.jpg",
+
   texture => {
-    texture.colorSpace = THREE.SRGBColorSpace;
-    panoramaMaterial.map = texture;
-    panoramaMaterial.needsUpdate = true;
+
+    texture.colorSpace =
+      THREE.SRGBColorSpace;
+
+    panoramaMaterial.map =
+      texture;
+
+    panoramaMaterial.needsUpdate =
+      true;
   },
+
   undefined,
+
   error => {
-    console.error("360.jpg se ni naložil:",error);
-    alert("Napaka: 360.jpg se ni naložil. Preveri, da je v isti mapi kot index.html.");
+
+    console.error(
+      "360.jpg se ni naložil:",
+      error
+    );
+
+    alert(
+      "360.jpg se ni naložil. Slika mora biti v isti mapi kot index.html."
+    );
   }
 );
 
@@ -312,10 +635,18 @@ let normalPitch = 0;
 let normalFov = 75;
 
 function updateNormalCamera(){
-  camera.rotation.order = "YXZ";
-  camera.rotation.y = normalYaw;
-  camera.rotation.x = normalPitch;
-  camera.rotation.z = 0;
+
+  camera.rotation.order =
+    "YXZ";
+
+  camera.rotation.y =
+    normalYaw;
+
+  camera.rotation.x =
+    normalPitch;
+
+  camera.rotation.z =
+    0;
 }
 
 updateNormalCamera();
@@ -324,119 +655,242 @@ updateNormalCamera();
    HOTSPOT STORAGE
 ========================================================= */
 
-const STORAGE_KEY = "stable-360-hotspots-v5";
+const STORAGE_KEY =
+  "stable-360-hotspots-v5";
 
 let hotspots = [];
 
 try{
-  hotspots = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+  hotspots =
+    JSON.parse(
+      localStorage.getItem(
+        STORAGE_KEY
+      )
+    ) || [];
+
 }catch(e){
+
   hotspots = [];
 }
 
 function saveHotspots(){
+
   localStorage.setItem(
     STORAGE_KEY,
-    JSON.stringify(hotspots)
+    JSON.stringify(
+      hotspots
+    )
   );
 }
 
 /* =========================================================
-   HOTSPOT GEOMETRIJA
+   HOTSPOTI
 ========================================================= */
 
-const hotspotGroup = new THREE.Group();
-scene.add(hotspotGroup);
+const hotspotGroup =
+  new THREE.Group();
+
+scene.add(
+  hotspotGroup
+);
 
 let hotspotMeshes = [];
 
-function sphericalToVector(yaw,pitch,radius=47){
+function sphericalToVector(
+  yaw,
+  pitch,
+  radius=47
+){
+
   return new THREE.Vector3(
-    radius * Math.cos(pitch) * Math.sin(yaw),
-    radius * Math.sin(pitch),
-    -radius * Math.cos(pitch) * Math.cos(yaw)
+
+    radius *
+    Math.cos(pitch) *
+    Math.sin(yaw),
+
+    radius *
+    Math.sin(pitch),
+
+    -radius *
+    Math.cos(pitch) *
+    Math.cos(yaw)
   );
 }
 
-function directionToSpherical(direction){
+function directionToSpherical(
+  direction
+){
+
   return {
-    yaw:Math.atan2(direction.x,-direction.z),
-    pitch:Math.asin(
-      THREE.MathUtils.clamp(direction.y,-1,1)
-    )
+
+    yaw:
+      Math.atan2(
+        direction.x,
+        -direction.z
+      ),
+
+    pitch:
+      Math.asin(
+        THREE.MathUtils.clamp(
+          direction.y,
+          -1,
+          1
+        )
+      )
   };
 }
 
-function createHotspotTexture(number){
-  const c = document.createElement("canvas");
+function createHotspotTexture(
+  number
+){
+
+  const c =
+    document.createElement(
+      "canvas"
+    );
+
   c.width = 256;
   c.height = 256;
 
-  const ctx = c.getContext("2d");
+  const ctx =
+    c.getContext("2d");
 
-  ctx.clearRect(0,0,256,256);
+  ctx.clearRect(
+    0,
+    0,
+    256,
+    256
+  );
 
   ctx.beginPath();
-  ctx.arc(128,128,113,0,Math.PI*2);
-  ctx.fillStyle = "#fff";
+
+  ctx.arc(
+    128,
+    128,
+    113,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle =
+    "#fff";
+
   ctx.fill();
 
   ctx.beginPath();
-  ctx.arc(128,128,91,0,Math.PI*2);
-  ctx.fillStyle = "#ef3333";
+
+  ctx.arc(
+    128,
+    128,
+    91,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle =
+    "#ef3333";
+
   ctx.fill();
 
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 100px Arial";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(String(number),128,136);
+  ctx.fillStyle =
+    "#fff";
 
-  const texture = new THREE.CanvasTexture(c);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  ctx.font =
+    "bold 100px Arial";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "middle";
+
+  ctx.fillText(
+    String(number),
+    128,
+    136
+  );
+
+  const texture =
+    new THREE.CanvasTexture(c);
+
+  texture.colorSpace =
+    THREE.SRGBColorSpace;
 
   return texture;
 }
 
 function renderHotspots(){
 
-  hotspotMeshes.forEach(sprite=>{
-    hotspotGroup.remove(sprite);
+  hotspotMeshes.forEach(
+    sprite => {
 
-    if(sprite.material.map){
-      sprite.material.map.dispose();
+      hotspotGroup.remove(
+        sprite
+      );
+
+      if(sprite.material.map){
+
+        sprite.material.map
+          .dispose();
+      }
+
+      sprite.material
+        .dispose();
     }
-
-    sprite.material.dispose();
-  });
+  );
 
   hotspotMeshes = [];
 
-  hotspots.forEach((hotspot,index)=>{
+  hotspots.forEach(
+    (hotspot,index) => {
 
-    const material = new THREE.SpriteMaterial({
-      map:createHotspotTexture(index+1),
-      transparent:true,
-      depthTest:false,
-      depthWrite:false
-    });
+      const material =
+        new THREE.SpriteMaterial({
 
-    const sprite = new THREE.Sprite(material);
+          map:
+            createHotspotTexture(
+              index+1
+            ),
 
-    sprite.position.copy(
-      sphericalToVector(
-        hotspot.yaw,
-        hotspot.pitch
-      )
-    );
+          transparent:true,
 
-    sprite.scale.set(2.35,2.35,1);
+          depthTest:false,
 
-    sprite.userData.hotspotId = hotspot.id;
+          depthWrite:false
+        });
 
-    hotspotGroup.add(sprite);
-    hotspotMeshes.push(sprite);
-  });
+      const sprite =
+        new THREE.Sprite(
+          material
+        );
+
+      sprite.position.copy(
+
+        sphericalToVector(
+          hotspot.yaw,
+          hotspot.pitch
+        )
+      );
+
+      sprite.scale.set(
+        2.35,
+        2.35,
+        1
+      );
+
+      sprite.userData.hotspotId =
+        hotspot.id;
+
+      hotspotGroup.add(
+        sprite
+      );
+
+      hotspotMeshes.push(
+        sprite
+      );
+    }
+  );
 }
 
 renderHotspots();
@@ -445,103 +899,178 @@ renderHotspots();
    POPUP
 ========================================================= */
 
-let selectedHotspotId = null;
+let selectedHotspotId =
+  null;
 
 function getHotspot(id){
-  return hotspots.find(h=>h.id===id);
+
+  return hotspots.find(
+    h => h.id === id
+  );
 }
 
 function openReader(id){
 
-  const hotspot = getHotspot(id);
+  const hotspot =
+    getHotspot(id);
 
   if(!hotspot) return;
 
-  selectedHotspotId = id;
+  selectedHotspotId =
+    id;
 
   readerTitle.textContent =
-    hotspot.title || "Brez naslova";
+    hotspot.title ||
+    "Brez naslova";
 
   readerDescription.textContent =
-    hotspot.description || "Ni opisa.";
+    hotspot.description ||
+    "Ni opisa.";
 
-  editor.style.display = "none";
-  reader.style.display = "block";
-  popup.style.display = "block";
+  editor.style.display =
+    "none";
+
+  reader.style.display =
+    "block";
+
+  popup.style.display =
+    "block";
 
   positionPopup();
 }
 
 function openEditor(id){
 
-  const hotspot = getHotspot(id);
+  const hotspot =
+    getHotspot(id);
 
   if(!hotspot) return;
 
-  selectedHotspotId = id;
+  selectedHotspotId =
+    id;
 
-  titleInput.value = hotspot.title || "";
-  descriptionInput.value = hotspot.description || "";
+  titleInput.value =
+    hotspot.title || "";
 
-  reader.style.display = "none";
-  editor.style.display = "block";
-  popup.style.display = "block";
+  descriptionInput.value =
+    hotspot.description || "";
+
+  reader.style.display =
+    "none";
+
+  editor.style.display =
+    "block";
+
+  popup.style.display =
+    "block";
 
   positionPopup();
 }
 
 function closePopup(){
-  popup.style.display = "none";
-  selectedHotspotId = null;
+
+  popup.style.display =
+    "none";
+
+  selectedHotspotId =
+    null;
 }
 
-popupClose.addEventListener("click",closePopup);
+popupClose.addEventListener(
+  "click",
+  closePopup
+);
 
-editBtn.addEventListener("click",()=>{
-  if(selectedHotspotId){
-    openEditor(selectedHotspotId);
+editBtn.addEventListener(
+  "click",
+  () => {
+
+    if(selectedHotspotId){
+
+      openEditor(
+        selectedHotspotId
+      );
+    }
   }
-});
+);
 
-saveBtn.addEventListener("click",()=>{
+saveBtn.addEventListener(
+  "click",
+  () => {
 
-  const hotspot = getHotspot(selectedHotspotId);
+    const hotspot =
+      getHotspot(
+        selectedHotspotId
+      );
 
-  if(!hotspot) return;
+    if(!hotspot) return;
 
-  hotspot.title = titleInput.value.trim();
-  hotspot.description = descriptionInput.value.trim();
+    hotspot.title =
+      titleInput.value.trim();
 
-  saveHotspots();
-  openReader(hotspot.id);
-});
+    hotspot.description =
+      descriptionInput.value.trim();
 
-cancelBtn.addEventListener("click",()=>{
+    saveHotspots();
 
-  const hotspot = getHotspot(selectedHotspotId);
+    openReader(
+      hotspot.id
+    );
+  }
+);
 
-  if(hotspot && (hotspot.title || hotspot.description)){
-    openReader(hotspot.id);
-  }else{
+cancelBtn.addEventListener(
+  "click",
+  () => {
+
+    const hotspot =
+      getHotspot(
+        selectedHotspotId
+      );
+
+    if(
+      hotspot &&
+      (
+        hotspot.title ||
+        hotspot.description
+      )
+    ){
+
+      openReader(
+        hotspot.id
+      );
+
+    }else{
+
+      closePopup();
+    }
+  }
+);
+
+deleteBtn.addEventListener(
+  "click",
+  () => {
+
+    if(!selectedHotspotId)
+      return;
+
+    hotspots =
+      hotspots.filter(
+        h =>
+          h.id !==
+          selectedHotspotId
+      );
+
+    saveHotspots();
+
     closePopup();
+
+    renderHotspots();
   }
-});
-
-deleteBtn.addEventListener("click",()=>{
-
-  if(!selectedHotspotId) return;
-
-  hotspots = hotspots.filter(
-    h=>h.id!==selectedHotspotId
-  );
-
-  saveHotspots();
-  closePopup();
-  renderHotspots();
-});
+);
 
 /* =========================================================
-   POZICIJA POPUPA
+   POPUP POZICIJA
 ========================================================= */
 
 function positionPopup(){
@@ -549,104 +1078,171 @@ function positionPopup(){
   if(
     cardboardMode ||
     !selectedHotspotId ||
-    popup.style.display==="none"
+    popup.style.display === "none"
   ){
+
     return;
   }
 
-  const hotspot = getHotspot(selectedHotspotId);
+  const hotspot =
+    getHotspot(
+      selectedHotspotId
+    );
 
   if(!hotspot) return;
 
-  const worldPosition = sphericalToVector(
-    hotspot.yaw,
-    hotspot.pitch
+  const worldPosition =
+    sphericalToVector(
+      hotspot.yaw,
+      hotspot.pitch
+    );
+
+  const cameraForward =
+    new THREE.Vector3();
+
+  camera.getWorldDirection(
+    cameraForward
   );
 
-  const cameraForward = new THREE.Vector3();
-  camera.getWorldDirection(cameraForward);
+  const direction =
+    worldPosition
+      .clone()
+      .normalize();
 
-  const direction = worldPosition.clone().normalize();
+  if(
+    cameraForward.dot(
+      direction
+    ) <= 0
+  ){
 
-  if(cameraForward.dot(direction)<=0){
-    popup.style.visibility = "hidden";
+    popup.style.visibility =
+      "hidden";
+
     return;
   }
 
-  popup.style.visibility = "visible";
+  popup.style.visibility =
+    "visible";
 
-  const projected = worldPosition.clone();
-  projected.project(camera);
+  const projected =
+    worldPosition.clone();
 
-  const x = (projected.x+1)*0.5*innerWidth;
-  const y = (-projected.y+1)*0.5*innerHeight;
+  projected.project(
+    camera
+  );
 
-  const width = popup.offsetWidth;
-  const height = popup.offsetHeight;
+  const x =
+    (projected.x+1) *
+    0.5 *
+    innerWidth;
+
+  const y =
+    (-projected.y+1) *
+    0.5 *
+    innerHeight;
+
+  const width =
+    popup.offsetWidth;
+
+  const height =
+    popup.offsetHeight;
 
   let left;
 
-  if(x < innerWidth/2){
-    left = x+30;
+  if(
+    x <
+    innerWidth/2
+  ){
+
+    left =
+      x+30;
+
   }else{
-    left = x-width-30;
+
+    left =
+      x-width-30;
   }
 
-  let top = y-height/2;
+  let top =
+    y-height/2;
 
-  left = THREE.MathUtils.clamp(
-    left,
-    8,
-    innerWidth-width-8
-  );
+  left =
+    THREE.MathUtils.clamp(
+      left,
+      8,
+      innerWidth-width-8
+    );
 
-  top = THREE.MathUtils.clamp(
-    top,
-    8,
-    innerHeight-height-8
-  );
+  top =
+    THREE.MathUtils.clamp(
+      top,
+      8,
+      innerHeight-height-8
+    );
 
-  popup.style.left = left+"px";
-  popup.style.top = top+"px";
+  popup.style.left =
+    left+"px";
+
+  popup.style.top =
+    top+"px";
 }
 
 /* =========================================================
-   DODAJ HOTSPOT
+   ADD HOTSPOT
 ========================================================= */
 
-let addMode = false;
+let addMode =
+  false;
 
 function stopAddMode(){
 
-  addMode = false;
+  addMode =
+    false;
 
-  addBtn.classList.remove("active");
-  addBtn.textContent = "+ Dodaj hotspot";
-  hint.style.display = "none";
+  addBtn.classList.remove(
+    "active"
+  );
+
+  addBtn.textContent =
+    "+ Dodaj hotspot";
+
+  hint.style.display =
+    "none";
 }
 
-addBtn.addEventListener("click",()=>{
+addBtn.addEventListener(
+  "click",
+  () => {
 
-  if(cardboardMode) return;
+    if(cardboardMode)
+      return;
 
-  closePopup();
+    closePopup();
 
-  addMode = !addMode;
+    addMode =
+      !addMode;
 
-  if(addMode){
+    if(addMode){
 
-    addBtn.classList.add("active");
-    addBtn.textContent = "Klikni v panoramo";
-    hint.style.display = "block";
+      addBtn.classList.add(
+        "active"
+      );
 
-  }else{
+      addBtn.textContent =
+        "Klikni v panoramo";
 
-    stopAddMode();
+      hint.style.display =
+        "block";
+
+    }else{
+
+      stopAddMode();
+    }
   }
-});
+);
 
 /* =========================================================
-   MIŠKA / TOUCH
+   POINTER
 ========================================================= */
 
 let pointerDown = false;
@@ -658,124 +1254,217 @@ let pointerStartY = 0;
 let pointerLastX = 0;
 let pointerLastY = 0;
 
-canvas.addEventListener("pointerdown",event=>{
+canvas.addEventListener(
+  "pointerdown",
+  event => {
 
-  if(cardboardMode) return;
+    if(cardboardMode)
+      return;
 
-  pointerDown = true;
-  pointerMoved = false;
+    pointerDown =
+      true;
 
-  pointerStartX = pointerLastX = event.clientX;
-  pointerStartY = pointerLastY = event.clientY;
+    pointerMoved =
+      false;
 
-  try{
-    canvas.setPointerCapture(event.pointerId);
-  }catch(e){}
-});
+    pointerStartX =
+      pointerLastX =
+      event.clientX;
 
-canvas.addEventListener("pointermove",event=>{
+    pointerStartY =
+      pointerLastY =
+      event.clientY;
 
-  if(!pointerDown || cardboardMode) return;
+    try{
 
-  const dx = event.clientX-pointerLastX;
-  const dy = event.clientY-pointerLastY;
-
-  const distance = Math.hypot(
-    event.clientX-pointerStartX,
-    event.clientY-pointerStartY
-  );
-
-  if(distance>6){
-    pointerMoved = true;
-  }
-
-  if(!addMode){
-
-    normalYaw -= dx*0.004;
-    normalPitch -= dy*0.004;
-
-    normalPitch = THREE.MathUtils.clamp(
-      normalPitch,
-      -Math.PI/2+0.05,
-      Math.PI/2-0.05
-    );
-
-    updateNormalCamera();
-  }
-
-  pointerLastX = event.clientX;
-  pointerLastY = event.clientY;
-});
-
-canvas.addEventListener("pointerup",event=>{
-
-  if(cardboardMode) return;
-
-  pointerDown = false;
-
-  if(pointerMoved) return;
-
-  const rect = canvas.getBoundingClientRect();
-
-  const mouse = new THREE.Vector2(
-    ((event.clientX-rect.left)/rect.width)*2-1,
-    -((event.clientY-rect.top)/rect.height)*2+1
-  );
-
-  const raycaster = new THREE.Raycaster();
-
-  raycaster.setFromCamera(
-    mouse,
-    camera
-  );
-
-  if(!addMode){
-
-    const hits = raycaster.intersectObjects(
-      hotspotMeshes,
-      false
-    );
-
-    if(hits.length){
-
-      openReader(
-        hits[0].object.userData.hotspotId
+      canvas.setPointerCapture(
+        event.pointerId
       );
 
-      return;
-    }
+    }catch(e){}
   }
+);
 
-  if(!addMode) return;
+canvas.addEventListener(
+  "pointermove",
+  event => {
 
-  const direction = raycaster.ray.direction
-    .clone()
-    .normalize();
+    if(
+      !pointerDown ||
+      cardboardMode
+    ) return;
 
-  const spherical = directionToSpherical(direction);
+    const dx =
+      event.clientX -
+      pointerLastX;
 
-  const hotspot = {
-    id:
-      "hs-"+
-      Date.now()+
-      "-"+
-      Math.random().toString(36).slice(2,7),
+    const dy =
+      event.clientY -
+      pointerLastY;
 
-    yaw:spherical.yaw,
-    pitch:spherical.pitch,
-    title:"",
-    description:""
-  };
+    const distance =
+      Math.hypot(
 
-  hotspots.push(hotspot);
+        event.clientX -
+        pointerStartX,
 
-  saveHotspots();
-  renderHotspots();
+        event.clientY -
+        pointerStartY
+      );
 
-  stopAddMode();
+    if(distance>6){
 
-  openEditor(hotspot.id);
-});
+      pointerMoved =
+        true;
+    }
+
+    if(!addMode){
+
+      normalYaw -=
+        dx*0.004;
+
+      normalPitch -=
+        dy*0.004;
+
+      normalPitch =
+        THREE.MathUtils.clamp(
+
+          normalPitch,
+
+          -Math.PI/2+0.05,
+
+          Math.PI/2-0.05
+        );
+
+      updateNormalCamera();
+    }
+
+    pointerLastX =
+      event.clientX;
+
+    pointerLastY =
+      event.clientY;
+  }
+);
+
+canvas.addEventListener(
+  "pointerup",
+  event => {
+
+    if(cardboardMode)
+      return;
+
+    pointerDown =
+      false;
+
+    if(pointerMoved)
+      return;
+
+    const rect =
+      canvas.getBoundingClientRect();
+
+    const mouse =
+      new THREE.Vector2(
+
+        (
+          (
+            event.clientX -
+            rect.left
+          ) /
+          rect.width
+        ) * 2 - 1,
+
+        -(
+          (
+            event.clientY -
+            rect.top
+          ) /
+          rect.height
+        ) * 2 + 1
+      );
+
+    const raycaster =
+      new THREE.Raycaster();
+
+    raycaster.setFromCamera(
+      mouse,
+      camera
+    );
+
+    if(!addMode){
+
+      const hits =
+        raycaster
+          .intersectObjects(
+            hotspotMeshes,
+            false
+          );
+
+      if(hits.length){
+
+        openReader(
+
+          hits[0]
+            .object
+            .userData
+            .hotspotId
+        );
+
+        return;
+      }
+    }
+
+    if(!addMode)
+      return;
+
+    const direction =
+      raycaster
+        .ray
+        .direction
+        .clone()
+        .normalize();
+
+    const spherical =
+      directionToSpherical(
+        direction
+      );
+
+    const hotspot = {
+
+      id:
+        "hs-" +
+        Date.now() +
+        "-" +
+        Math.random()
+          .toString(36)
+          .slice(2,7),
+
+      yaw:
+        spherical.yaw,
+
+      pitch:
+        spherical.pitch,
+
+      title:"",
+
+      description:""
+    };
+
+    hotspots.push(
+      hotspot
+    );
+
+    saveHotspots();
+
+    renderHotspots();
+
+    stopAddMode();
+
+    openEditor(
+      hotspot.id
+    );
+  }
+);
 
 /* =========================================================
    ZOOM
@@ -783,159 +1472,280 @@ canvas.addEventListener("pointerup",event=>{
 
 function changeZoom(amount){
 
-  if(cardboardMode) return;
+  if(cardboardMode)
+    return;
 
-  normalFov = THREE.MathUtils.clamp(
-    normalFov+amount,
-    30,
-    100
-  );
+  normalFov =
+    THREE.MathUtils.clamp(
 
-  camera.fov = normalFov;
+      normalFov +
+      amount,
+
+      30,
+
+      100
+    );
+
+  camera.fov =
+    normalFov;
+
   camera.updateProjectionMatrix();
 }
 
-zoomInBtn.addEventListener("click",()=>{
-  changeZoom(-8);
-});
+zoomInBtn.addEventListener(
+  "click",
+  () => {
 
-zoomOutBtn.addEventListener("click",()=>{
-  changeZoom(8);
-});
+    changeZoom(-8);
+  }
+);
+
+zoomOutBtn.addEventListener(
+  "click",
+  () => {
+
+    changeZoom(8);
+  }
+);
 
 canvas.addEventListener(
   "wheel",
-  event=>{
+  event => {
 
-    if(cardboardMode) return;
+    if(cardboardMode)
+      return;
 
     event.preventDefault();
 
     changeZoom(
-      event.deltaY>0 ? 4 : -4
+
+      event.deltaY > 0
+        ? 4
+        : -4
     );
   },
-  {passive:false}
+  {
+    passive:false
+  }
 );
 
 /* =========================================================
    FULLSCREEN
 ========================================================= */
 
-fullscreenBtn.addEventListener("click",async()=>{
+fullscreenBtn.addEventListener(
+  "click",
+  async () => {
 
-  try{
+    try{
 
-    if(!document.fullscreenElement){
+      if(
+        !document.fullscreenElement
+      ){
 
-      if(document.documentElement.requestFullscreen){
-        await document.documentElement.requestFullscreen();
+        if(
+          document
+            .documentElement
+            .requestFullscreen
+        ){
+
+          await document
+            .documentElement
+            .requestFullscreen();
+        }
+
+      }else{
+
+        if(
+          document.exitFullscreen
+        ){
+
+          await document
+            .exitFullscreen();
+        }
       }
 
-    }else{
-
-      if(document.exitFullscreen){
-        await document.exitFullscreen();
-      }
-    }
-
-  }catch(e){}
-});
+    }catch(e){}
+  }
+);
 
 /* =========================================================
    WAKE LOCK
 ========================================================= */
 
-let wakeLock = null;
+let wakeLock =
+  null;
 
 async function requestWakeLock(){
 
-  if(!("wakeLock" in navigator)){
+  if(
+    !("wakeLock" in navigator)
+  ){
+
     return;
   }
 
   try{
 
-    if(wakeLock && !wakeLock.released){
+    if(
+      wakeLock &&
+      !wakeLock.released
+    ){
+
       return;
     }
 
-    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock =
+      await navigator
+        .wakeLock
+        .request(
+          "screen"
+        );
 
-    wakeLock.addEventListener("release",()=>{
-      wakeLock = null;
-    });
+    wakeLock.addEventListener(
+      "release",
+      () => {
+
+        wakeLock =
+          null;
+      }
+    );
 
   }catch(e){}
 }
 
 async function releaseWakeLock(){
 
-  if(!wakeLock) return;
+  if(!wakeLock)
+    return;
 
   try{
-    await wakeLock.release();
+
+    await wakeLock
+      .release();
+
   }catch(e){}
 
-  wakeLock = null;
+  wakeLock =
+    null;
 }
 
-document.addEventListener("visibilitychange",()=>{
+document.addEventListener(
+  "visibilitychange",
+  () => {
 
-  if(
-    cardboardMode &&
-    document.visibilityState==="visible"
-  ){
-    requestWakeLock();
+    if(
+      cardboardMode &&
+      document.visibilityState ===
+      "visible"
+    ){
+
+      requestWakeLock();
+    }
   }
-});
+);
+
+window.addEventListener(
+  "focus",
+  () => {
+
+    if(cardboardMode){
+
+      requestWakeLock();
+    }
+  }
+);
 
 /* =========================================================
-   GYRO
+   DEVICE ORIENTATION
 ========================================================= */
 
 let sensorAlpha = 0;
 let sensorBeta = 0;
 let sensorGamma = 0;
-let sensorAvailable = false;
 
-function orientationHandler(event){
+let sensorAvailable =
+  false;
 
-  if(event.alpha===null) return;
+function orientationHandler(
+  event
+){
 
-  sensorAlpha = event.alpha || 0;
-  sensorBeta = event.beta || 0;
-  sensorGamma = event.gamma || 0;
+  if(
+    event.alpha === null
+  ){
 
-  sensorAvailable = true;
+    return;
+  }
+
+  sensorAlpha =
+    event.alpha || 0;
+
+  sensorBeta =
+    event.beta || 0;
+
+  sensorGamma =
+    event.gamma || 0;
+
+  sensorAvailable =
+    true;
 }
 
-const orientationEuler = new THREE.Euler();
-const orientationQuaternion = new THREE.Quaternion();
-const screenQuaternion = new THREE.Quaternion();
+const orientationEuler =
+  new THREE.Euler();
 
-const orientationZ = new THREE.Vector3(0,0,1);
+const orientationQuaternion =
+  new THREE.Quaternion();
 
-const orientationFix = new THREE.Quaternion(
-  -Math.sqrt(0.5),
-  0,
-  0,
-  Math.sqrt(0.5)
-);
+const screenQuaternion =
+  new THREE.Quaternion();
+
+const orientationZ =
+  new THREE.Vector3(
+    0,
+    0,
+    1
+  );
+
+const orientationFix =
+  new THREE.Quaternion(
+
+    -Math.sqrt(0.5),
+
+    0,
+
+    0,
+
+    Math.sqrt(0.5)
+  );
 
 function updateGyroscope(){
 
-  if(!sensorAvailable) return;
+  if(!sensorAvailable)
+    return;
 
-  const alpha = THREE.MathUtils.degToRad(sensorAlpha);
-  const beta = THREE.MathUtils.degToRad(sensorBeta);
-  const gamma = THREE.MathUtils.degToRad(sensorGamma);
+  const alpha =
+    THREE.MathUtils.degToRad(
+      sensorAlpha
+    );
 
-  let screenOrientation = 0;
+  const beta =
+    THREE.MathUtils.degToRad(
+      sensorBeta
+    );
+
+  const gamma =
+    THREE.MathUtils.degToRad(
+      sensorGamma
+    );
+
+  let screenOrientation =
+    0;
 
   if(
     screen.orientation &&
-    typeof screen.orientation.angle==="number"
+    typeof screen.orientation.angle ===
+    "number"
   ){
 
     screenOrientation =
@@ -943,7 +1753,10 @@ function updateGyroscope(){
         screen.orientation.angle
       );
 
-  }else if(typeof window.orientation==="number"){
+  }else if(
+    typeof window.orientation ===
+    "number"
+  ){
 
     screenOrientation =
       THREE.MathUtils.degToRad(
@@ -952,28 +1765,38 @@ function updateGyroscope(){
   }
 
   orientationEuler.set(
+
     beta,
+
     alpha,
+
     -gamma,
+
     "YXZ"
   );
 
-  orientationQuaternion.setFromEuler(
-    orientationEuler
-  );
+  orientationQuaternion
+    .setFromEuler(
+      orientationEuler
+    );
 
-  orientationQuaternion.multiply(
-    orientationFix
-  );
+  orientationQuaternion
+    .multiply(
+      orientationFix
+    );
 
-  screenQuaternion.setFromAxisAngle(
-    orientationZ,
-    -screenOrientation
-  );
+  screenQuaternion
+    .setFromAxisAngle(
 
-  orientationQuaternion.multiply(
-    screenQuaternion
-  );
+      orientationZ,
+
+      -screenOrientation
+    );
+
+  orientationQuaternion
+    .multiply(
+      screenQuaternion
+    );
 
   camera.quaternion.copy(
     orientationQuaternion
@@ -981,37 +1804,106 @@ function updateGyroscope(){
 }
 
 /* =========================================================
-   CARDBOARD
+   GOOGLE CARDBOARD REFERENCE PROFILE
 ========================================================= */
 
-let cardboardMode = false;
+/*
+  Referenčni Google Cardboard I/O 2015 profil:
 
-const stereoCamera = new THREE.StereoCamera();
-stereoCamera.eyeSep = 0.064;
+  inter-lens distance:   63.9 mm
+  screen-to-lens:        39.3 mm
+  distortion k1:         0.33582564
+  distortion k2:         0.55348791
 
-let leftRenderTarget = null;
-let rightRenderTarget = null;
+  V browserju nimamo native Cardboard distortion-mesh API-ja,
+  zato naredimo ekvivalentno radialno preslikavo v shaderju.
+*/
 
-const outputScene = new THREE.Scene();
-const outputCamera = new THREE.Camera();
+const CARDBOARD = {
 
-let leftEyeMesh = null;
-let rightEyeMesh = null;
+  interLensMM:
+    63.9,
+
+  screenToLensMM:
+    39.3,
+
+  k1:
+    0.33582564,
+
+  k2:
+    0.55348791,
+
+  /*
+    StereoCamera eyeSep je v world units.
+    Če 1 world unit obravnavamo kot meter:
+    63.9 mm = 0.0639 m.
+  */
+
+  eyeSep:
+    0.0639,
+
+  /*
+    Referenčni pogled.
+    Dejanski Cardboard SDK projection matriko
+    izračuna iz viewer + screen profila.
+  */
+
+  fov:
+    90
+};
+
+/* =========================================================
+   CARDBOARD RENDERER
+========================================================= */
+
+let cardboardMode =
+  false;
+
+const stereoCamera =
+  new THREE.StereoCamera();
+
+stereoCamera.eyeSep =
+  CARDBOARD.eyeSep;
+
+let leftRenderTarget =
+  null;
+
+let rightRenderTarget =
+  null;
+
+const outputScene =
+  new THREE.Scene();
+
+const outputCamera =
+  new THREE.Camera();
+
+let leftEyeMesh =
+  null;
+
+let rightEyeMesh =
+  null;
+
+/* =========================================================
+   DISTORTION SHADER
+========================================================= */
 
 /*
-  KLJUČNI DEL:
-  DVE LOČENI UKRIVLJENI SLIKI.
+  Vsako oko zavzame točno svojo polovico zaslona.
 
-  eyeOffset:
-    -0.50 = leva
-    +0.50 = desna
+  PlaneGeometry je 2x2.
 
-  eyeScale:
-    0.43 = širina posamezne leče
-    0.76 = višina posamezne leče
+  scale.x = 0.5:
+    polovica celotnega zaslona.
+
+  offset.x = -0.5:
+    leva polovica.
+
+  offset.x = +0.5:
+    desna polovica.
 */
 
 const cardboardVertexShader = `
+
 varying vec2 vUv;
 
 uniform vec2 eyeScale;
@@ -1021,22 +1913,45 @@ void main(){
 
   vUv = uv;
 
-  vec2 clipPosition =
-    position.xy * eyeScale + eyeOffset;
+  vec2 clip =
+    position.xy *
+    eyeScale +
+    eyeOffset;
 
   gl_Position =
     vec4(
-      clipPosition,
+      clip,
       0.0,
       1.0
     );
 }
+
 `;
 
+/*
+  Radialni model:
+
+  r_d = r * (
+      1 +
+      k1*r^2 +
+      k2*r^4
+  )
+
+  Pomembno:
+  shader za vsak output pixel išče ustrezen
+  pixel v nedistorzirani eye-texture.
+
+  Ker močna Cardboard korekcija sicer odreže
+  preveč slike, se normaliziran radij skalira
+  v območje leče.
+*/
+
 const cardboardFragmentShader = `
+
 precision highp float;
 
 uniform sampler2D eyeTexture;
+
 uniform float k1;
 uniform float k2;
 
@@ -1044,55 +1959,138 @@ varying vec2 vUv;
 
 void main(){
 
+  /*
+    -1 ... +1 okoli optičnega centra očesa.
+  */
+
   vec2 p =
     vUv * 2.0 - 1.0;
 
-  vec2 q = p;
 
-  q.x *= 1.04;
+  /*
+    Telefonova polovica zaslona je praviloma
+    širša/nižja kot kvadratna koordinata leče.
+
+    Rahlo korigiramo X, da radialna funkcija
+    deluje okoli optičnega centra.
+  */
+
+  vec2 lens =
+    p;
+
+  lens.x *=
+    0.82;
+
 
   float r2 =
-    dot(q,q);
+    dot(
+      lens,
+      lens
+    );
 
-  float factor =
+
+  /*
+    Google Cardboard referenčna
+    radialna funkcija.
+  */
+
+  float distortion =
     1.0 +
-    k1*r2 +
-    k2*r2*r2;
+    k1 * r2 +
+    k2 * r2 * r2;
 
-  vec2 distorted =
-    q * factor;
 
-  distorted.x /= 1.04;
+  /*
+    Inverse sampling:
+    output je pred-deformiran tako,
+    da ga fizična leča nato optično popravi.
+  */
+
+  vec2 source =
+    lens *
+    distortion;
+
+
+  source.x /=
+    0.82;
+
+
+  /*
+    Kontrolirana overscan normalizacija.
+    Brez tega bi uradna k1/k2 pri robovih
+    odrezala prevelik del eye texture.
+  */
+
+  source *=
+    0.68;
+
 
   vec2 uv =
-    distorted*0.5 + 0.5;
+    source * 0.5 +
+    0.5;
+
+
+  /*
+    Črnina izven veljavne eye texture.
+  */
 
   if(
-    uv.x<0.0 ||
-    uv.x>1.0 ||
-    uv.y<0.0 ||
-    uv.y>1.0
+    uv.x < 0.0 ||
+    uv.x > 1.0 ||
+    uv.y < 0.0 ||
+    uv.y > 1.0
   ){
+
     gl_FragColor =
-      vec4(0.0,0.0,0.0,1.0);
+      vec4(
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      );
 
     return;
   }
 
-  vec2 maskP = p;
 
-  maskP.x *= 0.91;
+  /*
+    Fizično uporabno območje posamezne leče.
 
-  float maskR =
-    dot(maskP,maskP);
+    To ustvari značilen Cardboard/YouTube
+    ukrivljen zunanji rob namesto navadnega
+    pravokotnega split-screena.
+  */
 
-  if(maskR>1.30){
+  vec2 mask =
+    p;
+
+  mask.x *=
+    0.92;
+
+
+  float maskRadius =
+    dot(
+      mask,
+      mask
+    );
+
+
+  if(
+    maskRadius >
+    1.32
+  ){
 
     gl_FragColor =
-      vec4(0.0,0.0,0.0,1.0);
+      vec4(
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      );
 
     return;
   }
+
 
   gl_FragColor =
     texture2D(
@@ -1100,80 +2098,129 @@ void main(){
       uv
     );
 }
+
 `;
+
+/* =========================================================
+   BUILD CARDBOARD
+========================================================= */
 
 function buildCardboardOutput(){
 
   disposeCardboardOutput();
 
-  const dpr = Math.min(
-    window.devicePixelRatio || 1,
-    2
-  );
+  const dpr =
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    );
 
-  const targetWidth = Math.max(
-    640,
-    Math.floor(
-      innerWidth*0.5*dpr
-    )
-  );
+  /*
+    Render texture posameznega očesa.
+  */
 
-  const targetHeight = Math.max(
-    640,
-    Math.floor(
-      innerHeight*dpr
-    )
-  );
+  const targetWidth =
+    Math.max(
+
+      640,
+
+      Math.floor(
+        innerWidth *
+        0.5 *
+        dpr
+      )
+    );
+
+  const targetHeight =
+    Math.max(
+
+      640,
+
+      Math.floor(
+        innerHeight *
+        dpr
+      )
+    );
 
   leftRenderTarget =
     new THREE.WebGLRenderTarget(
+
       targetWidth,
+
       targetHeight,
+
       {
-        minFilter:THREE.LinearFilter,
-        magFilter:THREE.LinearFilter,
-        depthBuffer:true
+        minFilter:
+          THREE.LinearFilter,
+
+        magFilter:
+          THREE.LinearFilter,
+
+        depthBuffer:
+          true
       }
     );
 
   rightRenderTarget =
     new THREE.WebGLRenderTarget(
+
       targetWidth,
+
       targetHeight,
+
       {
-        minFilter:THREE.LinearFilter,
-        magFilter:THREE.LinearFilter,
-        depthBuffer:true
+        minFilter:
+          THREE.LinearFilter,
+
+        magFilter:
+          THREE.LinearFilter,
+
+        depthBuffer:
+          true
       }
     );
 
   const geometry =
-    new THREE.PlaneGeometry(2,2);
+    new THREE.PlaneGeometry(
+      2,
+      2
+    );
 
   const leftMaterial =
     new THREE.ShaderMaterial({
 
       uniforms:{
+
         eyeTexture:{
-          value:leftRenderTarget.texture
+          value:
+            leftRenderTarget.texture
         },
 
         eyeScale:{
-          value:new THREE.Vector2(
-            0.43,
-            0.76
-          )
+          value:
+            new THREE.Vector2(
+              0.5,
+              1.0
+            )
         },
 
         eyeOffset:{
-          value:new THREE.Vector2(
-            -0.50,
-            0
-          )
+          value:
+            new THREE.Vector2(
+              -0.5,
+              0.0
+            )
         },
 
-        k1:{value:0.20},
-        k2:{value:0.07}
+        k1:{
+          value:
+            CARDBOARD.k1
+        },
+
+        k2:{
+          value:
+            CARDBOARD.k2
+        }
       },
 
       vertexShader:
@@ -1183,6 +2230,7 @@ function buildCardboardOutput(){
         cardboardFragmentShader,
 
       depthTest:false,
+
       depthWrite:false
     });
 
@@ -1190,26 +2238,37 @@ function buildCardboardOutput(){
     new THREE.ShaderMaterial({
 
       uniforms:{
+
         eyeTexture:{
-          value:rightRenderTarget.texture
+          value:
+            rightRenderTarget.texture
         },
 
         eyeScale:{
-          value:new THREE.Vector2(
-            0.43,
-            0.76
-          )
+          value:
+            new THREE.Vector2(
+              0.5,
+              1.0
+            )
         },
 
         eyeOffset:{
-          value:new THREE.Vector2(
-            0.50,
-            0
-          )
+          value:
+            new THREE.Vector2(
+              0.5,
+              0.0
+            )
         },
 
-        k1:{value:0.20},
-        k2:{value:0.07}
+        k1:{
+          value:
+            CARDBOARD.k1
+        },
+
+        k2:{
+          value:
+            CARDBOARD.k2
+        }
       },
 
       vertexShader:
@@ -1219,6 +2278,7 @@ function buildCardboardOutput(){
         cardboardFragmentShader,
 
       depthTest:false,
+
       depthWrite:false
     });
 
@@ -1234,74 +2294,111 @@ function buildCardboardOutput(){
       rightMaterial
     );
 
-  outputScene.add(leftEyeMesh);
-  outputScene.add(rightEyeMesh);
+  outputScene.add(
+    leftEyeMesh
+  );
+
+  outputScene.add(
+    rightEyeMesh
+  );
 }
 
 function disposeCardboardOutput(){
 
   if(leftEyeMesh){
 
-    outputScene.remove(leftEyeMesh);
+    outputScene.remove(
+      leftEyeMesh
+    );
 
-    leftEyeMesh.geometry.dispose();
-    leftEyeMesh.material.dispose();
+    leftEyeMesh.geometry
+      .dispose();
 
-    leftEyeMesh = null;
+    leftEyeMesh.material
+      .dispose();
+
+    leftEyeMesh =
+      null;
   }
 
   if(rightEyeMesh){
 
-    outputScene.remove(rightEyeMesh);
+    outputScene.remove(
+      rightEyeMesh
+    );
 
-    rightEyeMesh.geometry.dispose();
-    rightEyeMesh.material.dispose();
+    rightEyeMesh.geometry
+      .dispose();
 
-    rightEyeMesh = null;
+    rightEyeMesh.material
+      .dispose();
+
+    rightEyeMesh =
+      null;
   }
 
   if(leftRenderTarget){
 
-    leftRenderTarget.dispose();
-    leftRenderTarget = null;
+    leftRenderTarget
+      .dispose();
+
+    leftRenderTarget =
+      null;
   }
 
   if(rightRenderTarget){
 
-    rightRenderTarget.dispose();
-    rightRenderTarget = null;
+    rightRenderTarget
+      .dispose();
+
+    rightRenderTarget =
+      null;
   }
 }
 
 /* =========================================================
-   CARDBOARD INFO KARTICA
+   CARDBOARD INFO CARD
 ========================================================= */
 
-let cardboardInfoGroup = null;
+let cardboardInfoGroup =
+  null;
 
 function removeCardboardInfo(){
 
-  if(!cardboardInfoGroup) return;
+  if(!cardboardInfoGroup)
+    return;
 
-  scene.remove(cardboardInfoGroup);
+  scene.remove(
+    cardboardInfoGroup
+  );
 
-  cardboardInfoGroup.traverse(object=>{
+  cardboardInfoGroup.traverse(
+    object => {
 
-    if(object.geometry){
-      object.geometry.dispose();
-    }
+      if(object.geometry){
 
-    if(object.material){
-
-      if(object.material.map){
-        object.material.map.dispose();
+        object.geometry
+          .dispose();
       }
 
-      object.material.dispose();
-    }
-  });
+      if(object.material){
 
-  cardboardInfoGroup = null;
+        if(
+          object.material.map
+        ){
+
+          object.material.map
+            .dispose();
+        }
+
+        object.material
+          .dispose();
+      }
+    }
+  );
+
+  cardboardInfoGroup =
+    null;
 }
 
 function wrapCanvasText(
@@ -1315,81 +2412,128 @@ function wrapCanvasText(
 ){
 
   const words =
-    String(text).split(/\s+/);
+    String(text)
+      .split(/\s+/);
 
   let line = "";
+
   let lineNumber = 0;
 
-  for(let i=0;i<words.length;i++){
+  for(
+    let i=0;
+    i<words.length;
+    i++
+  ){
 
     const testLine =
-      line+words[i]+" ";
+      line +
+      words[i] +
+      " ";
 
     if(
-      ctx.measureText(testLine).width>maxWidth &&
-      line!==""
+      ctx.measureText(
+        testLine
+      ).width >
+      maxWidth &&
+      line !== ""
     ){
 
       ctx.fillText(
         line,
         x,
-        y+lineNumber*lineHeight
+        y +
+        lineNumber *
+        lineHeight
       );
 
       lineNumber++;
 
-      if(lineNumber>=maxLines){
+      if(
+        lineNumber >=
+        maxLines
+      ){
+
         return;
       }
 
-      line = words[i]+" ";
+      line =
+        words[i] +
+        " ";
 
     }else{
 
-      line = testLine;
+      line =
+        testLine;
     }
   }
 
-  if(lineNumber<maxLines){
+  if(
+    lineNumber <
+    maxLines
+  ){
 
     ctx.fillText(
       line,
       x,
-      y+lineNumber*lineHeight
+      y +
+      lineNumber *
+      lineHeight
     );
   }
 }
 
-function showCardboardInfo(hotspot){
+function showCardboardInfo(
+  hotspot
+){
 
   removeCardboardInfo();
 
-  const group = new THREE.Group();
+  const group =
+    new THREE.Group();
 
   const background =
     new THREE.Mesh(
+
       new THREE.PlaneGeometry(
         2.7,
         1.45
       ),
+
       new THREE.MeshBasicMaterial({
-        color:0xffffff,
-        transparent:true,
-        opacity:0.95,
-        side:THREE.DoubleSide
+
+        color:
+          0xffffff,
+
+        transparent:
+          true,
+
+        opacity:
+          0.95,
+
+        side:
+          THREE.DoubleSide
       })
     );
 
-  group.add(background);
+  group.add(
+    background
+  );
 
   const infoCanvas =
-    document.createElement("canvas");
+    document.createElement(
+      "canvas"
+    );
 
-  infoCanvas.width = 1024;
-  infoCanvas.height = 512;
+  infoCanvas.width =
+    1024;
+
+  infoCanvas.height =
+    512;
 
   const ctx =
-    infoCanvas.getContext("2d");
+    infoCanvas.getContext(
+      "2d"
+    );
 
   ctx.clearRect(
     0,
@@ -1398,29 +2542,51 @@ function showCardboardInfo(hotspot){
     512
   );
 
-  ctx.fillStyle = "#111";
-  ctx.font = "bold 56px Arial";
+  ctx.fillStyle =
+    "#111";
+
+  ctx.font =
+    "bold 56px Arial";
 
   wrapCanvasText(
+
     ctx,
-    hotspot.title || "Brez naslova",
+
+    hotspot.title ||
+    "Brez naslova",
+
     65,
+
     100,
+
     890,
+
     65,
+
     2
   );
 
-  ctx.fillStyle = "#333";
-  ctx.font = "34px Arial";
+  ctx.fillStyle =
+    "#333";
+
+  ctx.font =
+    "34px Arial";
 
   wrapCanvasText(
+
     ctx,
-    hotspot.description || "Ni opisa.",
+
+    hotspot.description ||
+    "Ni opisa.",
+
     65,
+
     245,
+
     890,
+
     48,
+
     5
   );
 
@@ -1434,20 +2600,31 @@ function showCardboardInfo(hotspot){
 
   const textPlane =
     new THREE.Mesh(
+
       new THREE.PlaneGeometry(
         2.68,
         1.42
       ),
+
       new THREE.MeshBasicMaterial({
-        map:texture,
-        transparent:true,
-        side:THREE.DoubleSide
+
+        map:
+          texture,
+
+        transparent:
+          true,
+
+        side:
+          THREE.DoubleSide
       })
     );
 
-  textPlane.position.z = 0.01;
+  textPlane.position.z =
+    0.01;
 
-  group.add(textPlane);
+  group.add(
+    textPlane
+  );
 
   const cameraPosition =
     new THREE.Vector3();
@@ -1464,20 +2641,29 @@ function showCardboardInfo(hotspot){
   );
 
   group.position.copy(
+
     cameraPosition
       .clone()
       .add(
+
         forward
           .clone()
-          .multiplyScalar(3)
+          .multiplyScalar(
+            3
+          )
       )
   );
 
-  group.lookAt(cameraPosition);
+  group.lookAt(
+    cameraPosition
+  );
 
-  scene.add(group);
+  scene.add(
+    group
+  );
 
-  cardboardInfoGroup = group;
+  cardboardInfoGroup =
+    group;
 }
 
 /* =========================================================
@@ -1487,20 +2673,36 @@ function showCardboardInfo(hotspot){
 const gazeRaycaster =
   new THREE.Raycaster();
 
-let gazeTargetId = null;
-let gazeStartTime = 0;
-let gazeTriggered = false;
+let gazeTargetId =
+  null;
 
-const GAZE_DELAY = 1200;
+let gazeStartTime =
+  0;
+
+let gazeTriggered =
+  false;
+
+const GAZE_DELAY =
+  1200;
 
 function resetGaze(){
 
-  gazeTargetId = null;
-  gazeStartTime = 0;
-  gazeTriggered = false;
+  gazeTargetId =
+    null;
 
-  reticleLeft.classList.remove("active");
-  reticleRight.classList.remove("active");
+  gazeStartTime =
+    0;
+
+  gazeTriggered =
+    false;
+
+  reticleLeft.classList.remove(
+    "active"
+  );
+
+  reticleRight.classList.remove(
+    "active"
+  );
 }
 
 function updateGaze(){
@@ -1522,110 +2724,183 @@ function updateGaze(){
   );
 
   const hits =
-    gazeRaycaster.intersectObjects(
-      hotspotMeshes,
-      false
-    );
+    gazeRaycaster
+      .intersectObjects(
+        hotspotMeshes,
+        false
+      );
 
   const id =
     hits.length
-      ? hits[0].object.userData.hotspotId
-      : null;
+      ?
+        hits[0]
+          .object
+          .userData
+          .hotspotId
+      :
+        null;
 
   if(!id){
 
     resetGaze();
+
     return;
   }
 
-  if(gazeTargetId!==id){
+  if(
+    gazeTargetId !==
+    id
+  ){
 
-    gazeTargetId = id;
-    gazeStartTime = performance.now();
-    gazeTriggered = false;
+    gazeTargetId =
+      id;
 
-    reticleLeft.classList.remove("active");
-    reticleRight.classList.remove("active");
+    gazeStartTime =
+      performance.now();
 
-    void reticleLeft.offsetWidth;
+    gazeTriggered =
+      false;
 
-    reticleLeft.classList.add("active");
-    reticleRight.classList.add("active");
+    reticleLeft
+      .classList
+      .remove(
+        "active"
+      );
+
+    reticleRight
+      .classList
+      .remove(
+        "active"
+      );
+
+    void reticleLeft
+      .offsetWidth;
+
+    reticleLeft
+      .classList
+      .add(
+        "active"
+      );
+
+    reticleRight
+      .classList
+      .add(
+        "active"
+      );
 
     return;
   }
 
   if(
     !gazeTriggered &&
-    performance.now()-gazeStartTime>=GAZE_DELAY
+    performance.now() -
+    gazeStartTime >=
+    GAZE_DELAY
   ){
 
-    gazeTriggered = true;
+    gazeTriggered =
+      true;
 
     const hotspot =
-      getHotspot(gazeTargetId);
+      getHotspot(
+        gazeTargetId
+      );
 
     if(hotspot){
-      showCardboardInfo(hotspot);
+
+      showCardboardInfo(
+        hotspot
+      );
     }
   }
 }
 
 /* =========================================================
-   CARDBOARD GUMBI
+   CARDBOARD BUTTONS
 ========================================================= */
 
-cardboardBtn.addEventListener("click",()=>{
+cardboardBtn.addEventListener(
+  "click",
+  () => {
 
-  stopAddMode();
-  closePopup();
+    stopAddMode();
 
-  cardboardStart.style.display = "flex";
-});
+    closePopup();
 
-cancelCardboardBtn.addEventListener("click",()=>{
-
-  cardboardStart.style.display = "none";
-});
-
-startCardboardBtn.addEventListener("click",async()=>{
-
-  cardboardStart.style.display = "none";
-
-  if(
-    typeof DeviceOrientationEvent!=="undefined" &&
-    typeof DeviceOrientationEvent.requestPermission==="function"
-  ){
-
-    sensorModal.style.display = "flex";
-    return;
+    cardboardStart.style.display =
+      "flex";
   }
+);
 
-  await enterCardboard();
-});
+cancelCardboardBtn.addEventListener(
+  "click",
+  () => {
 
-sensorBtn.addEventListener("click",async()=>{
+    cardboardStart.style.display =
+      "none";
+  }
+);
 
-  try{
+startCardboardBtn.addEventListener(
+  "click",
+  async () => {
 
-    const permission =
-      await DeviceOrientationEvent.requestPermission();
+    cardboardStart.style.display =
+      "none";
 
-    if(permission!=="granted"){
+    if(
+      typeof DeviceOrientationEvent !==
+      "undefined" &&
+      typeof DeviceOrientationEvent
+        .requestPermission ===
+      "function"
+    ){
 
-      alert("Senzor gibanja ni dovoljen.");
+      sensorModal.style.display =
+        "flex";
+
       return;
     }
 
-    sensorModal.style.display = "none";
-
     await enterCardboard();
-
-  }catch(e){
-
-    alert("Senzorja ni bilo mogoče zagnati.");
   }
-});
+);
+
+sensorBtn.addEventListener(
+  "click",
+  async () => {
+
+    try{
+
+      const permission =
+        await DeviceOrientationEvent
+          .requestPermission();
+
+      if(
+        permission !==
+        "granted"
+      ){
+
+        alert(
+          "Senzor gibanja ni dovoljen."
+        );
+
+        return;
+      }
+
+      sensorModal.style.display =
+        "none";
+
+      await enterCardboard();
+
+    }catch(e){
+
+      alert(
+        "Senzorja ni bilo mogoče zagnati."
+      );
+    }
+  }
+);
 
 /* =========================================================
    ENTER CARDBOARD
@@ -1633,15 +2908,23 @@ sensorBtn.addEventListener("click",async()=>{
 
 async function enterCardboard(){
 
-  if(cardboardMode) return;
+  if(cardboardMode)
+    return;
 
-  cardboardMode = true;
+  cardboardMode =
+    true;
 
-  toolbar.style.display = "none";
-  popup.style.display = "none";
-  hint.style.display = "none";
+  toolbar.style.display =
+    "none";
 
-  cardboardUI.style.display = "block";
+  popup.style.display =
+    "none";
+
+  hint.style.display =
+    "none";
+
+  cardboardUI.style.display =
+    "block";
 
   window.addEventListener(
     "deviceorientation",
@@ -1649,21 +2932,34 @@ async function enterCardboard(){
     true
   );
 
+  /*
+    Najprej zgradimo VR.
+  */
+
   buildCardboardOutput();
 
   /*
-    Fullscreen poskusimo TAKOJ iz uporabnikovega klika.
+    Fullscreen.
   */
+
   try{
 
     if(
       !document.fullscreenElement &&
-      document.documentElement.requestFullscreen
+      document.documentElement
+        .requestFullscreen
     ){
-      await document.documentElement.requestFullscreen();
+
+      await document
+        .documentElement
+        .requestFullscreen();
     }
 
   }catch(e){}
+
+  /*
+    Landscape.
+  */
 
   try{
 
@@ -1671,7 +2967,11 @@ async function enterCardboard(){
       screen.orientation &&
       screen.orientation.lock
     ){
-      await screen.orientation.lock("landscape");
+
+      await screen.orientation
+        .lock(
+          "landscape"
+        );
     }
 
   }catch(e){}
@@ -1692,9 +2992,11 @@ exitCardboardBtn.addEventListener(
 
 async function exitCardboard(){
 
-  if(!cardboardMode) return;
+  if(!cardboardMode)
+    return;
 
-  cardboardMode = false;
+  cardboardMode =
+    false;
 
   window.removeEventListener(
     "deviceorientation",
@@ -1705,18 +3007,30 @@ async function exitCardboard(){
   await releaseWakeLock();
 
   removeCardboardInfo();
+
   resetGaze();
+
   disposeCardboardOutput();
 
-  cardboardUI.style.display = "none";
-  toolbar.style.display = "flex";
+  cardboardUI.style.display =
+    "none";
+
+  toolbar.style.display =
+    "flex";
 
   camera.quaternion.identity();
-  camera.rotation.set(0,0,0);
 
-  camera.fov = normalFov;
+  camera.rotation.set(
+    0,
+    0,
+    0
+  );
+
+  camera.fov =
+    normalFov;
 
   updateNormalCamera();
+
   resizeRenderer();
 
   try{
@@ -1725,7 +3039,9 @@ async function exitCardboard(){
       screen.orientation &&
       screen.orientation.unlock
     ){
-      screen.orientation.unlock();
+
+      screen.orientation
+        .unlock();
     }
 
   }catch(e){}
@@ -1736,7 +3052,9 @@ async function exitCardboard(){
       document.fullscreenElement &&
       document.exitFullscreen
     ){
-      await document.exitFullscreen();
+
+      await document
+        .exitFullscreen();
     }
 
   }catch(e){}
@@ -1748,8 +3066,13 @@ async function exitCardboard(){
 
 function renderNormal(){
 
-  renderer.setRenderTarget(null);
-  renderer.setScissorTest(false);
+  renderer.setRenderTarget(
+    null
+  );
+
+  renderer.setScissorTest(
+    false
+  );
 
   renderer.setClearColor(
     0x000000,
@@ -1769,7 +3092,7 @@ function renderNormal(){
 }
 
 /* =========================================================
-   YOUTUBE / CARDBOARD RENDER
+   CARDBOARD RENDER
 ========================================================= */
 
 function renderCardboard(){
@@ -1780,33 +3103,54 @@ function renderCardboard(){
     !leftEyeMesh ||
     !rightEyeMesh
   ){
+
     return;
   }
 
   updateGyroscope();
 
   /*
-    Kamera je nastavljena na eno polovico zaslona.
+    Vsako oko ima polovico fizičnega zaslona.
   */
+
   camera.aspect =
-    (innerWidth*0.5) /
+    (
+      innerWidth *
+      0.5
+    ) /
     innerHeight;
 
-  camera.fov = 80;
-  camera.updateProjectionMatrix();
-  camera.updateMatrixWorld(true);
+  camera.fov =
+    CARDBOARD.fov;
 
-  stereoCamera.eyeSep = 0.064;
-  stereoCamera.update(camera);
+  camera.updateProjectionMatrix();
+
+  camera.updateMatrixWorld(
+    true
+  );
 
   /*
-    LEVO OKO
+    63.9 mm referenčni inter-lens distance.
   */
+
+  stereoCamera.eyeSep =
+    CARDBOARD.eyeSep;
+
+  stereoCamera.update(
+    camera
+  );
+
+  /* -------------------------
+     LEFT EYE
+  ------------------------- */
+
   renderer.setRenderTarget(
     leftRenderTarget
   );
 
-  renderer.setScissorTest(false);
+  renderer.setScissorTest(
+    false
+  );
 
   renderer.setClearColor(
     0x000000,
@@ -1824,9 +3168,10 @@ function renderCardboard(){
     stereoCamera.cameraL
   );
 
-  /*
-    DESNO OKO
-  */
+  /* -------------------------
+     RIGHT EYE
+  ------------------------- */
+
   renderer.setRenderTarget(
     rightRenderTarget
   );
@@ -1842,12 +3187,17 @@ function renderCardboard(){
     stereoCamera.cameraR
   );
 
-  /*
-    DVE UKRIVLJENI SLIKI NA ZASLON
-  */
-  renderer.setRenderTarget(null);
+  /* -------------------------
+     DISTORTION OUTPUT
+  ------------------------- */
 
-  renderer.setScissorTest(false);
+  renderer.setRenderTarget(
+    null
+  );
+
+  renderer.setScissorTest(
+    false
+  );
 
   renderer.setClearColor(
     0x000000,
@@ -1869,7 +3219,7 @@ function renderCardboard(){
 }
 
 /* =========================================================
-   EN SAM RENDER LOOP
+   MAIN LOOP
 ========================================================= */
 
 function animate(){
@@ -1885,6 +3235,7 @@ function animate(){
   }else{
 
     renderNormal();
+
     positionPopup();
   }
 }
@@ -1895,11 +3246,13 @@ animate();
    RESIZE
 ========================================================= */
 
-let resizeTimer = null;
+let resizeTimer =
+  null;
 
 function resizeRenderer(){
 
   renderer.setPixelRatio(
+
     Math.min(
       window.devicePixelRatio || 1,
       2
@@ -1931,14 +3284,22 @@ function handleResize(){
 
   if(cardboardMode){
 
-    clearTimeout(resizeTimer);
+    clearTimeout(
+      resizeTimer
+    );
 
     resizeTimer =
-      setTimeout(()=>{
-        if(cardboardMode){
-          buildCardboardOutput();
-        }
-      },150);
+      setTimeout(
+        () => {
+
+          if(cardboardMode){
+
+            buildCardboardOutput();
+          }
+
+        },
+        180
+      );
   }
 }
 
@@ -1949,10 +3310,11 @@ window.addEventListener(
 
 window.addEventListener(
   "orientationchange",
-  ()=>{
+  () => {
+
     setTimeout(
       handleResize,
-      250
+      300
     );
   }
 );
@@ -1963,20 +3325,30 @@ resizeRenderer();
    ESC
 ========================================================= */
 
-document.addEventListener("keydown",event=>{
+document.addEventListener(
+  "keydown",
+  event => {
 
-  if(event.key!=="Escape") return;
+    if(
+      event.key !==
+      "Escape"
+    ){
 
-  if(cardboardMode){
+      return;
+    }
 
-    exitCardboard();
+    if(cardboardMode){
 
-  }else{
+      exitCardboard();
 
-    stopAddMode();
-    closePopup();
+    }else{
+
+      stopAddMode();
+
+      closePopup();
+    }
   }
-});
+);
 
 </script>
 </body>
