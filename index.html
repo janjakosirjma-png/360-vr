@@ -64,7 +64,6 @@
       justify-content: center;
     }
 
-    /* Kontejner slike */
     #imageContainer {
       position: relative;
       display: inline-block;
@@ -78,16 +77,26 @@
       user-select: none;
     }
 
-    /* Hotspot */
+    /* -------------------------
+       HOTSPOT
+    -------------------------- */
+
     .hotspot {
       position: absolute;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
+
       transform: translate(-50%, -50%);
+
       border-radius: 50%;
       background: #ef4444;
+
       border: 3px solid white;
-      box-shadow: 0 2px 8px rgba(0,0,0,.35);
+
+      box-shadow:
+        0 2px 8px rgba(0,0,0,.35),
+        0 0 0 2px rgba(239,68,68,.25);
+
       cursor: pointer;
       z-index: 5;
 
@@ -98,31 +107,87 @@
       color: white;
       font-size: 12px;
       font-weight: bold;
+
+      transition: transform .15s;
     }
 
     .hotspot:hover {
       transform: translate(-50%, -50%) scale(1.15);
     }
 
-    /* Popup */
+    /* -------------------------
+       POPUP
+    -------------------------- */
+
     #popup {
       position: absolute;
       display: none;
+
       width: 280px;
+
       background: white;
-      border-radius: 10px;
-      padding: 14px;
-      box-shadow: 0 5px 25px rgba(0,0,0,.25);
-      z-index: 20;
+
+      border-radius: 12px;
+
+      padding: 16px;
+
+      box-shadow:
+        0 10px 35px rgba(0,0,0,.25);
+
+      z-index: 50;
     }
 
-    #popup textarea {
+    #popupTitle {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    /* -------------------------
+       BRALNI POGLED
+    -------------------------- */
+
+    #viewMode {
+      display: none;
+    }
+
+    #viewDescription {
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+
+      padding: 10px 0 14px 0;
+    }
+
+    #editBtn {
+      background: #2563eb;
+      color: white;
       width: 100%;
-      min-height: 100px;
+    }
+
+    /* -------------------------
+       UREJANJE
+    -------------------------- */
+
+    #editMode {
+      display: none;
+    }
+
+    #description {
+      width: 100%;
+      min-height: 110px;
+
       resize: vertical;
-      padding: 8px;
-      margin: 10px 0;
+
+      padding: 10px;
+
+      margin: 5px 0 12px 0;
+
+      border: 1px solid #ccc;
+      border-radius: 7px;
+
       font-family: inherit;
+      font-size: 14px;
     }
 
     .popupButtons {
@@ -133,6 +198,7 @@
     #saveBtn {
       background: #16a34a;
       color: white;
+      flex: 1;
     }
 
     #deleteBtn {
@@ -140,8 +206,27 @@
       color: white;
     }
 
-    #closeBtn {
+    #cancelBtn {
       background: #e5e7eb;
+    }
+
+    #closeBtn {
+      position: absolute;
+
+      right: 8px;
+      top: 8px;
+
+      width: 28px;
+      height: 28px;
+
+      padding: 0;
+
+      border-radius: 50%;
+
+      background: #f3f4f6;
+      color: #555;
+
+      font-size: 18px;
     }
 
     .hint {
@@ -149,6 +234,7 @@
       font-size: 13px;
       color: #666;
     }
+
   </style>
 </head>
 
@@ -159,239 +245,733 @@
   <p>Interaktivna slika z opisnimi točkami</p>
 </header>
 
+
 <div class="toolbar">
-  <button id="addModeBtn">+ Dodaj hotspot</button>
+
+  <button id="addModeBtn">
+    + Dodaj hotspot
+  </button>
+
 </div>
+
 
 <div class="hint">
   Klikni »Dodaj hotspot«, nato klikni na želeno mesto na sliki.
 </div>
 
+
 <div class="workspace">
 
   <div id="imageContainer">
 
-    <!-- TUKAJ ZAMENJAJ SVOJO SLIKO -->
-    <img id="mainImage" src="slika260.jpg" alt="Slika 260">
+    <img
+      id="mainImage"
+      src="slika260.jpg"
+      alt="Slika 260"
+    >
+
+
+    <!-- POPUP -->
 
     <div id="popup">
-      <strong>Opis hotspota</strong>
 
-      <textarea
-        id="description"
-        placeholder="Vpiši opis..."
-      ></textarea>
+      <button id="closeBtn">×</button>
 
-      <div class="popupButtons">
-        <button id="saveBtn">Shrani</button>
-        <button id="deleteBtn">Izbriši</button>
-        <button id="closeBtn">Zapri</button>
+      <div id="popupTitle">
+        Hotspot
       </div>
+
+
+      <!-- BRALNI POGLED -->
+
+      <div id="viewMode">
+
+        <div id="viewDescription"></div>
+
+        <button id="editBtn">
+          Uredi
+        </button>
+
+      </div>
+
+
+      <!-- UREJANJE -->
+
+      <div id="editMode">
+
+        <textarea
+          id="description"
+          placeholder="Vpiši opis..."
+        ></textarea>
+
+        <div class="popupButtons">
+
+          <button id="saveBtn">
+            Shrani
+          </button>
+
+          <button id="deleteBtn">
+            Izbriši
+          </button>
+
+          <button id="cancelBtn">
+            Prekliči
+          </button>
+
+        </div>
+
+      </div>
+
     </div>
 
   </div>
 
 </div>
 
+
 <script>
-  const container = document.getElementById("imageContainer");
-  const image = document.getElementById("mainImage");
 
-  const addModeBtn = document.getElementById("addModeBtn");
+const container =
+  document.getElementById("imageContainer");
 
-  const popup = document.getElementById("popup");
-  const description = document.getElementById("description");
+const image =
+  document.getElementById("mainImage");
 
-  const saveBtn = document.getElementById("saveBtn");
-  const deleteBtn = document.getElementById("deleteBtn");
-  const closeBtn = document.getElementById("closeBtn");
+const addModeBtn =
+  document.getElementById("addModeBtn");
 
-  let addMode = false;
-  let selectedHotspotId = null;
+const popup =
+  document.getElementById("popup");
 
-  // Naloži shranjene hotspote
-  let hotspots = JSON.parse(
+const popupTitle =
+  document.getElementById("popupTitle");
+
+const viewMode =
+  document.getElementById("viewMode");
+
+const editMode =
+  document.getElementById("editMode");
+
+const viewDescription =
+  document.getElementById("viewDescription");
+
+const description =
+  document.getElementById("description");
+
+const editBtn =
+  document.getElementById("editBtn");
+
+const saveBtn =
+  document.getElementById("saveBtn");
+
+const deleteBtn =
+  document.getElementById("deleteBtn");
+
+const cancelBtn =
+  document.getElementById("cancelBtn");
+
+const closeBtn =
+  document.getElementById("closeBtn");
+
+
+let addMode = false;
+let selectedHotspotId = null;
+
+
+/* =========================
+   PODATKI
+========================= */
+
+let hotspots =
+  JSON.parse(
     localStorage.getItem("slika260-hotspots")
   ) || [];
 
-  function saveHotspots() {
-    localStorage.setItem(
-      "slika260-hotspots",
-      JSON.stringify(hotspots)
-    );
+
+function saveHotspots() {
+
+  localStorage.setItem(
+    "slika260-hotspots",
+    JSON.stringify(hotspots)
+  );
+
+}
+
+
+/* =========================
+   DODAJANJE
+========================= */
+
+addModeBtn.addEventListener("click", () => {
+
+  addMode = !addMode;
+
+  popup.style.display = "none";
+
+
+  if (addMode) {
+
+    addModeBtn.textContent =
+      "Klikni na sliko...";
+
+    addModeBtn.classList.add("active");
+
   }
 
-  // ------------------------------------
-  // NAČIN DODAJANJA
-  // ------------------------------------
+  else {
 
-  addModeBtn.addEventListener("click", () => {
+    addModeBtn.textContent =
+      "+ Dodaj hotspot";
 
-    addMode = !addMode;
-
-    if (addMode) {
-      addModeBtn.textContent = "Klikni na sliko...";
-      addModeBtn.classList.add("active");
-    } else {
-      addModeBtn.textContent = "+ Dodaj hotspot";
-      addModeBtn.classList.remove("active");
-    }
-
-  });
-
-
-  // ------------------------------------
-  // KLIK NA SLIKO
-  // ------------------------------------
-
-  image.addEventListener("click", (event) => {
-
-    if (!addMode) return;
-
-    const rect = image.getBoundingClientRect();
-
-    // Uporabimo procente, da hotspot ostane
-    // na pravem mestu tudi pri resize slike.
-    const x =
-      ((event.clientX - rect.left) / rect.width) * 100;
-
-    const y =
-      ((event.clientY - rect.top) / rect.height) * 100;
-
-    const hotspot = {
-      id: Date.now(),
-      x: x,
-      y: y,
-      description: ""
-    };
-
-    hotspots.push(hotspot);
-
-    saveHotspots();
-    renderHotspots();
-
-    addMode = false;
-
-    addModeBtn.textContent = "+ Dodaj hotspot";
     addModeBtn.classList.remove("active");
 
-    // Takoj odpri opis
-    openPopup(hotspot);
+  }
 
-  });
+});
 
 
-  // ------------------------------------
-  // PRIKAZ HOTSPOTOV
-  // ------------------------------------
+/* =========================
+   KLIK NA SLIKO
+========================= */
 
-  function renderHotspots() {
+image.addEventListener("click", event => {
 
-    document
-      .querySelectorAll(".hotspot")
-      .forEach(el => el.remove());
+  if (!addMode)
+    return;
 
-    hotspots.forEach((hotspot, index) => {
 
-      const el = document.createElement("div");
+  const rect =
+    image.getBoundingClientRect();
 
-      el.className = "hotspot";
 
-      el.style.left = hotspot.x + "%";
-      el.style.top = hotspot.y + "%";
+  const x =
+    ((event.clientX - rect.left)
+    / rect.width) * 100;
 
-      el.textContent = index + 1;
 
-      el.addEventListener("click", (event) => {
+  const y =
+    ((event.clientY - rect.top)
+    / rect.height) * 100;
+
+
+  const hotspot = {
+
+    id: Date.now(),
+
+    x: x,
+    y: y,
+
+    description: ""
+
+  };
+
+
+  hotspots.push(hotspot);
+
+  saveHotspots();
+
+  renderHotspots();
+
+
+  addMode = false;
+
+  addModeBtn.textContent =
+    "+ Dodaj hotspot";
+
+  addModeBtn.classList.remove("active");
+
+
+  /* nov hotspot se takoj ureja */
+
+  openPopup(hotspot, true);
+
+});
+
+
+/* =========================
+   PRIKAZ HOTSPOTOV
+========================= */
+
+function renderHotspots() {
+
+  document
+    .querySelectorAll(".hotspot")
+    .forEach(el => el.remove());
+
+
+  hotspots.forEach((hotspot, index) => {
+
+    const el =
+      document.createElement("div");
+
+
+    el.className = "hotspot";
+
+    el.style.left =
+      hotspot.x + "%";
+
+    el.style.top =
+      hotspot.y + "%";
+
+
+    el.textContent =
+      index + 1;
+
+
+    el.addEventListener(
+      "click",
+      event => {
 
         event.stopPropagation();
 
-        openPopup(hotspot);
+        /*
+        Obstoječ hotspot se odpre
+        v BRALNEM načinu.
+        */
 
-      });
+        openPopup(
+          hotspot,
+          false
+        );
 
-      container.appendChild(el);
+      }
+    );
+
+
+    container.appendChild(el);
+
+  });
+
+}
+
+
+/* =========================
+   POPUP
+========================= */
+
+function openPopup(
+  hotspot,
+  startEditing = false
+) {
+
+  selectedHotspotId =
+    hotspot.id;
+
+
+  description.value =
+    hotspot.description || "";
+
+
+  viewDescription.textContent =
+    hotspot.description ||
+    "Ta hotspot še nima opisa.";
+
+
+  popupTitle.textContent =
+    "Hotspot";
+
+
+  popup.style.display =
+    "block";
+
+
+  /*
+  Najprej pokažemo pravi način,
+  da lahko browser izračuna
+  dejansko velikost popup-a.
+  */
+
+  if (startEditing) {
+
+    showEditMode();
+
+  }
+
+  else {
+
+    showViewMode();
+
+  }
+
+
+  /*
+  Počakamo en frame,
+  nato popup postavimo
+  neposredno ob hotspot.
+  */
+
+  requestAnimationFrame(() => {
+
+    positionPopup(hotspot);
+
+  });
+
+}
+
+
+/* =========================
+   POZICIJA POPUPA
+========================= */
+
+function positionPopup(hotspot) {
+
+  const containerWidth =
+    container.clientWidth;
+
+  const containerHeight =
+    container.clientHeight;
+
+
+  /*
+  Dejanska pozicija hotspota
+  v pixelih.
+  */
+
+  const hotspotX =
+    containerWidth *
+    hotspot.x / 100;
+
+  const hotspotY =
+    containerHeight *
+    hotspot.y / 100;
+
+
+  const popupWidth =
+    popup.offsetWidth;
+
+  const popupHeight =
+    popup.offsetHeight;
+
+
+  const gap = 18;
+
+
+  /*
+  Privzeto:
+  popup desno od hotspota.
+  */
+
+  let left =
+    hotspotX + gap;
+
+  let top =
+    hotspotY -
+    popupHeight / 2;
+
+
+  /*
+  Če ni prostora desno,
+  ga prestavimo LEVO.
+  */
+
+  if (
+    left + popupWidth >
+    containerWidth
+  ) {
+
+    left =
+      hotspotX -
+      popupWidth -
+      gap;
+
+  }
+
+
+  /*
+  Če gre zgoraj ven.
+  */
+
+  if (top < 5) {
+
+    top = 5;
+
+  }
+
+
+  /*
+  Če gre spodaj ven.
+  */
+
+  if (
+    top + popupHeight >
+    containerHeight
+  ) {
+
+    top =
+      containerHeight -
+      popupHeight -
+      5;
+
+  }
+
+
+  /*
+  Dodatna zaščita za
+  zelo majhne slike.
+  */
+
+  if (left < 5) {
+
+    left = 5;
+
+  }
+
+
+  popup.style.left =
+    left + "px";
+
+  popup.style.top =
+    top + "px";
+
+}
+
+
+/* =========================
+   BRALNI NAČIN
+========================= */
+
+function showViewMode() {
+
+  editMode.style.display =
+    "none";
+
+  viewMode.style.display =
+    "block";
+
+}
+
+
+/* =========================
+   UREJANJE
+========================= */
+
+function showEditMode() {
+
+  viewMode.style.display =
+    "none";
+
+  editMode.style.display =
+    "block";
+
+
+  setTimeout(() => {
+
+    description.focus();
+
+  }, 50);
+
+}
+
+
+/* =========================
+   GUMB UREDI
+========================= */
+
+editBtn.addEventListener(
+  "click",
+  () => {
+
+    const hotspot =
+      hotspots.find(
+        h =>
+        h.id === selectedHotspotId
+      );
+
+
+    if (!hotspot)
+      return;
+
+
+    description.value =
+      hotspot.description || "";
+
+
+    showEditMode();
+
+
+    requestAnimationFrame(() => {
+
+      positionPopup(hotspot);
 
     });
 
   }
+);
 
 
-  // ------------------------------------
-  // ODPIRANJE POPUPA
-  // ------------------------------------
+/* =========================
+   SHRANI
+========================= */
 
-  function openPopup(hotspot) {
+saveBtn.addEventListener(
+  "click",
+  () => {
 
-    selectedHotspotId = hotspot.id;
+    const hotspot =
+      hotspots.find(
+        h =>
+        h.id === selectedHotspotId
+      );
 
-    description.value = hotspot.description;
 
-    popup.style.display = "block";
+    if (!hotspot)
+      return;
 
-    // Položaj popup okna
-    popup.style.left =
-      "calc(" + hotspot.x + "% + 20px)";
 
-    popup.style.top =
-      "calc(" + hotspot.y + "% + 20px)";
+    hotspot.description =
+      description.value.trim();
+
+
+    saveHotspots();
+
+
+    /*
+    Po shranjevanju NE zapremo.
+
+    Samo preklopimo v
+    lep bralni način.
+    */
+
+    viewDescription.textContent =
+      hotspot.description ||
+      "Ta hotspot še nima opisa.";
+
+
+    showViewMode();
+
+
+    requestAnimationFrame(() => {
+
+      positionPopup(hotspot);
+
+    });
 
   }
+);
 
 
-  // ------------------------------------
-  // SHRANI OPIS
-  // ------------------------------------
+/* =========================
+   PREKLIČI
+========================= */
 
-  saveBtn.addEventListener("click", () => {
+cancelBtn.addEventListener(
+  "click",
+  () => {
 
-    const hotspot = hotspots.find(
-      h => h.id === selectedHotspotId
-    );
+    const hotspot =
+      hotspots.find(
+        h =>
+        h.id === selectedHotspotId
+      );
 
-    if (!hotspot) return;
 
-    hotspot.description = description.value;
+    if (!hotspot)
+      return;
+
+
+    /*
+    Če hotspot nima opisa,
+    vseeno pokažemo reader.
+    */
+
+    viewDescription.textContent =
+      hotspot.description ||
+      "Ta hotspot še nima opisa.";
+
+
+    showViewMode();
+
+
+    requestAnimationFrame(() => {
+
+      positionPopup(hotspot);
+
+    });
+
+  }
+);
+
+
+/* =========================
+   IZBRIŠI
+========================= */
+
+deleteBtn.addEventListener(
+  "click",
+  () => {
+
+    hotspots =
+      hotspots.filter(
+        h =>
+        h.id !== selectedHotspotId
+      );
+
 
     saveHotspots();
 
-    popup.style.display = "none";
 
-  });
+    popup.style.display =
+      "none";
 
-
-  // ------------------------------------
-  // IZBRIŠI HOTSPOT
-  // ------------------------------------
-
-  deleteBtn.addEventListener("click", () => {
-
-    hotspots = hotspots.filter(
-      h => h.id !== selectedHotspotId
-    );
-
-    saveHotspots();
-
-    popup.style.display = "none";
 
     renderHotspots();
 
-  });
+  }
+);
 
 
-  // ------------------------------------
-  // ZAPRI POPUP
-  // ------------------------------------
+/* =========================
+   ZAPRI
+========================= */
 
-  closeBtn.addEventListener("click", () => {
+closeBtn.addEventListener(
+  "click",
+  () => {
 
-    popup.style.display = "none";
+    popup.style.display =
+      "none";
 
-  });
+  }
+);
 
 
-  // Začetni prikaz
-  renderHotspots();
+/* =========================
+   RESIZE
+========================= */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    if (
+      popup.style.display !==
+      "block"
+    )
+      return;
+
+
+    const hotspot =
+      hotspots.find(
+        h =>
+        h.id === selectedHotspotId
+      );
+
+
+    if (hotspot) {
+
+      positionPopup(hotspot);
+
+    }
+
+  }
+);
+
+
+/* =========================
+   START
+========================= */
+
+renderHotspots();
 
 </script>
 
