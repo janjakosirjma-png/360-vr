@@ -1,0 +1,2926 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<title>360° interaktivna tura</title>
+
+<style>
+* { box-sizing:border-box; }
+
+html,body {
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    font-family:Arial,sans-serif;
+}
+
+#viewer {
+    position:fixed;
+    inset:0;
+}
+
+canvas {
+    display:block;
+    width:100%;
+    height:100%;
+    touch-action:none;
+}
+
+/* ================================
+   TOOLBAR
+================================ */
+
+#toolbar {
+    position:fixed;
+    z-index:100;
+    top:8px;
+    left:8px;
+    right:8px;
+
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px;
+
+    padding:8px;
+
+    background:rgba(11,28,37,.93);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:11px;
+}
+
+.logo {
+    color:#fff;
+    font-weight:800;
+    margin-right:5px;
+}
+
+.logo span {
+    color:#59ddc0;
+}
+
+.spacer {
+    flex:1;
+}
+
+button {
+    border:0;
+    border-radius:8px;
+    padding:9px 11px;
+
+    background:#294552;
+    color:white;
+
+    font-weight:700;
+    cursor:pointer;
+}
+
+button.primary {
+    background:#59ddc0;
+    color:#05251e;
+}
+
+button.active {
+    background:#ffd15b;
+    color:#211900;
+}
+
+button.danger {
+    background:#813c43;
+}
+
+/* ================================
+   NAVODILO
+================================ */
+
+#hint {
+    position:fixed;
+    z-index:80;
+
+    top:70px;
+    left:50%;
+    transform:translateX(-50%);
+
+    max-width:calc(100vw - 20px);
+
+    padding:7px 12px;
+
+    background:rgba(0,0,0,.72);
+    color:#fff;
+
+    border-radius:8px;
+
+    font-size:12px;
+    text-align:center;
+
+    pointer-events:none;
+}
+
+/* ================================
+   EDITOR
+================================ */
+
+#editorBackdrop {
+    position:fixed;
+    z-index:190;
+    inset:0;
+
+    display:none;
+
+    background:rgba(0,0,0,.35);
+}
+
+#editor {
+    position:fixed;
+    z-index:200;
+
+    top:80px;
+    right:15px;
+
+    width:350px;
+    max-width:calc(100vw - 30px);
+
+    display:none;
+
+    padding:18px;
+
+    background:#102833;
+    color:white;
+
+    border:1px solid #5a7a87;
+    border-radius:13px;
+
+    box-shadow:0 15px 50px rgba(0,0,0,.55);
+}
+
+#editor h2 {
+    margin:0 0 5px;
+}
+
+#editorStatus {
+    margin:0 0 14px;
+    color:#9db7c2;
+    font-size:12px;
+}
+
+label {
+    display:block;
+    margin-top:10px;
+
+    color:#c3d6dd;
+    font-size:12px;
+    font-weight:bold;
+}
+
+input,
+textarea {
+    width:100%;
+
+    margin-top:5px;
+    padding:10px;
+
+    border:1px solid #587480;
+    border-radius:8px;
+
+    outline:none;
+
+    background:#081a22;
+    color:#fff;
+
+    font:inherit;
+}
+
+input:focus,
+textarea:focus {
+    border-color:#59ddc0;
+}
+
+textarea {
+    min-height:115px;
+    resize:vertical;
+}
+
+.editorButtons {
+    display:flex;
+    gap:7px;
+    margin-top:14px;
+}
+
+.editorButtons button {
+    flex:1;
+}
+
+/* ================================
+   INFO POPUP - SAMO OGLED
+================================ */
+
+#infoPopup {
+    position:fixed;
+    z-index:180;
+
+    left:50%;
+    bottom:25px;
+    transform:translateX(-50%);
+
+    width:min(470px,calc(100vw - 24px));
+
+    display:none;
+
+    padding:20px 50px 20px 20px;
+
+    background:#102833;
+    color:#fff;
+
+    border:2px solid #59ddc0;
+    border-radius:14px;
+
+    box-shadow:0 15px 50px rgba(0,0,0,.6);
+}
+
+#infoPopup h2 {
+    margin:0 0 9px;
+    font-size:22px;
+}
+
+#infoPopup p {
+    margin:0;
+    line-height:1.55;
+    white-space:pre-wrap;
+}
+
+#closeInfo {
+    position:absolute;
+    top:5px;
+    right:7px;
+
+    padding:4px 9px;
+
+    background:transparent;
+    font-size:26px;
+}
+
+/* ================================
+   STATUS
+================================ */
+
+#status {
+    position:fixed;
+    z-index:60;
+
+    left:10px;
+    bottom:10px;
+
+    padding:6px 9px;
+
+    background:rgba(0,0,0,.7);
+    color:#fff;
+
+    border-radius:7px;
+
+    font-size:11px;
+}
+
+/* ================================
+   PHONE VR
+================================ */
+
+#vrUI {
+    position:fixed;
+    z-index:300;
+    inset:0;
+
+    display:none;
+
+    pointer-events:none;
+}
+
+#vrDivider {
+    position:absolute;
+
+    left:50%;
+    top:0;
+    bottom:0;
+
+    width:1px;
+
+    background:rgba(255,255,255,.15);
+}
+
+#exitVR {
+    position:absolute;
+
+    top:12px;
+    left:50%;
+    transform:translateX(-50%);
+
+    pointer-events:auto;
+
+    background:rgba(10,25,34,.92);
+    border:1px solid rgba(255,255,255,.4);
+}
+
+body.vrmode #toolbar,
+body.vrmode #hint,
+body.vrmode #status,
+body.vrmode #editor,
+body.vrmode #editorBackdrop,
+body.vrmode #infoPopup {
+    display:none !important;
+}
+
+#fileInput {
+    display:none;
+}
+
+/* ================================
+   MOBILE
+================================ */
+
+@media(max-width:760px) {
+
+    #toolbar {
+        top:5px;
+        left:5px;
+        right:5px;
+    }
+
+    .logo {
+        width:100%;
+        font-size:12px;
+    }
+
+    button {
+        padding:8px;
+        font-size:11px;
+    }
+
+    #hint {
+        top:105px;
+    }
+
+    #editor {
+        top:auto;
+        left:7px;
+        right:7px;
+        bottom:7px;
+
+        width:auto;
+    }
+
+    #status {
+        display:none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="viewer"></div>
+
+<div id="toolbar">
+
+    <div class="logo">
+        360° <span>INTERAKTIVNA TURA</span>
+    </div>
+
+    <button id="modeBtn">
+        👁 Ogled
+    </button>
+
+    <button id="addBtn" class="primary">
+        ＋ Hotspot
+    </button>
+
+    <button id="resetBtn">
+        ↻ Pogled
+    </button>
+
+    <div class="spacer"></div>
+
+    <button id="gyroBtn">
+        📱 Gyro
+    </button>
+
+    <button id="vrBtn">
+        🥽 Telefon VR
+    </button>
+
+    <button id="fullscreenBtn">
+        ⛶
+    </button>
+
+    <button id="exportBtn">
+        Izvoz
+    </button>
+
+    <button id="importBtn">
+        Uvoz
+    </button>
+
+</div>
+
+
+<div id="hint">
+    Urejanje • + Hotspot za novo točko
+</div>
+
+
+<!-- UREJEVALNIK -->
+
+<div id="editorBackdrop"></div>
+
+<div id="editor">
+
+    <h2 id="editorTitle">
+        Nov hotspot
+    </h2>
+
+    <p id="editorStatus">
+        Vnesi ime in opis.
+    </p>
+
+    <label>
+        Ime hotspota
+
+        <input
+            id="titleInput"
+            type="text"
+            placeholder="Npr. Omara"
+            autocomplete="off"
+        >
+    </label>
+
+    <label>
+        Opis
+
+        <textarea
+            id="descriptionInput"
+            placeholder="Npr. Tukaj je shranjena oprema ..."
+        ></textarea>
+    </label>
+
+    <div class="editorButtons">
+
+        <button id="saveBtn" class="primary">
+            ✓ Shrani
+        </button>
+
+        <button id="deleteBtn" class="danger">
+            Izbriši
+        </button>
+
+        <button id="cancelBtn">
+            Zapri
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- INFO OKNO V NAČINU OGLED -->
+
+<div id="infoPopup">
+
+    <button id="closeInfo">
+        ×
+    </button>
+
+    <h2 id="infoTitle"></h2>
+
+    <p id="infoText"></p>
+
+</div>
+
+
+<div id="status">
+    Nalagam 360.jpg ...
+</div>
+
+
+<!-- TELEFON VR -->
+
+<div id="vrUI">
+
+    <div id="vrDivider"></div>
+
+    <button id="exitVR">
+        ✕ Izhod iz VR
+    </button>
+
+</div>
+
+
+<input
+    id="fileInput"
+    type="file"
+    accept=".json,application/json"
+>
+
+
+<script type="importmap">
+{
+    "imports": {
+        "three":
+        "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+
+        "three/addons/":
+        "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+}
+</script>
+
+
+<script type="module">
+
+import * as THREE from "three";
+
+import { StereoEffect }
+from "three/addons/effects/StereoEffect.js";
+
+
+/* ==========================================================
+   KONSTANTE
+========================================================== */
+
+const IMAGE_URL =
+    "./360.jpg";
+
+/*
+   NOV ključ, da stari pokvarjeni podatki
+   ne motijo nove verzije.
+*/
+
+const STORAGE_KEY =
+    "moja-360-tura-v11";
+
+
+/* ==========================================================
+   HTML
+========================================================== */
+
+const viewer =
+    document.getElementById("viewer");
+
+const hint =
+    document.getElementById("hint");
+
+const statusBox =
+    document.getElementById("status");
+
+
+const modeBtn =
+    document.getElementById("modeBtn");
+
+const addBtn =
+    document.getElementById("addBtn");
+
+const gyroBtn =
+    document.getElementById("gyroBtn");
+
+const vrBtn =
+    document.getElementById("vrBtn");
+
+
+const editor =
+    document.getElementById("editor");
+
+const editorBackdrop =
+    document.getElementById("editorBackdrop");
+
+const editorTitle =
+    document.getElementById("editorTitle");
+
+const editorStatus =
+    document.getElementById("editorStatus");
+
+const titleInput =
+    document.getElementById("titleInput");
+
+const descriptionInput =
+    document.getElementById("descriptionInput");
+
+const deleteBtn =
+    document.getElementById("deleteBtn");
+
+
+const infoPopup =
+    document.getElementById("infoPopup");
+
+const infoTitle =
+    document.getElementById("infoTitle");
+
+const infoText =
+    document.getElementById("infoText");
+
+
+const fileInput =
+    document.getElementById("fileInput");
+
+
+/* ==========================================================
+   THREE.JS
+========================================================== */
+
+const scene =
+    new THREE.Scene();
+
+
+const camera =
+    new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth /
+        window.innerHeight,
+        0.1,
+        200
+    );
+
+
+camera.position.set(
+    0,
+    0,
+    0
+);
+
+
+camera.rotation.order =
+    "YXZ";
+
+
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias:true
+    });
+
+
+renderer.setPixelRatio(
+    Math.min(
+        window.devicePixelRatio,
+        2
+    )
+);
+
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+
+viewer.appendChild(
+    renderer.domElement
+);
+
+
+/* ==========================================================
+   STEREO
+========================================================== */
+
+const stereo =
+    new StereoEffect(
+        renderer
+    );
+
+
+stereo.setEyeSeparation(
+    0.064
+);
+
+
+stereo.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+
+/* ==========================================================
+   360 SLIKA
+========================================================== */
+
+let panorama =
+    null;
+
+
+const sphereGeometry =
+    new THREE.SphereGeometry(
+        100,
+        64,
+        40
+    );
+
+
+sphereGeometry.scale(
+    -1,
+    1,
+    1
+);
+
+
+const textureLoader =
+    new THREE.TextureLoader();
+
+
+textureLoader.load(
+
+    IMAGE_URL,
+
+    texture => {
+
+        texture.colorSpace =
+            THREE.SRGBColorSpace;
+
+
+        const material =
+            new THREE.MeshBasicMaterial({
+                map:texture
+            });
+
+
+        panorama =
+            new THREE.Mesh(
+                sphereGeometry,
+                material
+            );
+
+
+        scene.add(
+            panorama
+        );
+
+
+        statusBox.textContent =
+            "360.jpg ✓";
+
+    },
+
+    undefined,
+
+    error => {
+
+        console.error(error);
+
+
+        statusBox.textContent =
+            "NAPAKA: 360.jpg";
+
+
+        alert(
+            "Slike 360.jpg ni mogoče naložiti.\n\n" +
+            "index.html in 360.jpg morata biti v isti mapi."
+        );
+
+    }
+
+);
+
+
+/* ==========================================================
+   POGLED
+========================================================== */
+
+let lon = 0;
+let lat = 0;
+
+let dragging = false;
+
+let downX = 0;
+let downY = 0;
+
+let downLon = 0;
+let downLat = 0;
+
+let didMove = false;
+
+
+/* ==========================================================
+   HOTSPOT STATE
+
+   selectedId = kateri hotspot trenutno urejamo
+
+   newHotspot = true pomeni, da je bil pravkar ustvarjen.
+========================================================== */
+
+let hotspots = [];
+
+let hotspotSprites = [];
+
+let selectedId = null;
+
+let newHotspot = false;
+
+let adding = false;
+
+/*
+   true  = UREJANJE
+   false = OGLED
+*/
+
+let editMode = true;
+
+
+const hotspotGroup =
+    new THREE.Group();
+
+
+scene.add(
+    hotspotGroup
+);
+
+
+/* ==========================================================
+   SHRANJEVANJE
+========================================================== */
+
+function saveAll() {
+
+    try {
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(
+                hotspots
+            )
+        );
+
+
+        return true;
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Shranjevanje ni uspelo:",
+            error
+        );
+
+
+        alert(
+            "Podatkov ni bilo mogoče shraniti."
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+function loadAll() {
+
+    try {
+
+        const raw =
+            localStorage.getItem(
+                STORAGE_KEY
+            );
+
+
+        if (!raw)
+            return;
+
+
+        const data =
+            JSON.parse(raw);
+
+
+        if (
+            Array.isArray(data)
+        ) {
+
+            hotspots =
+                data;
+
+        }
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+        hotspots = [];
+
+    }
+
+}
+
+
+/* ==========================================================
+   IKONA HOTSPOTA
+========================================================== */
+
+function createHotspotTexture() {
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    canvas.width =
+        256;
+
+    canvas.height =
+        256;
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    /* senca */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        128,
+        128,
+        92,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "rgba(0,0,0,.45)";
+
+    ctx.fill();
+
+
+    /* beli rob */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        128,
+        128,
+        80,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#ffffff";
+
+    ctx.fill();
+
+
+    /* rumena pika */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        128,
+        128,
+        68,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#ffd15b";
+
+    ctx.fill();
+
+
+    /* i */
+
+    ctx.fillStyle =
+        "#15252c";
+
+    ctx.font =
+        "bold 100px Arial";
+
+    ctx.textAlign =
+        "center";
+
+    ctx.textBaseline =
+        "middle";
+
+
+    ctx.fillText(
+        "i",
+        128,
+        134
+    );
+
+
+    const texture =
+        new THREE.CanvasTexture(
+            canvas
+        );
+
+
+    texture.colorSpace =
+        THREE.SRGBColorSpace;
+
+
+    return texture;
+
+}
+
+
+const hotspotTexture =
+    createHotspotTexture();
+
+
+/* ==========================================================
+   IZRIŠI HOTSPOTE
+========================================================== */
+
+function rebuildHotspots() {
+
+    hotspotGroup.clear();
+
+    hotspotSprites = [];
+
+
+    for (
+        const hotspot
+        of hotspots
+    ) {
+
+        const direction =
+            new THREE.Vector3(
+                hotspot.x,
+                hotspot.y,
+                hotspot.z
+            )
+            .normalize();
+
+
+        const material =
+            new THREE.SpriteMaterial({
+
+                map:
+                    hotspotTexture,
+
+                transparent:
+                    true,
+
+                depthTest:
+                    false,
+
+                depthWrite:
+                    false
+
+            });
+
+
+        const sprite =
+            new THREE.Sprite(
+                material
+            );
+
+
+        sprite.position
+            .copy(direction)
+            .multiplyScalar(90);
+
+
+        /*
+           Velikost je namenoma večja,
+           da je klik na telefonu lahek.
+        */
+
+        sprite.scale.set(
+            10,
+            10,
+            1
+        );
+
+
+        /*
+           ID je vezan neposredno
+           na vidno piko.
+        */
+
+        sprite.userData.hotspotId =
+            hotspot.id;
+
+
+        sprite.renderOrder =
+            100;
+
+
+        hotspotGroup.add(
+            sprite
+        );
+
+
+        hotspotSprites.push(
+            sprite
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   EDITOR
+========================================================== */
+
+function openEditor(
+    hotspot,
+    isNew = false
+) {
+
+    /*
+       To je edino mesto,
+       kjer določimo selectedId.
+    */
+
+    selectedId =
+        hotspot.id;
+
+
+    newHotspot =
+        isNew;
+
+
+    titleInput.value =
+        hotspot.title || "";
+
+
+    descriptionInput.value =
+        hotspot.description || "";
+
+
+    if (isNew) {
+
+        editorTitle.textContent =
+            "Nov hotspot";
+
+
+        editorStatus.textContent =
+            "Vnesi ime in opis nove točke.";
+
+
+        /*
+           Novega hotspota lahko prekličeš,
+           zato delete gumb skrijemo.
+        */
+
+        deleteBtn.style.display =
+            "none";
+
+    }
+
+    else {
+
+        editorTitle.textContent =
+            "Uredi hotspot";
+
+
+        editorStatus.textContent =
+            "Spremeni ime ali opis in klikni Shrani.";
+
+
+        deleteBtn.style.display =
+            "";
+
+    }
+
+
+    editorBackdrop.style.display =
+        "block";
+
+
+    editor.style.display =
+        "block";
+
+}
+
+
+function closeEditor() {
+
+    editor.style.display =
+        "none";
+
+
+    editorBackdrop.style.display =
+        "none";
+
+}
+
+
+/* ==========================================================
+   SHRANI HOTSPOT
+========================================================== */
+
+document.getElementById("saveBtn")
+.addEventListener(
+
+    "click",
+
+    () => {
+
+        /*
+           Poiščemo TOČNO hotspot,
+           ki ga urejamo.
+        */
+
+        const index =
+            hotspots.findIndex(
+                h =>
+                    h.id === selectedId
+            );
+
+
+        if (index === -1) {
+
+            alert(
+                "Hotspota ni mogoče najti."
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Neposredno spremenimo podatke
+           v arrayu.
+        */
+
+        hotspots[index].title =
+            titleInput.value.trim()
+            ||
+            "Hotspot";
+
+
+        hotspots[index].description =
+            descriptionInput.value.trim();
+
+
+        /*
+           Shrani v localStorage.
+        */
+
+        const saved =
+            saveAll();
+
+
+        if (!saved)
+            return;
+
+
+        /*
+           Preberi zapis nazaj iz localStorage in preveri,
+           da je hotspot res shranjen.
+        */
+        try {
+            const verify = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            const stored = verify.find(h => h.id === selectedId);
+
+            if (!stored) {
+                throw new Error("Hotspot po shranjevanju ni v localStorage.");
+            }
+
+            hotspots = verify;
+            rebuildHotspots();
+        }
+        catch(error) {
+            console.error(error);
+            alert("Hotspot se ni pravilno shranil.\n" + error.message);
+            return;
+        }
+
+
+        /*
+           Zelo pomembno:
+           po shranjevanju selectedId
+           ni več potreben.
+        */
+
+        selectedId =
+            null;
+
+
+        newHotspot =
+            false;
+
+
+        closeEditor();
+
+
+        hint.textContent =
+            "✓ Hotspot shranjen";
+
+
+        setTimeout(
+            showDefaultHint,
+            1300
+        );
+
+    }
+
+);
+
+
+/* ==========================================================
+   IZBRIŠI
+========================================================== */
+
+deleteBtn.addEventListener(
+
+    "click",
+
+    () => {
+
+        if (!selectedId)
+            return;
+
+
+        hotspots =
+            hotspots.filter(
+                h =>
+                    h.id !== selectedId
+            );
+
+
+        saveAll();
+
+        rebuildHotspots();
+
+
+        selectedId =
+            null;
+
+        newHotspot =
+            false;
+
+
+        closeEditor();
+
+
+        hint.textContent =
+            "Hotspot izbrisan";
+
+
+        setTimeout(
+            showDefaultHint,
+            1000
+        );
+
+    }
+
+);
+
+
+/* ==========================================================
+   PREKLIČI / ZAPRI
+
+   Če gre za NOV hotspot in ga še nismo shranili,
+   ga odstranimo.
+========================================================== */
+
+function cancelEditor() {
+
+    if (
+        newHotspot &&
+        selectedId
+    ) {
+
+        hotspots =
+            hotspots.filter(
+                h =>
+                    h.id !== selectedId
+            );
+
+
+        saveAll();
+        rebuildHotspots();
+
+    }
+
+
+    selectedId =
+        null;
+
+
+    newHotspot =
+        false;
+
+
+    closeEditor();
+
+
+    showDefaultHint();
+
+}
+
+
+document.getElementById("cancelBtn")
+.addEventListener(
+
+    "click",
+    cancelEditor
+
+);
+
+
+editorBackdrop.addEventListener(
+
+    "click",
+    cancelEditor
+
+);
+
+
+/* ==========================================================
+   INFO POPUP
+
+   Ta funkcija se uporablja SAMO v OGLEDU.
+========================================================== */
+
+function showInfo(
+    hotspot
+) {
+
+    infoTitle.textContent =
+        hotspot.title ||
+        "Hotspot";
+
+
+    infoText.textContent =
+        hotspot.description ||
+        "Ni dodatnega opisa.";
+
+
+    infoPopup.style.display =
+        "block";
+
+}
+
+
+function closeInfoPopup() {
+
+    infoPopup.style.display =
+        "none";
+
+}
+
+
+document.getElementById("closeInfo")
+.addEventListener(
+
+    "click",
+    closeInfoPopup
+
+);
+
+
+/* ==========================================================
+   RAYCAST
+========================================================== */
+
+const raycaster =
+    new THREE.Raycaster();
+
+
+const pointer =
+    new THREE.Vector2();
+
+
+function setPointer(event) {
+
+    const rect =
+        renderer.domElement
+            .getBoundingClientRect();
+
+
+    pointer.x =
+        (
+            (
+                event.clientX -
+                rect.left
+            )
+            /
+            rect.width
+        )
+        * 2 - 1;
+
+
+    pointer.y =
+        -
+        (
+            (
+                event.clientY -
+                rect.top
+            )
+            /
+            rect.height
+        )
+        * 2 + 1;
+
+}
+
+
+/* ==========================================================
+   KLIK NA PANORAMO / HOTSPOT
+========================================================== */
+
+function handleClick(event) {
+
+    setPointer(
+        event
+    );
+
+
+    raycaster.setFromCamera(
+        pointer,
+        camera
+    );
+
+
+    /*
+       1.
+       NAJPREJ preverimo hotspot.
+
+       To je pomembno:
+       hotspot ima vedno prednost pred panoramo.
+    */
+
+    const hotspotHits =
+        raycaster.intersectObjects(
+            hotspotSprites,
+            false
+        );
+
+
+    if (
+        hotspotHits.length > 0
+    ) {
+
+        const id =
+            hotspotHits[0]
+                .object
+                .userData
+                .hotspotId;
+
+
+        const hotspot =
+            hotspots.find(
+                h =>
+                    h.id === id
+            );
+
+
+        if (!hotspot)
+            return;
+
+
+        /*
+           Če smo kliknili star hotspot,
+           izklopimo dodajanje novega.
+        */
+
+        adding =
+            false;
+
+
+        addBtn.classList.remove(
+            "active"
+        );
+
+
+        /*
+           KLJUČNA LOČITEV:
+        */
+
+        if (editMode) {
+
+            /*
+               UREJANJE
+            */
+
+            openEditor(
+                hotspot,
+                false
+            );
+
+        }
+
+        else {
+
+            /*
+               OGLED
+
+               Tukaj editor sploh ni poklican.
+            */
+
+            showInfo(
+                hotspot
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /*
+       2.
+       Če nismo kliknili hotspota
+       in ne dodajamo novega,
+       ne naredimo ničesar.
+    */
+
+    if (!adding)
+        return;
+
+
+    if (!panorama)
+        return;
+
+
+    /*
+       3.
+       Klik na 360° sfero.
+    */
+
+    const sphereHits =
+        raycaster.intersectObject(
+            panorama,
+            false
+        );
+
+
+    if (
+        sphereHits.length === 0
+    )
+        return;
+
+
+    const direction =
+        sphereHits[0]
+            .point
+            .clone()
+            .normalize();
+
+
+    /*
+       Ustvarimo nov hotspot.
+    */
+
+    const hotspot = {
+
+        id:
+            crypto.randomUUID
+            ?
+            crypto.randomUUID()
+            :
+            (
+                Date.now().toString(36)
+                +
+                Math.random()
+                    .toString(36)
+                    .slice(2)
+            ),
+
+        title:
+            "",
+
+        description:
+            "",
+
+        x:
+            direction.x,
+
+        y:
+            direction.y,
+
+        z:
+            direction.z
+
+    };
+
+
+    /*
+       Dodamo ga v array,
+       ampak ga še NE shranimo.
+
+       Shrani se šele,
+       ko uporabnik klikne SHRANI.
+    */
+
+    hotspots.push(
+        hotspot
+    );
+
+
+    /*
+       Hotspot shranimo TAKOJ ob nastanku.
+       Editor nato spreminja že shranjen objekt.
+    */
+    if (!saveAll()) {
+        hotspots = hotspots.filter(h => h.id !== hotspot.id);
+        rebuildHotspots();
+        return;
+    }
+
+
+    rebuildHotspots();
+
+
+    adding =
+        false;
+
+
+    addBtn.classList.remove(
+        "active"
+    );
+
+
+    /*
+       TAKOJ odpri editor.
+    */
+
+    openEditor(
+        hotspot,
+        true
+    );
+
+}
+
+
+/* ==========================================================
+   POINTER
+========================================================== */
+
+renderer.domElement
+.addEventListener(
+
+    "pointerdown",
+
+    event => {
+
+        if (phoneVR)
+            return;
+
+
+        dragging =
+            true;
+
+
+        didMove =
+            false;
+
+
+        downX =
+            event.clientX;
+
+
+        downY =
+            event.clientY;
+
+
+        downLon =
+            lon;
+
+
+        downLat =
+            lat;
+
+
+        renderer.domElement
+            .setPointerCapture?.(
+                event.pointerId
+            );
+
+    }
+
+);
+
+
+renderer.domElement
+.addEventListener(
+
+    "pointermove",
+
+    event => {
+
+        if (
+            !dragging ||
+            gyroEnabled ||
+            phoneVR
+        )
+            return;
+
+
+        const dx =
+            event.clientX -
+            downX;
+
+
+        const dy =
+            event.clientY -
+            downY;
+
+
+        if (
+            Math.abs(dx) > 5 ||
+            Math.abs(dy) > 5
+        ) {
+
+            didMove =
+                true;
+
+        }
+
+
+        lon =
+            downLon -
+            dx * 0.12;
+
+
+        lat =
+            downLat +
+            dy * 0.12;
+
+
+        lat =
+            THREE.MathUtils.clamp(
+                lat,
+                -85,
+                85
+            );
+
+    }
+
+);
+
+
+renderer.domElement
+.addEventListener(
+
+    "pointerup",
+
+    event => {
+
+        if (phoneVR)
+            return;
+
+
+        dragging =
+            false;
+
+
+        /*
+           Če smo vlekli panoramo,
+           to ni klik.
+        */
+
+        if (didMove)
+            return;
+
+
+        handleClick(
+            event
+        );
+
+    }
+
+);
+
+
+/* ==========================================================
+   ZOOM
+========================================================== */
+
+renderer.domElement
+.addEventListener(
+
+    "wheel",
+
+    event => {
+
+        event.preventDefault();
+
+
+        camera.fov +=
+            event.deltaY *
+            0.04;
+
+
+        camera.fov =
+            THREE.MathUtils.clamp(
+                camera.fov,
+                35,
+                95
+            );
+
+
+        camera.updateProjectionMatrix();
+
+    },
+
+    {
+        passive:false
+    }
+
+);
+
+
+/* ==========================================================
+   DODAJ HOTSPOT
+========================================================== */
+
+addBtn.addEventListener(
+
+    "click",
+
+    () => {
+
+        /*
+           Dodajanje je možno samo
+           v edit mode.
+        */
+
+        if (!editMode)
+            return;
+
+
+        adding =
+            !adding;
+
+
+        addBtn.classList.toggle(
+            "active",
+            adding
+        );
+
+
+        closeInfoPopup();
+
+
+        if (adding) {
+
+            hint.textContent =
+                "Klikni predmet, kamor želiš dodati hotspot";
+
+        }
+
+        else {
+
+            showDefaultHint();
+
+        }
+
+    }
+
+);
+
+
+/* ==========================================================
+   OGLED / UREJANJE
+========================================================== */
+
+function showDefaultHint() {
+
+    if (editMode) {
+
+        hint.textContent =
+            "Urejanje • + Hotspot za novo točko • klikni rumeno točko za urejanje";
+
+    }
+
+    else {
+
+        hint.textContent =
+            "Ogled • klikni rumeno točko za informacije";
+
+    }
+
+}
+
+
+function updateModeUI() {
+
+    adding =
+        false;
+
+
+    addBtn.classList.remove(
+        "active"
+    );
+
+
+    closeEditor();
+
+    closeInfoPopup();
+
+
+    selectedId =
+        null;
+
+
+    newHotspot =
+        false;
+
+
+    if (editMode) {
+
+        /*
+           Trenutno smo v UREJANJU.
+
+           Gumb zato ponuja prehod v OGLED.
+        */
+
+        modeBtn.textContent =
+            "👁 Ogled";
+
+
+        addBtn.style.display =
+            "";
+
+    }
+
+    else {
+
+        /*
+           Trenutno smo v OGLEDU.
+
+           Gumb zato ponuja prehod v UREJANJE.
+        */
+
+        modeBtn.textContent =
+            "✏️ Urejanje";
+
+
+        addBtn.style.display =
+            "none";
+
+    }
+
+
+    showDefaultHint();
+
+}
+
+
+modeBtn.addEventListener(
+
+    "click",
+
+    () => {
+
+        editMode =
+            !editMode;
+
+
+        updateModeUI();
+
+    }
+
+);
+
+
+/* ==========================================================
+   RESET
+========================================================== */
+
+document.getElementById("resetBtn")
+.addEventListener(
+
+    "click",
+
+    () => {
+
+        gyroEnabled =
+            false;
+
+
+        gyroBtn.classList.remove(
+            "active"
+        );
+
+
+        gyroBtn.textContent =
+            "📱 Gyro";
+
+
+        lon = 0;
+
+        lat = 0;
+
+
+        camera.fov =
+            75;
+
+
+        camera.updateProjectionMatrix();
+
+    }
+
+);
+
+
+/* ==========================================================
+   GYROSCOPE
+========================================================== */
+
+let gyroEnabled =
+    false;
+
+
+let phoneVR =
+    false;
+
+
+let sensorAlpha =
+    null;
+
+let sensorBeta =
+    0;
+
+let sensorGamma =
+    0;
+
+
+window.addEventListener(
+
+    "deviceorientation",
+
+    event => {
+
+        if (
+            event.alpha === null
+        )
+            return;
+
+
+        sensorAlpha =
+            event.alpha || 0;
+
+
+        sensorBeta =
+            event.beta || 0;
+
+
+        sensorGamma =
+            event.gamma || 0;
+
+    },
+
+    true
+
+);
+
+
+/* quaternion helperji */
+
+const zee =
+    new THREE.Vector3(
+        0,
+        0,
+        1
+    );
+
+
+const gyroEuler =
+    new THREE.Euler();
+
+
+const q0 =
+    new THREE.Quaternion();
+
+
+const q1 =
+    new THREE.Quaternion(
+        -Math.sqrt(.5),
+        0,
+        0,
+        Math.sqrt(.5)
+    );
+
+
+function updateGyro() {
+
+    if (
+        sensorAlpha === null
+    )
+        return;
+
+
+    const alpha =
+        THREE.MathUtils.degToRad(
+            sensorAlpha
+        );
+
+
+    const beta =
+        THREE.MathUtils.degToRad(
+            sensorBeta
+        );
+
+
+    const gamma =
+        THREE.MathUtils.degToRad(
+            sensorGamma
+        );
+
+
+    let angle = 0;
+
+
+    if (
+        screen.orientation &&
+        typeof screen.orientation.angle
+        === "number"
+    ) {
+
+        angle =
+            screen.orientation.angle;
+
+    }
+
+    else if (
+        typeof window.orientation
+        === "number"
+    ) {
+
+        angle =
+            window.orientation;
+
+    }
+
+
+    const orient =
+        THREE.MathUtils.degToRad(
+            angle
+        );
+
+
+    gyroEuler.set(
+        beta,
+        alpha,
+        -gamma,
+        "YXZ"
+    );
+
+
+    camera.quaternion
+        .setFromEuler(
+            gyroEuler
+        );
+
+
+    camera.quaternion
+        .multiply(
+            q1
+        );
+
+
+    camera.quaternion
+        .multiply(
+            q0.setFromAxisAngle(
+                zee,
+                -orient
+            )
+        );
+
+}
+
+
+/* ==========================================================
+   VKLOPI GYRO
+========================================================== */
+
+async function enableGyro() {
+
+    try {
+
+        /*
+           iPhone/iPad dovoljenje.
+        */
+
+        if (
+            typeof DeviceOrientationEvent
+            !== "undefined"
+            &&
+            typeof DeviceOrientationEvent
+                .requestPermission
+            === "function"
+        ) {
+
+            const permission =
+                await DeviceOrientationEvent
+                    .requestPermission();
+
+
+            if (
+                permission !==
+                "granted"
+            ) {
+
+                alert(
+                    "Dovoljenje za gibanje telefona ni bilo odobreno."
+                );
+
+
+                return false;
+
+            }
+
+        }
+
+
+        gyroEnabled =
+            true;
+
+
+        gyroBtn.classList.add(
+            "active"
+        );
+
+
+        gyroBtn.textContent =
+            "📱 Gyro ✓";
+
+
+        return true;
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+
+        alert(
+            "Giroskopa ni mogoče vključiti v tem brskalniku."
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+gyroBtn.addEventListener(
+
+    "click",
+
+    async () => {
+
+        if (gyroEnabled) {
+
+            gyroEnabled =
+                false;
+
+
+            gyroBtn.classList.remove(
+                "active"
+            );
+
+
+            gyroBtn.textContent =
+                "📱 Gyro";
+
+        }
+
+        else {
+
+            await enableGyro();
+
+        }
+
+    }
+
+);
+
+
+/* ==========================================================
+   TELEFON VR
+========================================================== */
+
+async function enterPhoneVR() {
+
+    if (!gyroEnabled) {
+
+        const ok =
+            await enableGyro();
+
+
+        if (!ok)
+            return;
+
+    }
+
+
+    phoneVR =
+        true;
+
+
+    document.body.classList.add(
+        "vrmode"
+    );
+
+
+    document.getElementById("vrUI")
+        .style.display =
+        "block";
+
+
+    /*
+       Fullscreen
+    */
+
+    try {
+
+        if (
+            !document.fullscreenElement
+            &&
+            document.documentElement
+                .requestFullscreen
+        ) {
+
+            await document
+                .documentElement
+                .requestFullscreen();
+
+        }
+
+    }
+
+    catch(error) {
+
+        console.log(error);
+
+    }
+
+
+    /*
+       Landscape
+    */
+
+    try {
+
+        if (
+            screen.orientation &&
+            screen.orientation.lock
+        ) {
+
+            await screen.orientation
+                .lock(
+                    "landscape"
+                );
+
+        }
+
+    }
+
+    catch(error) {
+
+        console.log(error);
+
+    }
+
+
+    resize();
+
+}
+
+
+async function exitPhoneVR() {
+
+    phoneVR =
+        false;
+
+
+    document.body.classList.remove(
+        "vrmode"
+    );
+
+
+    document.getElementById("vrUI")
+        .style.display =
+        "none";
+
+
+    try {
+
+        if (
+            screen.orientation &&
+            screen.orientation.unlock
+        ) {
+
+            screen.orientation.unlock();
+
+        }
+
+    }
+
+    catch {}
+
+
+    try {
+
+        if (
+            document.fullscreenElement
+        ) {
+
+            await document
+                .exitFullscreen();
+
+        }
+
+    }
+
+    catch {}
+
+
+    resize();
+
+}
+
+
+vrBtn.addEventListener(
+
+    "click",
+    enterPhoneVR
+
+);
+
+
+document.getElementById("exitVR")
+.addEventListener(
+
+    "click",
+    exitPhoneVR
+
+);
+
+
+/* ==========================================================
+   FULLSCREEN
+========================================================== */
+
+document.getElementById("fullscreenBtn")
+.addEventListener(
+
+    "click",
+
+    async () => {
+
+        try {
+
+            if (
+                !document.fullscreenElement
+            ) {
+
+                await document
+                    .documentElement
+                    .requestFullscreen();
+
+            }
+
+            else {
+
+                await document
+                    .exitFullscreen();
+
+            }
+
+        }
+
+        catch(error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+);
+
+
+/* ==========================================================
+   IZVOZ
+========================================================== */
+
+document.getElementById("exportBtn")
+.addEventListener(
+
+    "click",
+
+    () => {
+
+        const project = {
+
+            version:
+                10,
+
+            image:
+                "360.jpg",
+
+            hotspots:
+                hotspots
+
+        };
+
+
+        const blob =
+            new Blob(
+
+                [
+                    JSON.stringify(
+                        project,
+                        null,
+                        2
+                    )
+                ],
+
+                {
+                    type:
+                        "application/json"
+                }
+
+            );
+
+
+        const url =
+            URL.createObjectURL(
+                blob
+            );
+
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+
+        link.href =
+            url;
+
+
+        link.download =
+            "360-projekt.json";
+
+
+        link.click();
+
+
+        setTimeout(
+            () =>
+                URL.revokeObjectURL(
+                    url
+                ),
+            500
+        );
+
+    }
+
+);
+
+
+/* ==========================================================
+   UVOZ
+========================================================== */
+
+document.getElementById("importBtn")
+.addEventListener(
+
+    "click",
+
+    () => {
+
+        fileInput.click();
+
+    }
+
+);
+
+
+fileInput.addEventListener(
+
+    "change",
+
+    async event => {
+
+        const file =
+            event.target.files[0];
+
+
+        if (!file)
+            return;
+
+
+        try {
+
+            const data =
+                JSON.parse(
+                    await file.text()
+                );
+
+
+            if (
+                !Array.isArray(
+                    data.hotspots
+                )
+            ) {
+
+                throw new Error(
+                    "Datoteka nima veljavnih hotspotov."
+                );
+
+            }
+
+
+            hotspots =
+                data.hotspots;
+
+
+            saveAll();
+
+            rebuildHotspots();
+
+
+            hint.textContent =
+                "✓ Projekt uvožen";
+
+
+            setTimeout(
+                showDefaultHint,
+                1200
+            );
+
+        }
+
+        catch(error) {
+
+            alert(
+                "Uvoz ni uspel:\n" +
+                error.message
+            );
+
+        }
+
+
+        fileInput.value =
+            "";
+
+    }
+
+);
+
+
+/* ==========================================================
+   NORMALNA KAMERA
+========================================================== */
+
+function updateNormalCamera() {
+
+    const phi =
+        THREE.MathUtils.degToRad(
+            90 - lat
+        );
+
+
+    const theta =
+        THREE.MathUtils.degToRad(
+            lon
+        );
+
+
+    const target =
+        new THREE.Vector3();
+
+
+    target.setFromSphericalCoords(
+        1,
+        phi,
+        theta
+    );
+
+
+    camera.lookAt(
+        target
+    );
+
+}
+
+
+/* ==========================================================
+   RESIZE
+========================================================== */
+
+function resize() {
+
+    const width =
+        window.innerWidth;
+
+
+    const height =
+        window.innerHeight;
+
+
+    camera.aspect =
+        width /
+        height;
+
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+        width,
+        height
+    );
+
+
+    stereo.setSize(
+        width,
+        height
+    );
+
+}
+
+
+window.addEventListener(
+    "resize",
+    resize
+);
+
+
+/* ==========================================================
+   START
+========================================================== */
+
+loadAll();
+
+rebuildHotspots();
+
+updateModeUI();
+
+resize();
+
+
+/* ==========================================================
+   ANIMACIJA
+========================================================== */
+
+function animate() {
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    if (gyroEnabled) {
+
+        updateGyro();
+
+    }
+
+    else {
+
+        updateNormalCamera();
+
+    }
+
+
+    if (phoneVR) {
+
+        stereo.render(
+            scene,
+            camera
+        );
+
+    }
+
+    else {
+
+        renderer.render(
+            scene,
+            camera
+        );
+
+    }
+
+}
+
+
+animate();
+
+</script>
+
+</body>
+</html>
