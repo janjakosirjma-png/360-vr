@@ -3,23 +3,27 @@
 <head>
 <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width,
-               initial-scale=1.0,
-               maximum-scale=1.0,
-               user-scalable=no,
-               viewport-fit=cover">
+<meta
+  name="viewport"
+  content="
+    width=device-width,
+    initial-scale=1.0,
+    maximum-scale=1.0,
+    user-scalable=no,
+    viewport-fit=cover
+  "
+>
 
-<!-- ZMANJŠA TEŽAVE S CACHE -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
-<title>360° Viewer - Esperanza Apocalypse</title>
+<title>360° Cardboard Viewer</title>
 
 <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 
 <style>
+
 * {
   box-sizing: border-box;
 }
@@ -30,7 +34,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #111;
+  background: #000;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -39,6 +43,11 @@ input,
 textarea {
   font: inherit;
 }
+
+
+/* =====================================================
+   VIEWER
+===================================================== */
 
 #viewer {
   position: fixed;
@@ -57,15 +66,17 @@ a-scene {
 
 #toolbar {
   position: fixed;
+
   z-index: 10000;
 
   top: 15px;
   left: 15px;
 
   display: flex;
-  gap: 7px;
   align-items: center;
   flex-wrap: wrap;
+
+  gap: 7px;
 
   padding: 8px;
 
@@ -75,8 +86,10 @@ a-scene {
 
   backdrop-filter: blur(10px);
 
-  box-shadow: 0 8px 30px rgba(0,0,0,.35);
+  box-shadow:
+    0 8px 30px rgba(0,0,0,.35);
 }
+
 
 .tool-button {
   height: 42px;
@@ -87,6 +100,7 @@ a-scene {
   border-radius: 9px;
 
   background: rgba(255,255,255,.13);
+
   color: white;
 
   font-size: 14px;
@@ -95,21 +109,26 @@ a-scene {
   cursor: pointer;
 }
 
+
 .tool-button:hover {
   background: rgba(255,255,255,.22);
 }
+
 
 #addHotspotBtn {
   background: #2563eb;
 }
 
+
 #addHotspotBtn.active {
   background: #16a34a;
 }
 
+
 #cardboardBtn {
   background: #7c3aed;
 }
+
 
 .separator {
   width: 1px;
@@ -125,6 +144,7 @@ a-scene {
 
 #instruction {
   position: fixed;
+
   z-index: 10000;
 
   left: 50%;
@@ -141,9 +161,11 @@ a-scene {
   border-radius: 30px;
 
   background: rgba(0,0,0,.82);
+
   color: white;
 
   text-align: center;
+
   font-size: 14px;
 
   pointer-events: none;
@@ -151,16 +173,18 @@ a-scene {
 
 
 /* =====================================================
-   POPUP
+   HOTSPOT POPUP
 ===================================================== */
 
 #popup {
   position: fixed;
+
   z-index: 20000;
 
   display: none;
 
   width: 330px;
+
   max-width: calc(100vw - 30px);
 
   padding: 18px;
@@ -168,10 +192,13 @@ a-scene {
   border-radius: 14px;
 
   background: white;
+
   color: #222;
 
-  box-shadow: 0 15px 45px rgba(0,0,0,.4);
+  box-shadow:
+    0 15px 45px rgba(0,0,0,.4);
 }
+
 
 #popup::before {
   content: "";
@@ -188,6 +215,7 @@ a-scene {
   border-right: 9px solid white;
 }
 
+
 #popup.open-left::before {
   left: auto;
   right: -9px;
@@ -195,6 +223,7 @@ a-scene {
   border-right: 0;
   border-left: 9px solid white;
 }
+
 
 #popupClose {
   position: absolute;
@@ -208,6 +237,7 @@ a-scene {
   padding: 0;
 
   border: 0;
+
   border-radius: 50%;
 
   background: #f1f3f5;
@@ -228,12 +258,15 @@ a-scene {
   display: none;
 }
 
+
 #readerTitle {
   margin: 0 35px 10px 0;
 
   font-size: 20px;
+
   line-height: 1.25;
 }
+
 
 #readerDescription {
   margin: 0 0 17px;
@@ -241,10 +274,12 @@ a-scene {
   color: #444;
 
   font-size: 14px;
+
   line-height: 1.55;
 
   white-space: pre-wrap;
 }
+
 
 #editBtn {
   width: 100%;
@@ -252,9 +287,11 @@ a-scene {
   padding: 10px;
 
   border: 0;
+
   border-radius: 8px;
 
   background: #2563eb;
+
   color: white;
 
   font-weight: 700;
@@ -271,6 +308,7 @@ a-scene {
   display: none;
 }
 
+
 .field-label {
   display: block;
 
@@ -279,8 +317,10 @@ a-scene {
   color: #555;
 
   font-size: 12px;
+
   font-weight: 700;
 }
+
 
 #titleInput,
 #descriptionInput {
@@ -289,14 +329,17 @@ a-scene {
   padding: 10px;
 
   border: 1px solid #d1d5db;
+
   border-radius: 8px;
 
   outline: none;
 }
 
+
 #titleInput {
   margin-bottom: 12px;
 }
+
 
 #descriptionInput {
   min-height: 120px;
@@ -306,15 +349,19 @@ a-scene {
   resize: vertical;
 }
 
+
 .editor-buttons {
   display: flex;
+
   gap: 7px;
 }
+
 
 .editor-buttons button {
   padding: 9px 12px;
 
   border: 0;
+
   border-radius: 8px;
 
   font-weight: 700;
@@ -322,29 +369,35 @@ a-scene {
   cursor: pointer;
 }
 
+
 #saveBtn {
   flex: 1;
 
   background: #16a34a;
+
   color: white;
 }
+
 
 #cancelBtn {
   background: #e5e7eb;
 }
 
+
 #deleteBtn {
   background: #dc2626;
+
   color: white;
 }
 
 
 /* =====================================================
-   APOCALYPSE CALIBRATION
+   CARDBOARD START PANEL
 ===================================================== */
 
-#calibrationPanel {
+#cardboardStartPanel {
   position: fixed;
+
   inset: 0;
 
   z-index: 50000;
@@ -354,122 +407,85 @@ a-scene {
   align-items: center;
   justify-content: center;
 
-  padding: 15px;
+  padding: 20px;
 
-  background: rgba(0,0,0,.84);
+  background: rgba(0,0,0,.86);
 }
 
-#calibrationBox {
-  width: 470px;
+
+#cardboardStartBox {
+  width: 390px;
+
   max-width: 100%;
 
-  max-height: calc(100vh - 30px);
-  overflow-y: auto;
-
-  padding: 22px;
+  padding: 24px;
 
   border-radius: 18px;
 
   background: white;
+
   color: #222;
 
-  box-shadow: 0 20px 70px rgba(0,0,0,.5);
+  text-align: center;
+
+  box-shadow:
+    0 20px 70px rgba(0,0,0,.5);
 }
 
-#calibrationBox h2 {
-  margin: 0 0 6px;
 
-  font-size: 22px;
+#cardboardStartBox h2 {
+  margin: 0 0 10px;
 }
 
-.calibration-subtitle {
+
+#cardboardStartBox p {
   margin: 0 0 18px;
 
-  color: #666;
+  color: #555;
 
-  font-size: 13px;
+  font-size: 14px;
+
   line-height: 1.5;
 }
 
-.preset-box {
-  margin-bottom: 18px;
 
-  padding: 12px;
+#startCardboardBtn {
+  width: 100%;
+
+  padding: 13px;
+
+  border: 0;
 
   border-radius: 10px;
 
-  background: #f5f3ff;
+  background: #7c3aed;
 
-  color: #4c1d95;
-
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.calibration-row {
-  margin-bottom: 20px;
-}
-
-.calibration-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-
-  margin-bottom: 7px;
-
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.value {
-  color: #7c3aed;
-  white-space: nowrap;
-}
-
-.calibration-row input[type="range"] {
-  width: 100%;
-}
-
-.hint {
-  margin-top: 5px;
-
-  color: #888;
-
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.calibration-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-
-  margin-top: 5px;
-}
-
-.calibration-buttons button {
-  min-height: 42px;
-
-  padding: 9px 12px;
-
-  border: 0;
-  border-radius: 9px;
+  color: white;
 
   font-weight: 700;
 
   cursor: pointer;
 }
 
-#startCardboardBtn {
-  flex: 1;
 
-  background: #7c3aed;
-  color: white;
-}
+#cancelCardboardBtn {
+  width: 100%;
 
-#resetCalibrationBtn,
-#cancelCalibrationBtn {
+  margin-top: 8px;
+
+  padding: 11px;
+
+  border: 0;
+
+  border-radius: 10px;
+
   background: #e5e7eb;
+
+  color: #222;
+
+  font-weight: 700;
+
+  cursor: pointer;
 }
 
 
@@ -479,6 +495,7 @@ a-scene {
 
 #cardboardUI {
   position: fixed;
+
   inset: 0;
 
   z-index: 30000;
@@ -487,6 +504,9 @@ a-scene {
 
   pointer-events: none;
 }
+
+
+/* meja med očesoma */
 
 #centerDivider {
   position: absolute;
@@ -502,21 +522,29 @@ a-scene {
   background: rgba(255,255,255,.12);
 }
 
+
+/* =====================================================
+   GAZE
+===================================================== */
+
 .gaze {
   position: absolute;
 
   top: 50%;
 
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
 
   transform: translate(-50%, -50%);
 
-  border: 3px solid white;
+  border: 2px solid white;
+
   border-radius: 50%;
 
-  box-shadow: 0 0 8px rgba(0,0,0,.8);
+  box-shadow:
+    0 0 7px rgba(0,0,0,.9);
 }
+
 
 .gaze::after {
   content: "";
@@ -526,8 +554,8 @@ a-scene {
   left: 50%;
   top: 50%;
 
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 
   transform: translate(-50%, -50%);
 
@@ -536,35 +564,63 @@ a-scene {
   background: white;
 }
 
+
+/*
+   Center levega očesa = 25 %
+   Center desnega očesa = 75 %
+*/
+
 #gazeLeft {
   left: 25%;
 }
+
 
 #gazeRight {
   left: 75%;
 }
 
+
 .gaze.active {
-  animation: gazeAnimation 1.2s linear forwards;
+  animation:
+    gazeProgress 1.2s linear forwards;
 }
 
-@keyframes gazeAnimation {
+
+@keyframes gazeProgress {
 
   from {
-    transform: translate(-50%, -50%) scale(1);
+    transform:
+      translate(-50%, -50%)
+      scale(1);
   }
 
   to {
-    transform: translate(-50%, -50%) scale(1.65);
+    transform:
+      translate(-50%, -50%)
+      scale(1.7);
   }
 
 }
+
+
+/* =====================================================
+   EXIT CARDBOARD
+===================================================== */
 
 #exitCardboardBtn {
   position: absolute;
 
-  top: 10px;
-  right: 10px;
+  top:
+    max(
+      10px,
+      env(safe-area-inset-top)
+    );
+
+  right:
+    max(
+      10px,
+      env(safe-area-inset-right)
+    );
 
   z-index: 30100;
 
@@ -573,9 +629,11 @@ a-scene {
   padding: 10px 14px;
 
   border: 0;
+
   border-radius: 9px;
 
   background: rgba(0,0,0,.78);
+
   color: white;
 
   font-weight: 700;
@@ -585,11 +643,12 @@ a-scene {
 
 
 /* =====================================================
-   SENSOR PERMISSION
+   PERMISSION PANEL
 ===================================================== */
 
 #permissionPanel {
   position: fixed;
+
   inset: 0;
 
   z-index: 60000;
@@ -601,11 +660,13 @@ a-scene {
 
   padding: 20px;
 
-  background: rgba(0,0,0,.85);
+  background: rgba(0,0,0,.88);
 }
+
 
 #permissionBox {
   width: 350px;
+
   max-width: 100%;
 
   padding: 24px;
@@ -617,15 +678,30 @@ a-scene {
   text-align: center;
 }
 
+
+#permissionBox h2 {
+  margin-top: 0;
+}
+
+
+#permissionBox p {
+  color: #555;
+
+  line-height: 1.5;
+}
+
+
 #permissionButton {
   width: 100%;
 
   padding: 12px;
 
   border: 0;
+
   border-radius: 9px;
 
   background: #7c3aed;
+
   color: white;
 
   font-weight: 700;
@@ -648,6 +724,7 @@ a-scene {
     justify-content: center;
   }
 
+
   .tool-button {
     height: 38px;
 
@@ -656,19 +733,22 @@ a-scene {
     font-size: 12px;
   }
 
+
   #popup {
     width: 290px;
   }
 
 }
+
 </style>
 </head>
+
 
 <body>
 
 
 <!-- =====================================================
-     360 SCENE
+     A-FRAME
 ===================================================== -->
 
 <div id="viewer">
@@ -698,13 +778,15 @@ a-scene {
     <a-assets>
 
       <!--
-        Če zamenjaš 360.jpg in telefon kaže staro sliko,
-        spremeni ?v=1 v ?v=2, ?v=3 ...
+        360.jpg mora biti v isti mapi.
+
+        Če zamenjaš sliko in telefon kaže staro:
+        spremeni ?v=10 v ?v=11
       -->
 
       <img
         id="panoramaImage"
-        src="360.jpg?v=1"
+        src="360.jpg?v=10"
         crossorigin="anonymous"
       >
 
@@ -713,7 +795,9 @@ a-scene {
 
     <a-sky
       id="sky"
+
       src="#panoramaImage"
+
       rotation="0 -90 0"
     ></a-sky>
 
@@ -795,7 +879,7 @@ a-scene {
     id="cardboardBtn"
     class="tool-button"
   >
-    🥽 Apocalypse
+    🥽 CARDBOARD
   </button>
 
 </div>
@@ -836,6 +920,7 @@ a-scene {
       Naslov
     </label>
 
+
     <input
       id="titleInput"
       type="text"
@@ -846,6 +931,7 @@ a-scene {
     <label class="field-label">
       Opis
     </label>
+
 
     <textarea
       id="descriptionInput"
@@ -875,182 +961,36 @@ a-scene {
 
 
 <!-- =====================================================
-     APOCALYPSE CALIBRATION
+     CARDBOARD START
 ===================================================== -->
 
-<div id="calibrationPanel">
+<div id="cardboardStartPanel">
 
-  <div id="calibrationBox">
+  <div id="cardboardStartBox">
 
-    <h2>🥽 Esperanza Apocalypse</h2>
+    <h2>🥽 Cardboard</h2>
 
-    <p class="calibration-subtitle">
-      Nastavi prikaz tako, da se leva in desna slika
-      skozi očala čim bolj naravno združita.
-      Nastavitve se shranijo.
+    <p>
+      Telefon obrni vodoravno in ga vstavi v
+      Esperanza Apocalypse.
+      <br><br>
+      Pogled se bo premikal z glavo.
+      Hotspot izbereš tako, da ga približno
+      1,2 sekunde gledaš.
+      <br><br>
+      Med Cardboard načinom bo aplikacija
+      poskušala ohraniti zaslon prižgan.
     </p>
 
 
-    <div class="preset-box">
-
-      <b>Začetna nastavitev:</b><br>
-
-      IPD 63,5 mm · Center 0 px · FOV 65° · Zoom 100 %.
-
-      <br><br>
-
-      Če moraš fizične leče dati čisto v skrajni položaj,
-      najprej spreminjaj <b>Center slike</b>.
-
-    </div>
+    <button id="startCardboardBtn">
+      ZAŽENI CARDBOARD
+    </button>
 
 
-    <!-- IPD -->
-
-    <div class="calibration-row">
-
-      <div class="calibration-header">
-
-        <span>IPD / razmik</span>
-
-        <span
-          id="ipdValue"
-          class="value"
-        >
-          63.5 mm
-        </span>
-
-      </div>
-
-
-      <input
-        id="ipdSlider"
-        type="range"
-        min="55"
-        max="72"
-        step="0.5"
-        value="63.5"
-      >
-
-
-      <div class="hint">
-        Fina stereo nastavitev razmika levega in desnega pogleda.
-      </div>
-
-    </div>
-
-
-    <!-- CENTER -->
-
-    <div class="calibration-row">
-
-      <div class="calibration-header">
-
-        <span>Center slike</span>
-
-        <span
-          id="offsetValue"
-          class="value"
-        >
-          0 px
-        </span>
-
-      </div>
-
-
-      <input
-        id="offsetSlider"
-        type="range"
-        min="-80"
-        max="80"
-        step="1"
-        value="0"
-      >
-
-
-      <div class="hint">
-        Če se sliki ne združita brez skrajnega premikanja leč,
-        spreminjaj predvsem to nastavitev.
-      </div>
-
-    </div>
-
-
-    <!-- FOV -->
-
-    <div class="calibration-row">
-
-      <div class="calibration-header">
-
-        <span>FOV</span>
-
-        <span
-          id="fovValue"
-          class="value"
-        >
-          65°
-        </span>
-
-      </div>
-
-
-      <input
-        id="fovSlider"
-        type="range"
-        min="45"
-        max="90"
-        step="1"
-        value="65"
-      >
-
-    </div>
-
-
-    <!-- ZOOM -->
-
-    <div class="calibration-row">
-
-      <div class="calibration-header">
-
-        <span>Zoom</span>
-
-        <span
-          id="vrZoomValue"
-          class="value"
-        >
-          100 %
-        </span>
-
-      </div>
-
-
-      <input
-        id="vrZoomSlider"
-        type="range"
-        min="85"
-        max="115"
-        step="1"
-        value="100"
-      >
-
-    </div>
-
-
-    <div class="calibration-buttons">
-
-      <button id="startCardboardBtn">
-        🥽 Zaženi VR
-      </button>
-
-      <button id="resetCalibrationBtn">
-        Ponastavi
-      </button>
-
-      <button id="cancelCalibrationBtn">
-        Zapri
-      </button>
-
-    </div>
+    <button id="cancelCardboardBtn">
+      Prekliči
+    </button>
 
   </div>
 
@@ -1065,10 +1005,12 @@ a-scene {
 
   <div id="centerDivider"></div>
 
+
   <div
     id="gazeLeft"
     class="gaze"
   ></div>
+
 
   <div
     id="gazeRight"
@@ -1084,22 +1026,24 @@ a-scene {
 
 
 <!-- =====================================================
-     SENSOR PERMISSION
+     IOS PERMISSION
 ===================================================== -->
 
 <div id="permissionPanel">
 
   <div id="permissionBox">
 
-    <h2>Orientacija telefona</h2>
+    <h2>Gibanje telefona</h2>
 
     <p>
-      Dovoli uporabo senzorjev, da se pogled obrača skupaj z glavo.
+      Dovoli uporabo senzorjev telefona,
+      da se 360° panorama premika skupaj
+      z glavo.
     </p>
 
 
     <button id="permissionButton">
-      Dovoli in nadaljuj
+      Dovoli in zaženi
     </button>
 
   </div>
@@ -1182,46 +1126,15 @@ const deleteBtn =
   document.querySelector("#deleteBtn");
 
 
-/* CALIBRATION */
-
-const calibrationPanel =
-  document.querySelector("#calibrationPanel");
-
-const ipdSlider =
-  document.querySelector("#ipdSlider");
-
-const offsetSlider =
-  document.querySelector("#offsetSlider");
-
-const fovSlider =
-  document.querySelector("#fovSlider");
-
-const vrZoomSlider =
-  document.querySelector("#vrZoomSlider");
-
-const ipdValue =
-  document.querySelector("#ipdValue");
-
-const offsetValue =
-  document.querySelector("#offsetValue");
-
-const fovValue =
-  document.querySelector("#fovValue");
-
-const vrZoomValue =
-  document.querySelector("#vrZoomValue");
+const cardboardStartPanel =
+  document.querySelector("#cardboardStartPanel");
 
 const startCardboardBtn =
   document.querySelector("#startCardboardBtn");
 
-const resetCalibrationBtn =
-  document.querySelector("#resetCalibrationBtn");
+const cancelCardboardBtn =
+  document.querySelector("#cancelCardboardBtn");
 
-const cancelCalibrationBtn =
-  document.querySelector("#cancelCalibrationBtn");
-
-
-/* CARDBOARD */
 
 const cardboardUI =
   document.querySelector("#cardboardUI");
@@ -1236,8 +1149,6 @@ const exitCardboardBtn =
   document.querySelector("#exitCardboardBtn");
 
 
-/* PERMISSION */
-
 const permissionPanel =
   document.querySelector("#permissionPanel");
 
@@ -1247,13 +1158,12 @@ const permissionButton =
 
 /* =====================================================
    STORAGE
+
+   OHRANI ISTE HOTSPOTE IZ PREJŠNJE VERZIJE
 ===================================================== */
 
 const STORAGE_KEY =
   "stable-360-hotspots-v5";
-
-const CALIBRATION_KEY =
-  "esperanza-apocalypse-calibration-v3";
 
 
 let hotspots =
@@ -1262,27 +1172,9 @@ let hotspots =
   ) || [];
 
 
-const DEFAULT_CALIBRATION = {
-
-  ipd: 63.5,
-
-  offset: 0,
-
-  fov: 65,
-
-  zoom: 100
-
-};
-
-
-let calibration =
-  JSON.parse(
-    localStorage.getItem(CALIBRATION_KEY)
-  ) ||
-  {
-    ...DEFAULT_CALIBRATION
-  };
-
+/* =====================================================
+   STATE
+===================================================== */
 
 let selectedHotspotId =
   null;
@@ -1294,8 +1186,20 @@ let cardboardMode =
   false;
 
 
+let pointerStartX =
+  0;
+
+let pointerStartY =
+  0;
+
+let pointerDistance =
+  0;
+
+
 /* =====================================================
    WAKE LOCK
+
+   TO PREPREČUJE UGAŠANJE ZASLONA
 ===================================================== */
 
 let wakeLock =
@@ -1309,17 +1213,16 @@ async function enableWakeLock() {
   ) {
 
     console.log(
-      "Wake Lock API ni podprt."
+      "Ta brskalnik ne podpira Screen Wake Lock API."
     );
 
-    return;
+    return false;
 
   }
 
 
   /*
-    Če je lock že aktiven,
-    ga ne zahtevamo ponovno.
+    Če je že aktiven, ne zahtevamo novega.
   */
 
   if (
@@ -1327,7 +1230,7 @@ async function enableWakeLock() {
     !wakeLock.released
   ) {
 
-    return;
+    return true;
 
   }
 
@@ -1341,7 +1244,7 @@ async function enableWakeLock() {
 
 
     console.log(
-      "Wake Lock aktiviran."
+      "WAKE LOCK AKTIVEN"
     );
 
 
@@ -1350,14 +1253,18 @@ async function enableWakeLock() {
       () => {
 
         console.log(
-          "Wake Lock sproščen."
+          "Wake Lock je bil sproščen."
         );
+
 
         wakeLock =
           null;
 
       }
     );
+
+
+    return true;
 
   }
 
@@ -1367,6 +1274,9 @@ async function enableWakeLock() {
       "Wake Lock napaka:",
       error
     );
+
+
+    return false;
 
   }
 
@@ -1397,11 +1307,11 @@ async function disableWakeLock() {
 
 
 /*
-  Android/iPhone lahko Wake Lock sprosti,
-  če gre stran v background.
+   Telefon lahko Wake Lock sprosti,
+   če gre stran za trenutek v background.
 
-  Ko se vrnemo v aplikacijo,
-  ga ponovno zahtevamo.
+   Ko se vrneš nazaj v Cardboard,
+   ga ponovno zahtevamo.
 */
 
 document.addEventListener(
@@ -1421,66 +1331,29 @@ document.addEventListener(
 );
 
 
-/* =====================================================
-   POINTER
-===================================================== */
+/*
+   Še dodatno preverjanje, če se
+   stran ponovno aktivira.
+*/
 
-let pointerStartX = 0;
-let pointerStartY = 0;
-let pointerDistance = 0;
+window.addEventListener(
+  "focus",
+  async () => {
 
+    if (
+      cardboardMode
+    ) {
 
-/* =====================================================
-   CARDBOARD
-===================================================== */
+      await enableWakeLock();
 
-let stereoRenderer =
-  null;
+    }
 
-let cardboardCamera =
-  null;
-
-let cardboardScene =
-  null;
-
-let cardboardAnimationId =
-  null;
-
-let cardboardInfoGroup =
-  null;
+  }
+);
 
 
 /* =====================================================
-   DEVICE ORIENTATION
-===================================================== */
-
-let deviceAlpha = 0;
-let deviceBeta = 0;
-let deviceGamma = 0;
-
-let hasOrientation =
-  false;
-
-
-/* =====================================================
-   GAZE
-===================================================== */
-
-const GAZE_TIME =
-  1200;
-
-let gazeTargetId =
-  null;
-
-let gazeStartedAt =
-  0;
-
-let gazeActivated =
-  false;
-
-
-/* =====================================================
-   SAVE
+   SAVE HOTSPOTS
 ===================================================== */
 
 function saveHotspots() {
@@ -1493,165 +1366,8 @@ function saveHotspots() {
 }
 
 
-function saveCalibration() {
-
-  localStorage.setItem(
-    CALIBRATION_KEY,
-    JSON.stringify(calibration)
-  );
-
-}
-
-
 /* =====================================================
-   CALIBRATION
-===================================================== */
-
-function updateCalibrationUI() {
-
-  ipdSlider.value =
-    calibration.ipd;
-
-  offsetSlider.value =
-    calibration.offset;
-
-  fovSlider.value =
-    calibration.fov;
-
-  vrZoomSlider.value =
-    calibration.zoom;
-
-
-  ipdValue.textContent =
-    calibration.ipd +
-    " mm";
-
-
-  offsetValue.textContent =
-    (
-      calibration.offset > 0
-        ? "+"
-        : ""
-    ) +
-    calibration.offset +
-    " px";
-
-
-  fovValue.textContent =
-    calibration.fov +
-    "°";
-
-
-  vrZoomValue.textContent =
-    calibration.zoom +
-    " %";
-
-}
-
-
-ipdSlider.addEventListener(
-  "input",
-  () => {
-
-    calibration.ipd =
-      Number(
-        ipdSlider.value
-      );
-
-
-    updateCalibrationUI();
-
-    saveCalibration();
-
-  }
-);
-
-
-offsetSlider.addEventListener(
-  "input",
-  () => {
-
-    calibration.offset =
-      Number(
-        offsetSlider.value
-      );
-
-
-    updateCalibrationUI();
-
-    saveCalibration();
-
-  }
-);
-
-
-fovSlider.addEventListener(
-  "input",
-  () => {
-
-    calibration.fov =
-      Number(
-        fovSlider.value
-      );
-
-
-    updateCalibrationUI();
-
-    saveCalibration();
-
-  }
-);
-
-
-vrZoomSlider.addEventListener(
-  "input",
-  () => {
-
-    calibration.zoom =
-      Number(
-        vrZoomSlider.value
-      );
-
-
-    updateCalibrationUI();
-
-    saveCalibration();
-
-  }
-);
-
-
-resetCalibrationBtn.addEventListener(
-  "click",
-  () => {
-
-    calibration =
-      {
-        ...DEFAULT_CALIBRATION
-      };
-
-
-    saveCalibration();
-
-    updateCalibrationUI();
-
-  }
-);
-
-
-cancelCalibrationBtn.addEventListener(
-  "click",
-  () => {
-
-    calibrationPanel.style.display =
-      "none";
-
-  }
-);
-
-
-/* =====================================================
-   SPHERICAL
+   SPHERICAL -> VECTOR
 ===================================================== */
 
 function sphericalToVector(
@@ -1685,6 +1401,10 @@ function sphericalToVector(
 
 }
 
+
+/* =====================================================
+   VECTOR -> SPHERICAL
+===================================================== */
 
 function directionToSpherical(
   direction
@@ -1732,7 +1452,9 @@ AFRAME.registerComponent(
         camera.object3D;
 
 
-      if (!cam)
+      if (
+        !cam
+      )
         return;
 
 
@@ -1798,6 +1520,10 @@ function createHotspotEntity(
   );
 
 
+  /*
+     WHITE BORDER
+  */
+
   const border =
     document.createElement(
       "a-circle"
@@ -1821,6 +1547,10 @@ function createHotspotEntity(
     "shader: flat; side: double"
   );
 
+
+  /*
+     RED DOT
+  */
 
   const dot =
     document.createElement(
@@ -1851,6 +1581,10 @@ function createHotspotEntity(
     "shader: flat; side: double"
   );
 
+
+  /*
+     NUMBER
+  */
 
   const text =
     document.createElement(
@@ -1904,9 +1638,11 @@ function createHotspotEntity(
     border
   );
 
+
   root.appendChild(
     dot
   );
+
 
   root.appendChild(
     text
@@ -1983,7 +1719,9 @@ function screenToDirection(
     );
 
 
-  if (!cam)
+  if (
+    !cam
+  )
     return null;
 
 
@@ -1996,7 +1734,8 @@ function screenToDirection(
     (
       (clientX - rect.left)
       / rect.width
-    ) * 2 - 1;
+    )
+    * 2 - 1;
 
 
   const y =
@@ -2041,7 +1780,7 @@ function screenToDirection(
 
 
 /* =====================================================
-   ADD MODE
+   ADD HOTSPOT
 ===================================================== */
 
 addHotspotBtn.addEventListener(
@@ -2111,7 +1850,7 @@ function stopAddMode() {
 
 
 /* =====================================================
-   POINTER
+   DRAG DETECTION
 ===================================================== */
 
 scene.addEventListener(
@@ -2121,8 +1860,10 @@ scene.addEventListener(
     pointerStartX =
       event.clientX;
 
+
     pointerStartY =
       event.clientY;
+
 
     pointerDistance =
       0;
@@ -2156,7 +1897,7 @@ scene.addEventListener(
 
 
 /* =====================================================
-   ADD HOTSPOT
+   PLACE HOTSPOT
 ===================================================== */
 
 scene.addEventListener(
@@ -2171,8 +1912,7 @@ scene.addEventListener(
 
 
     if (
-      pointerDistance >
-      8
+      pointerDistance > 8
     )
       return;
 
@@ -2467,6 +2207,10 @@ function positionPopup() {
 }
 
 
+/* =====================================================
+   POPUP LOOP
+===================================================== */
+
 function popupLoop() {
 
   positionPopup();
@@ -2585,7 +2329,7 @@ function openEditor(id) {
 
 
 /* =====================================================
-   SAVE HOTSPOT
+   SAVE
 ===================================================== */
 
 saveBtn.addEventListener(
@@ -2723,6 +2467,10 @@ deleteBtn.addEventListener(
 );
 
 
+/* =====================================================
+   CLOSE POPUP
+===================================================== */
+
 popupClose.addEventListener(
   "click",
   closePopup
@@ -2774,17 +2522,27 @@ function changeZoom(amount) {
 
 zoomInBtn.addEventListener(
   "click",
-  () => changeZoom(-10)
+  () => {
+
+    changeZoom(-10);
+
+  }
 );
 
 
 zoomOutBtn.addEventListener(
   "click",
-  () => changeZoom(10)
+  () => {
+
+    changeZoom(10);
+
+  }
 );
 
 
-/* MOUSE WHEEL */
+/* =====================================================
+   MOUSE WHEEL ZOOM
+===================================================== */
 
 scene.addEventListener(
   "wheel",
@@ -2841,14 +2599,21 @@ fullscreenBtn.addEventListener(
 
     }
 
-    catch (error) {}
+    catch (error) {
+
+      console.log(
+        "Fullscreen ni na voljo.",
+        error
+      );
+
+    }
 
   }
 );
 
 
 /* =====================================================
-   OPEN APOCALYPSE
+   OPEN CARDBOARD PANEL
 ===================================================== */
 
 cardboardBtn.addEventListener(
@@ -2857,13 +2622,23 @@ cardboardBtn.addEventListener(
 
     stopAddMode();
 
+
     closePopup();
 
-    updateCalibrationUI();
 
-
-    calibrationPanel.style.display =
+    cardboardStartPanel.style.display =
       "flex";
+
+  }
+);
+
+
+cancelCardboardBtn.addEventListener(
+  "click",
+  () => {
+
+    cardboardStartPanel.style.display =
+      "none";
 
   }
 );
@@ -2877,15 +2652,12 @@ startCardboardBtn.addEventListener(
   "click",
   async () => {
 
-    saveCalibration();
-
-
-    calibrationPanel.style.display =
+    cardboardStartPanel.style.display =
       "none";
 
 
     /*
-      iOS potrebuje eksplicitno dovoljenje.
+       iPhone / iPad
     */
 
     if (
@@ -2900,12 +2672,17 @@ startCardboardBtn.addEventListener(
       permissionPanel.style.display =
         "flex";
 
+
       return;
 
     }
 
 
-    enterCardboard();
+    /*
+       Android
+    */
+
+    await enterCardboard();
 
   }
 );
@@ -2927,13 +2704,13 @@ permissionButton.addEventListener(
 
 
       if (
-        result !==
-        "granted"
+        result !== "granted"
       ) {
 
         alert(
           "Dostop do senzorjev ni dovoljen."
         );
+
 
         return;
 
@@ -2944,7 +2721,7 @@ permissionButton.addEventListener(
         "none";
 
 
-      enterCardboard();
+      await enterCardboard();
 
     }
 
@@ -2961,8 +2738,21 @@ permissionButton.addEventListener(
 
 
 /* =====================================================
-   ORIENTATION
+   DEVICE ORIENTATION
 ===================================================== */
+
+let deviceAlpha =
+  0;
+
+let deviceBeta =
+  0;
+
+let deviceGamma =
+  0;
+
+let hasOrientation =
+  false;
+
 
 function orientationHandler(
   event
@@ -2993,17 +2783,20 @@ function orientationHandler(
 
 
 /* =====================================================
-   FULLSCREEN + LANDSCAPE
+   PREPARE PHONE
 ===================================================== */
 
 async function preparePhone() {
+
+  /*
+     FULLSCREEN
+  */
 
   try {
 
     if (
       !document.fullscreenElement &&
-      document.documentElement
-        .requestFullscreen
+      document.documentElement.requestFullscreen
     ) {
 
       await document
@@ -3014,8 +2807,19 @@ async function preparePhone() {
 
   }
 
-  catch (error) {}
+  catch (error) {
 
+    console.log(
+      "Fullscreen ni uspel:",
+      error
+    );
+
+  }
+
+
+  /*
+     LANDSCAPE
+  */
 
   try {
 
@@ -3032,9 +2836,48 @@ async function preparePhone() {
 
   }
 
-  catch (error) {}
+  catch (error) {
+
+    console.log(
+      "Landscape lock ni uspel:",
+      error
+    );
+
+  }
 
 }
+
+
+/* =====================================================
+   CARDBOARD VARIABLES
+===================================================== */
+
+let stereoRenderer =
+  null;
+
+let cardboardCamera =
+  null;
+
+let cardboardScene =
+  null;
+
+let cardboardAnimationId =
+  null;
+
+let cardboardInfoGroup =
+  null;
+
+
+/*
+   Originalne nastavitve kamere,
+   da jih po izhodu obnovimo.
+*/
+
+let originalCameraFov =
+  80;
+
+let originalCameraAspect =
+  1;
 
 
 /* =====================================================
@@ -3054,11 +2897,18 @@ async function enterCardboard() {
 
 
   /*
-    TELEFON OSTANE PRIŽGAN.
+     NAJPREJ WAKE LOCK.
+
+     Med Cardboard načinom
+     se zaslon ne sme ugasniti.
   */
 
   await enableWakeLock();
 
+
+  /*
+     Fullscreen + landscape.
+  */
 
   await preparePhone();
 
@@ -3100,6 +2950,46 @@ async function enterCardboard() {
     );
 
 
+  if (
+    !cardboardCamera ||
+    !stereoRenderer
+  ) {
+
+    cardboardMode =
+      false;
+
+
+    await disableWakeLock();
+
+
+    alert(
+      "Cardboard renderer se ni mogel zagnati."
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+     Zapomnimo normalno kamero.
+  */
+
+  originalCameraFov =
+    cardboardCamera.fov;
+
+
+  originalCameraAspect =
+    cardboardCamera.aspect;
+
+
+  /*
+     Normalni mouse/touch look ugasnemo.
+     Cardboard zdaj uporablja samo
+     orientacijo telefona.
+  */
+
   camera.setAttribute(
     "look-controls",
     "enabled",
@@ -3107,13 +2997,31 @@ async function enterCardboard() {
   );
 
 
-  cardboardLoop();
+  /*
+     Počakamo trenutek, da se fullscreen
+     in landscape stabilizirata.
+  */
+
+  setTimeout(
+    () => {
+
+      if (
+        cardboardMode
+      ) {
+
+        cardboardLoop();
+
+      }
+
+    },
+    100
+  );
 
 }
 
 
 /* =====================================================
-   DEVICE ORIENTATION -> THREE
+   PHONE ORIENTATION -> THREE
 ===================================================== */
 
 const zee =
@@ -3233,12 +3141,35 @@ function updateCardboardOrientation(
 
 
 /* =====================================================
-   STEREO RENDER
+   SIMPLE 50 / 50 CARDBOARD
+
+   LEVO OKO  = 0% - 50%
+   DESNO OKO = 50% - 100%
+
+   CENTER:
+   LEVO  = 25%
+   DESNO = 75%
 ===================================================== */
 
-function renderStereo() {
+const stereoCamera =
+  new THREE.StereoCamera();
+
+
+/*
+   Standardna približna človeška
+   stereo razdalja.
+
+   Uporabnik je ne nastavlja.
+*/
+
+stereoCamera.eyeSep =
+  0.064;
+
+
+function renderCardboardStereo() {
 
   if (
+    !cardboardMode ||
     !stereoRenderer ||
     !cardboardCamera ||
     !cardboardScene
@@ -3246,182 +3177,208 @@ function renderStereo() {
     return;
 
 
+  const renderer =
+    stereoRenderer;
+
+
   const canvas =
-    stereoRenderer.domElement;
+    renderer.domElement;
 
 
-  const width =
+  /*
+     CSS velikost zaslona.
+  */
+
+  const cssWidth =
     canvas.clientWidth;
 
 
-  const height =
+  const cssHeight =
     canvas.clientHeight;
 
 
   if (
-    width <= 0 ||
-    height <= 0
+    cssWidth <= 0 ||
+    cssHeight <= 0
   )
     return;
 
 
   /*
-    VR FOV + ZOOM
+     Dejanska WebGL velikost v pikah.
+
+     To je pomembno na telefonih
+     z visokim devicePixelRatio.
   */
 
-  const zoomFactor =
-    calibration.zoom /
-    100;
+  const bufferSize =
+    new THREE.Vector2();
 
 
-  cardboardCamera.fov =
-    THREE.MathUtils.clamp(
-      calibration.fov /
-      zoomFactor,
-      35,
-      105
-    );
-
-
-  cardboardCamera.aspect =
-    (width / 2) /
-    height;
-
-
-  cardboardCamera
-    .updateProjectionMatrix();
-
-
-  cardboardCamera
-    .updateMatrixWorld(
-      true
-    );
-
-
-  /*
-    STEREO CAMERA
-  */
-
-  if (
-    !renderStereo.stereo
-  ) {
-
-    renderStereo.stereo =
-      new THREE.StereoCamera();
-
-  }
-
-
-  const stereo =
-    renderStereo.stereo;
-
-
-  stereo.eyeSep =
-    calibration.ipd /
-    1000;
-
-
-  stereo.update(
-    cardboardCamera
+  renderer.getDrawingBufferSize(
+    bufferSize
   );
 
 
-  const half =
-    width / 2;
+  const width =
+    Math.floor(
+      bufferSize.x
+    );
+
+
+  const height =
+    Math.floor(
+      bufferSize.y
+    );
+
+
+  const halfWidth =
+    Math.floor(
+      width / 2
+    );
 
 
   /*
-    HORIZONTALNI CENTER
+     Vsako oko dobi TOČNO polovico zaslona.
+
+     Brez offseta.
+     Brez naše IPD kalibracije.
+     Brez spreminjanja centra.
   */
 
-  const maxOffset =
-    Math.min(
-      80,
-      width * 0.10
-    );
+  cardboardCamera.aspect =
+    (cssWidth / 2) /
+    cssHeight;
 
 
-  const offset =
-    THREE.MathUtils.clamp(
-      calibration.offset,
-      -maxOffset,
-      maxOffset
-    );
+  /*
+     Stabilen Cardboard FOV.
+
+     Ni uporabniškega sliderja.
+  */
+
+  cardboardCamera.fov =
+    75;
 
 
-  stereoRenderer.autoClear =
-    false;
+  cardboardCamera.updateProjectionMatrix();
 
 
-  stereoRenderer.setScissorTest(
+  cardboardCamera.updateMatrixWorld(
     true
   );
 
 
-  stereoRenderer.clear();
+  stereoCamera.update(
+    cardboardCamera
+  );
 
 
-  /* LEFT */
+  renderer.autoClear =
+    false;
 
-  stereoRenderer.setViewport(
-    offset,
+
+  renderer.setScissorTest(
+    true
+  );
+
+
+  renderer.setViewport(
     0,
-    half,
+    0,
+    width,
     height
   );
 
 
-  stereoRenderer.setScissor(
+  renderer.setScissor(
     0,
     0,
-    half,
+    width,
     height
   );
 
 
-  stereoRenderer.render(
+  renderer.clear(
+    true,
+    true,
+    true
+  );
+
+
+  /* =================================================
+     LEVO OKO
+  ================================================= */
+
+  renderer.setViewport(
+    0,
+    0,
+    halfWidth,
+    height
+  );
+
+
+  renderer.setScissor(
+    0,
+    0,
+    halfWidth,
+    height
+  );
+
+
+  renderer.render(
     cardboardScene,
-    stereo.cameraL
+    stereoCamera.cameraL
   );
 
 
-  /* RIGHT */
+  /* =================================================
+     DESNO OKO
+  ================================================= */
 
-  stereoRenderer.setViewport(
-    half - offset,
+  renderer.setViewport(
+    halfWidth,
     0,
-    half,
+    width - halfWidth,
     height
   );
 
 
-  stereoRenderer.setScissor(
-    half,
+  renderer.setScissor(
+    halfWidth,
     0,
-    half,
+    width - halfWidth,
     height
   );
 
 
-  stereoRenderer.render(
+  renderer.render(
     cardboardScene,
-    stereo.cameraR
+    stereoCamera.cameraR
   );
 
 
-  stereoRenderer.setScissorTest(
+  renderer.setScissorTest(
     false
   );
 
 
-  stereoRenderer.autoClear =
+  renderer.setViewport(
+    0,
+    0,
+    width,
+    height
+  );
+
+
+  renderer.autoClear =
     true;
 
 }
 
 
 /* =====================================================
-   FACE HOTSPOTS TO CAMERA
+   HOTSPOTS FACE CAMERA
 ===================================================== */
 
 function orientHotspotsToCamera() {
@@ -3459,7 +3416,7 @@ function orientHotspotsToCamera() {
 
 
 /* =====================================================
-   GAZE
+   GAZE RAYCASTER
 ===================================================== */
 
 const gazeRaycaster =
@@ -3473,6 +3430,24 @@ const gazeCenter =
   );
 
 
+const GAZE_TIME =
+  1200;
+
+
+let gazeTargetId =
+  null;
+
+let gazeStartedAt =
+  0;
+
+let gazeActivated =
+  false;
+
+
+/* =====================================================
+   UPDATE GAZE
+===================================================== */
+
 function updateGaze() {
 
   if (
@@ -3480,6 +3455,11 @@ function updateGaze() {
   )
     return;
 
+
+  /*
+     Ray gre naravnost iz sredine
+     pogleda uporabnika.
+  */
 
   gazeRaycaster.setFromCamera(
     gazeCenter,
@@ -3538,6 +3518,10 @@ function updateGaze() {
       : null;
 
 
+  /*
+     Ne gledamo hotspota.
+  */
+
   if (
     !targetId
   ) {
@@ -3548,6 +3532,10 @@ function updateGaze() {
 
   }
 
+
+  /*
+     Nov hotspot.
+  */
 
   if (
     gazeTargetId !==
@@ -3593,6 +3581,10 @@ function updateGaze() {
 
   }
 
+
+  /*
+     Gledamo ga dovolj dolgo.
+  */
 
   if (
     !gazeActivated &&
@@ -3673,26 +3665,39 @@ function showCardboardInfo(
     new THREE.Group();
 
 
+  /*
+     BACKGROUND
+  */
+
+  const panelGeometry =
+    new THREE.PlaneGeometry(
+      2.8,
+      1.5
+    );
+
+
+  const panelMaterial =
+    new THREE.MeshBasicMaterial({
+
+      color:
+        0xffffff,
+
+      transparent:
+        true,
+
+      opacity:
+        0.96,
+
+      side:
+        THREE.DoubleSide
+
+    });
+
+
   const panel =
     new THREE.Mesh(
-
-      new THREE.PlaneGeometry(
-        2.8,
-        1.45
-      ),
-
-      new THREE.MeshBasicMaterial({
-
-        color: 0xffffff,
-
-        transparent: true,
-
-        opacity: 0.96,
-
-        side: THREE.DoubleSide
-
-      })
-
+      panelGeometry,
+      panelMaterial
     );
 
 
@@ -3701,22 +3706,26 @@ function showCardboardInfo(
   );
 
 
-  const canvas =
+  /*
+     TEXT CANVAS
+  */
+
+  const textCanvas =
     document.createElement(
       "canvas"
     );
 
 
-  canvas.width =
+  textCanvas.width =
     1024;
 
 
-  canvas.height =
+  textCanvas.height =
     512;
 
 
   const ctx =
-    canvas.getContext(
+    textCanvas.getContext(
       "2d"
     );
 
@@ -3728,6 +3737,10 @@ function showCardboardInfo(
     512
   );
 
+
+  /*
+     TITLE
+  */
 
   ctx.fillStyle =
     "#111";
@@ -3742,12 +3755,16 @@ function showCardboardInfo(
     hotspot.title ||
       "Brez naslova",
     70,
-    90,
+    95,
     880,
-    65,
+    64,
     2
   );
 
+
+  /*
+     DESCRIPTION
+  */
 
   ctx.fillStyle =
     "#333";
@@ -3762,7 +3779,7 @@ function showCardboardInfo(
     hotspot.description ||
       "Ni opisa.",
     70,
-    220,
+    230,
     880,
     48,
     5
@@ -3771,8 +3788,33 @@ function showCardboardInfo(
 
   const texture =
     new THREE.CanvasTexture(
-      canvas
+      textCanvas
     );
+
+
+  if (
+    "colorSpace" in texture
+  ) {
+
+    texture.colorSpace =
+      THREE.SRGBColorSpace;
+
+  }
+
+
+  const textMaterial =
+    new THREE.MeshBasicMaterial({
+
+      map:
+        texture,
+
+      transparent:
+        true,
+
+      side:
+        THREE.DoubleSide
+
+    });
 
 
   const textPlane =
@@ -3780,18 +3822,10 @@ function showCardboardInfo(
 
       new THREE.PlaneGeometry(
         2.8,
-        1.4
+        1.45
       ),
 
-      new THREE.MeshBasicMaterial({
-
-        map: texture,
-
-        transparent: true,
-
-        side: THREE.DoubleSide
-
-      })
+      textMaterial
 
     );
 
@@ -3804,6 +3838,10 @@ function showCardboardInfo(
     textPlane
   );
 
+
+  /*
+     POSTAVIMO PRED UPORABNIKA
+  */
 
   const cameraPosition =
     new THREE.Vector3();
@@ -3828,10 +3866,13 @@ function showCardboardInfo(
     cameraPosition
       .clone()
       .add(
+
         direction
+          .clone()
           .multiplyScalar(
             2.8
           )
+
       )
 
   );
@@ -3902,8 +3943,7 @@ function drawWrappedText(
 
 
     if (
-      width >
-        maxWidth &&
+      width > maxWidth &&
       line !== ""
     ) {
 
@@ -3922,8 +3962,11 @@ function drawWrappedText(
       if (
         lineNumber >=
         maxLines
-      )
+      ) {
+
         return;
+
+      }
 
 
       line =
@@ -3961,7 +4004,7 @@ function drawWrappedText(
 
 
 /* =====================================================
-   REMOVE VR PANEL
+   REMOVE INFO PANEL
 ===================================================== */
 
 function removeCardboardInfo() {
@@ -4034,24 +4077,39 @@ function cardboardLoop() {
     );
 
 
+  /*
+     Kamera sledi telefonu.
+  */
+
   updateCardboardOrientation(
     cardboardCamera
   );
 
 
-  cardboardCamera
-    .updateMatrixWorld(
-      true
-    );
+  cardboardCamera.updateMatrixWorld(
+    true
+  );
 
+
+  /*
+     Hotspoti so obrnjeni proti uporabniku.
+  */
 
   orientHotspotsToCamera();
 
 
+  /*
+     Preveri pogled.
+  */
+
   updateGaze();
 
 
-  renderStereo();
+  /*
+     Render 50 / 50.
+  */
+
+  renderCardboardStereo();
 
 }
 
@@ -4079,8 +4137,10 @@ async function exitCardboard() {
 
 
   /*
-    Zdaj se lahko zaslon spet
-    normalno ugaša.
+     WAKE LOCK IZKLOP.
+
+     Zdaj se telefon lahko spet
+     normalno ugasne.
   */
 
   await disableWakeLock();
@@ -4122,6 +4182,11 @@ async function exitCardboard() {
     "flex";
 
 
+  /*
+     Ponovno vključimo normalen
+     mouse/touch pogled.
+  */
+
   camera.setAttribute(
     "look-controls",
     "enabled",
@@ -4130,7 +4195,7 @@ async function exitCardboard() {
 
 
   /*
-    Normalna kamera nazaj.
+     Obnovimo normalno kamero.
   */
 
   const normalCamera =
@@ -4143,13 +4208,13 @@ async function exitCardboard() {
     normalCamera
   ) {
 
+    normalCamera.fov =
+      originalCameraFov;
+
+
     normalCamera.aspect =
       window.innerWidth /
       window.innerHeight;
-
-
-    normalCamera.fov =
-      80;
 
 
     normalCamera.updateProjectionMatrix();
@@ -4157,31 +4222,49 @@ async function exitCardboard() {
   }
 
 
+  /*
+     Obnovimo renderer.
+  */
+
   if (
     scene.renderer
   ) {
 
-    scene.renderer.setScissorTest(
+    const renderer =
+      scene.renderer;
+
+
+    renderer.setScissorTest(
       false
     );
 
 
-    scene.renderer.setViewport(
-      0,
-      0,
-      scene.canvas.width,
-      scene.canvas.height
+    const size =
+      new THREE.Vector2();
+
+
+    renderer.getDrawingBufferSize(
+      size
     );
 
 
-    scene.renderer.setSize(
-      window.innerWidth,
-      window.innerHeight,
-      false
+    renderer.setViewport(
+      0,
+      0,
+      size.x,
+      size.y
     );
+
+
+    renderer.autoClear =
+      true;
 
   }
 
+
+  /*
+     Odkleni landscape.
+  */
 
   try {
 
@@ -4198,6 +4281,10 @@ async function exitCardboard() {
 
   catch (error) {}
 
+
+  /*
+     Zapusti fullscreen.
+  */
 
   try {
 
@@ -4226,8 +4313,7 @@ document.addEventListener(
   event => {
 
     if (
-      event.key !==
-      "Escape"
+      event.key !== "Escape"
     )
       return;
 
@@ -4245,7 +4331,56 @@ document.addEventListener(
 
     closePopup();
 
+
     stopAddMode();
+
+
+    cardboardStartPanel.style.display =
+      "none";
+
+
+    permissionPanel.style.display =
+      "none";
+
+  }
+);
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    if (
+      cardboardMode
+    ) {
+
+      return;
+
+    }
+
+
+    const cam =
+      camera.getObject3D(
+        "camera"
+      );
+
+
+    if (
+      !cam
+    )
+      return;
+
+
+    cam.aspect =
+      window.innerWidth /
+      window.innerHeight;
+
+
+    cam.updateProjectionMatrix();
 
   }
 );
@@ -4258,8 +4393,6 @@ document.addEventListener(
 scene.addEventListener(
   "loaded",
   () => {
-
-    updateCalibrationUI();
 
     renderHotspots();
 
