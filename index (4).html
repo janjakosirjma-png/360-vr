@@ -121,7 +121,7 @@ textarea:focus-visible{
 }
 
 /* =========================================================
-   NORMAL POPUP
+   POPUP
 ========================================================= */
 
 #popup{
@@ -232,8 +232,10 @@ textarea:focus-visible{
 #descriptionInput{
   width:100%;
   padding:11px;
+
   border:1px solid #aaa;
   border-radius:8px;
+
   font:inherit;
 }
 
@@ -246,8 +248,11 @@ textarea:focus-visible{
   flex:0 0 52px;
   width:52px;
   min-width:52px;
+
   padding:0;
+
   background:#7c3aed;
+
   font-size:20px;
 }
 
@@ -257,8 +262,11 @@ textarea:focus-visible{
 
 #dictationStatus{
   min-height:20px;
+
   margin-top:7px;
+
   color:#555;
+
   font-size:13px;
   font-weight:700;
 }
@@ -295,14 +303,20 @@ textarea:focus-visible{
 
 .sr-only{
   position:absolute !important;
+
   width:1px !important;
   height:1px !important;
+
   padding:0 !important;
   margin:-1px !important;
+
   overflow:hidden !important;
+
   clip:rect(0,0,0,0) !important;
   clip-path:inset(50%) !important;
+
   white-space:nowrap !important;
+
   border:0 !important;
 }
 
@@ -407,15 +421,20 @@ textarea:focus-visible{
 
 <a-scene
   id="scene"
+
   embedded
+
   vr-mode-ui="enabled:true"
+
   device-orientation-permission-ui="enabled:true"
+
   renderer="
     antialias:true;
     colorManagement:true;
     highRefreshRate:true;
     physicallyCorrectLights:false;
   "
+
   background="color:#000000">
 
   <a-assets timeout="20000">
@@ -427,16 +446,20 @@ textarea:focus-visible{
 
   </a-assets>
 
+  <!-- PANORAMA -->
+
   <a-sky
     id="sky"
     src="#panoramaImage"
     rotation="0 0 0">
   </a-sky>
 
+  <!-- HOTSPOTS -->
+
   <a-entity id="hotspotContainer"></a-entity>
 
   <!-- =====================================================
-       VR INFO - MODRIKASTO OZADJE
+       VR INFO CARD
   ====================================================== -->
 
   <a-entity
@@ -446,7 +469,9 @@ textarea:focus-visible{
     <a-plane
       width="3.4"
       height="1.9"
+
       color="#b9ddff"
+
       material="
         shader:flat;
         opacity:0.96;
@@ -456,23 +481,35 @@ textarea:focus-visible{
 
     <a-text
       id="vrInfoTitle"
+
       value=""
+
       color="#10243e"
+
       width="3"
+
       align="center"
       anchor="center"
+
       wrap-count="30"
+
       position="0 0.46 0.015">
     </a-text>
 
     <a-text
       id="vrInfoDescription"
+
       value=""
+
       color="#17324f"
+
       width="2.8"
+
       align="center"
       anchor="center"
+
       wrap-count="42"
+
       position="0 -0.15 0.015">
     </a-text>
 
@@ -480,22 +517,31 @@ textarea:focus-visible{
 
     <a-circle
       id="vrCloseButton"
+
       class="vr-close gaze-target"
+
       radius="0.19"
+
       color="#1e3a5f"
+
       material="
         shader:flat;
         opacity:0.98;
         transparent:true;
       "
+
       position="1.40 0.72 0.035">
 
       <a-text
         value="×"
+
         color="#ffffff"
+
         width="0.75"
+
         align="center"
         anchor="center"
+
         position="0 0 0.01">
       </a-text>
 
@@ -513,8 +559,11 @@ textarea:focus-visible{
 
     <a-camera
       id="camera"
+
       position="0 0 0"
+
       wasd-controls="enabled:false"
+
       look-controls="
         enabled:true;
         magicWindowTrackingEnabled:true;
@@ -523,13 +572,37 @@ textarea:focus-visible{
         pointerLockEnabled:false;
       ">
 
-      <!--
-        POMEMBNO:
-        RETICLE JE PRIVZETO SKRIT.
+      <!-- =================================================
+           DESKTOP MOUSE CURSOR
 
-        Prikaže se samo ob ENTER-VR.
-        Navaden fullscreen ga NE vključi.
-      -->
+           To je ločen A-Frame cursor za miško.
+           Ni viden.
+           Žarek gre iz dejanske pozicije miške.
+      ================================================== -->
+
+      <a-entity
+        id="mouseCursor"
+
+        cursor="
+          enabled:true;
+          rayOrigin:mouse;
+          fuse:false;
+        "
+
+        raycaster="
+          enabled:true;
+          objects:.mouse-target;
+          far:100;
+          interval:20;
+        ">
+      </a-entity>
+
+      <!-- =================================================
+           CARDBOARD GAZE RETICLE
+
+           Privzeto izklopljen.
+           Vklopi se samo v VR.
+      ================================================== -->
 
       <a-entity
         id="reticle"
@@ -608,6 +681,7 @@ textarea:focus-visible{
 
 <div
   id="popup"
+
   role="dialog"
   aria-modal="true"
   aria-labelledby="readerTitle"
@@ -848,8 +922,13 @@ const camera =
 const hotspotContainer =
   $("hotspotContainer");
 
+
+const mouseCursor =
+  $("mouseCursor");
+
 const reticle =
   $("reticle");
+
 
 const vrInfo =
   $("vrInfo");
@@ -962,6 +1041,8 @@ vrInfo.setAttribute(
 
 /* =========================================================
    STORAGE
+
+   ISTI KLJUČ
 ========================================================= */
 
 const STORAGE_KEY =
@@ -1128,6 +1209,8 @@ function makeHotspotCanvas(number){
   );
 
 
+  /* bela obroba */
+
   ctx.beginPath();
 
   ctx.arc(
@@ -1144,6 +1227,8 @@ function makeHotspotCanvas(number){
   ctx.fill();
 
 
+  /* rdeča sredina */
+
   ctx.beginPath();
 
   ctx.arc(
@@ -1159,6 +1244,8 @@ function makeHotspotCanvas(number){
 
   ctx.fill();
 
+
+  /* številka */
 
   ctx.fillStyle =
     "#ffffff";
@@ -1258,10 +1345,23 @@ function renderHotspots(){
       );
 
 
+      /*
+        HOTSPOT IMA DVE CILJNI SKUPINI:
+
+        .mouse-target
+          = desktop miškin raycaster
+
+        .gaze-target
+          = Cardboard pogled
+      */
+
       marker.classList.add(
         "hotspot"
       );
 
+      marker.classList.add(
+        "mouse-target"
+      );
 
       marker.classList.add(
         "gaze-target"
@@ -1273,11 +1373,13 @@ function renderHotspots(){
 
 
       /*
-        NAVADEN / FULLSCREEN:
-        običajen klik miške ali tap.
+        ISTI CLICK EVENT DELA ZA OBA NAČINA.
 
-        CARDBOARD:
-        A-Frame gaze click.
+        Izven VR:
+          normalni popup
+
+        V VR:
+          3D VR popup
       */
 
       marker.addEventListener(
@@ -1365,6 +1467,7 @@ function closePopup(){
 
   popup.style.visibility =
     "visible";
+
 
   selectedHotspotId =
     null;
@@ -2241,7 +2344,7 @@ if(
 
 
 /* =========================================================
-   ESCAPE
+   ESC
 ========================================================= */
 
 document.addEventListener(
@@ -2453,6 +2556,17 @@ function startAddMode(){
     true;
 
 
+  /*
+    Med dodajanjem začasno izklopimo desktop
+    klik raycaster, da klik na obstoječ hotspot
+    ne prestreže mesta za nov hotspot.
+  */
+
+  setDesktopMouseEnabled(
+    false
+  );
+
+
   addBtn.classList.add(
     "active"
   );
@@ -2490,6 +2604,24 @@ function stopAddMode(){
   hint.style.display =
     "none";
 
+
+  /*
+    Po dodajanju ponovno vključimo desktop miškin
+    raycaster, če nismo v Cardboardu.
+  */
+
+  if(
+    !scene.is(
+      "vr-mode"
+    )
+  ){
+
+    setDesktopMouseEnabled(
+      true
+    );
+
+  }
+
 }
 
 
@@ -2513,6 +2645,111 @@ addBtn.addEventListener(
 
   }
 );
+
+
+/* =========================================================
+   DESKTOP MOUSE ON / OFF
+========================================================= */
+
+function setDesktopMouseEnabled(enabled){
+
+  if(!mouseCursor){
+    return;
+  }
+
+
+  if(enabled){
+
+    mouseCursor.setAttribute(
+      "cursor",
+      "enabled:true; rayOrigin:mouse; fuse:false"
+    );
+
+
+    mouseCursor.setAttribute(
+      "raycaster",
+      "enabled:true; objects:.mouse-target; far:100; interval:20"
+    );
+
+  }
+  else{
+
+    mouseCursor.setAttribute(
+      "cursor",
+      "enabled:false; rayOrigin:mouse; fuse:false"
+    );
+
+
+    mouseCursor.setAttribute(
+      "raycaster",
+      "enabled:false; objects:.mouse-target; far:100; interval:20"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   VR GAZE ON / OFF
+========================================================= */
+
+function setVRGazeEnabled(enabled){
+
+  if(enabled){
+
+    reticle.setAttribute(
+      "visible",
+      true
+    );
+
+
+    reticle.setAttribute(
+      "cursor",
+      "enabled:true; fuse:true; fuseTimeout:1200"
+    );
+
+
+    reticle.setAttribute(
+      "raycaster",
+      "enabled:true; objects:.gaze-target; far:100; interval:50"
+    );
+
+
+    reticle.setAttribute(
+      "material",
+      "color:#ffffff; shader:flat; opacity:0.95"
+    );
+
+  }
+  else{
+
+    reticle.setAttribute(
+      "cursor",
+      "enabled:false; fuse:true; fuseTimeout:1200"
+    );
+
+
+    reticle.setAttribute(
+      "raycaster",
+      "enabled:false; objects:.gaze-target; far:100; interval:50"
+    );
+
+
+    reticle.setAttribute(
+      "visible",
+      false
+    );
+
+
+    reticle.setAttribute(
+      "material",
+      "color:#ffffff; shader:flat; opacity:0.95"
+    );
+
+  }
+
+}
 
 
 /* =========================================================
@@ -2944,10 +3181,9 @@ zoomOutBtn.onclick =
 /* =========================================================
    FULLSCREEN
 
-   POMEMBNO:
-   TO JE SAMO FULLSCREEN.
-   NE VKLOPI GAZE.
-   NE VKLOPI RETICLA.
+   FULLSCREEN NE SPREMINJA NAČINA IZBIRE.
+
+   Miška ostane aktivna.
 ========================================================= */
 
 fullscreenBtn.onclick =
@@ -2984,6 +3220,43 @@ fullscreenBtn.onclick =
     catch(e){}
 
   };
+
+
+/* =========================================================
+   FULLSCREEN CHANGE
+
+   Če nismo v VR, zagotovi:
+   - mouse ON
+   - gaze OFF
+========================================================= */
+
+document.addEventListener(
+  "fullscreenchange",
+  ()=>{
+
+    if(
+      !scene.is(
+        "vr-mode"
+      )
+    ){
+
+      setVRGazeEnabled(
+        false
+      );
+
+
+      if(!addMode){
+
+        setDesktopMouseEnabled(
+          true
+        );
+
+      }
+
+    }
+
+  }
+);
 
 
 /* =========================================================
@@ -3144,9 +3417,7 @@ vrCloseButton.addEventListener(
 
 
 /* =========================================================
-   GAZE
-
-   DELUJE SAMO V VR.
+   VR GAZE
 ========================================================= */
 
 reticle.addEventListener(
@@ -3349,6 +3620,10 @@ cancelVRBtn.onclick =
 startVRBtn.onclick =
   async ()=>{
 
+    /*
+      iOS permission.
+    */
+
     if(
       typeof DeviceOrientationEvent !==
         "undefined" &&
@@ -3392,6 +3667,10 @@ startVRBtn.onclick =
       "none";
 
 
+    /*
+      Landscape.
+    */
+
     try{
 
       if(
@@ -3408,6 +3687,10 @@ startVRBtn.onclick =
     }
     catch(e){}
 
+
+    /*
+      A-FRAME VR - OHRANJENO.
+    */
 
     try{
 
@@ -3428,10 +3711,8 @@ startVRBtn.onclick =
 /* =========================================================
    ENTER VR
 
-   ŠELE TUKAJ VKLOPIMO:
-   - krožec
-   - cursor fuse
-   - raycaster
+   DESKTOP MOUSE OFF
+   GAZE ON
 ========================================================= */
 
 scene.addEventListener(
@@ -3461,30 +3742,21 @@ scene.addEventListener(
 
 
     /*
-      GAZE VKLOPIMO SAMO V VR.
+      POMEMBNO:
+      V Cardboardu izklopimo mouse cursor.
     */
 
-    reticle.setAttribute(
-      "visible",
+    setDesktopMouseEnabled(
+      false
+    );
+
+
+    /*
+      In vključimo gaze.
+    */
+
+    setVRGazeEnabled(
       true
-    );
-
-
-    reticle.setAttribute(
-      "cursor",
-      "enabled:true; fuse:true; fuseTimeout:1200"
-    );
-
-
-    reticle.setAttribute(
-      "raycaster",
-      "enabled:true; objects:.gaze-target; far:100; interval:50"
-    );
-
-
-    reticle.setAttribute(
-      "material",
-      "color:#ffffff; shader:flat; opacity:0.95"
     );
 
 
@@ -3500,7 +3772,8 @@ scene.addEventListener(
 /* =========================================================
    EXIT VR
 
-   RETICLE POPOLNOMA IZKLOPIMO.
+   GAZE OFF
+   DESKTOP MOUSE ON
 ========================================================= */
 
 scene.addEventListener(
@@ -3511,27 +3784,17 @@ scene.addEventListener(
       Najprej ugasnemo gaze.
     */
 
-    reticle.setAttribute(
-      "cursor",
-      "enabled:false; fuse:true; fuseTimeout:1200"
-    );
-
-
-    reticle.setAttribute(
-      "raycaster",
-      "enabled:false; objects:.gaze-target; far:100; interval:50"
-    );
-
-
-    reticle.setAttribute(
-      "visible",
+    setVRGazeEnabled(
       false
     );
 
 
-    reticle.setAttribute(
-      "material",
-      "color:#ffffff; shader:flat; opacity:0.95"
+    /*
+      In spet vključimo miškin raycaster.
+    */
+
+    setDesktopMouseEnabled(
+      true
     );
 
 
@@ -3651,46 +3914,6 @@ document.addEventListener(
 
 
 /* =========================================================
-   FULLSCREEN CHANGE SAFETY
-
-   Če smo samo v browser fullscreen načinu in NE v VR,
-   reticle mora ostati izklopljen.
-========================================================= */
-
-document.addEventListener(
-  "fullscreenchange",
-  ()=>{
-
-    if(
-      !scene.is(
-        "vr-mode"
-      )
-    ){
-
-      reticle.setAttribute(
-        "visible",
-        false
-      );
-
-
-      reticle.setAttribute(
-        "cursor",
-        "enabled:false; fuse:true; fuseTimeout:1200"
-      );
-
-
-      reticle.setAttribute(
-        "raycaster",
-        "enabled:false; objects:.gaze-target; far:100; interval:50"
-      );
-
-    }
-
-  }
-);
-
-
-/* =========================================================
    SCENE READY
 ========================================================= */
 
@@ -3710,26 +3933,25 @@ scene.addEventListener(
 
 
     /*
-      Ob zagonu gaze zagotovo izklopljen.
+      NORMALNI / FULLSCREEN NAČIN:
+
+      miška = ON
+      gaze = OFF
     */
 
-    reticle.setAttribute(
-      "visible",
+    setDesktopMouseEnabled(
+      true
+    );
+
+
+    setVRGazeEnabled(
       false
     );
 
 
-    reticle.setAttribute(
-      "cursor",
-      "enabled:false; fuse:true; fuseTimeout:1200"
-    );
-
-
-    reticle.setAttribute(
-      "raycaster",
-      "enabled:false; objects:.gaze-target; far:100; interval:50"
-    );
-
+    /*
+      Mouse wheel zoom.
+    */
 
     if(scene.canvas){
 
