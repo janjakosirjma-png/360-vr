@@ -121,7 +121,7 @@ textarea:focus-visible{
 }
 
 /* =========================================================
-   POPUP
+   NORMAL POPUP
 ========================================================= */
 
 #popup{
@@ -184,7 +184,6 @@ textarea:focus-visible{
 
 #readerDescription{
   margin-bottom:15px;
-
   white-space:pre-wrap;
   line-height:1.45;
 }
@@ -212,9 +211,7 @@ textarea:focus-visible{
 
 .fieldLabel{
   display:block;
-
   margin:9px 0 4px;
-
   font-size:13px;
   font-weight:700;
 }
@@ -234,12 +231,9 @@ textarea:focus-visible{
 #titleInput,
 #descriptionInput{
   width:100%;
-
   padding:11px;
-
   border:1px solid #aaa;
   border-radius:8px;
-
   font:inherit;
 }
 
@@ -250,14 +244,10 @@ textarea:focus-visible{
 
 .dictateBtn{
   flex:0 0 52px;
-
   width:52px;
   min-width:52px;
-
   padding:0;
-
   background:#7c3aed;
-
   font-size:20px;
 }
 
@@ -267,11 +257,8 @@ textarea:focus-visible{
 
 #dictationStatus{
   min-height:20px;
-
   margin-top:7px;
-
   color:#555;
-
   font-size:13px;
   font-weight:700;
 }
@@ -283,7 +270,6 @@ textarea:focus-visible{
 .editorButtons{
   display:flex;
   gap:6px;
-
   margin-top:10px;
 }
 
@@ -309,20 +295,14 @@ textarea:focus-visible{
 
 .sr-only{
   position:absolute !important;
-
   width:1px !important;
   height:1px !important;
-
   padding:0 !important;
   margin:-1px !important;
-
   overflow:hidden !important;
-
   clip:rect(0,0,0,0) !important;
   clip-path:inset(50%) !important;
-
   white-space:nowrap !important;
-
   border:0 !important;
 }
 
@@ -401,7 +381,6 @@ textarea:focus-visible{
   font-weight:bold;
 }
 
-/* uporabljamo svoj Cardboard gumb */
 .a-enter-vr{
   display:none !important;
 }
@@ -423,28 +402,21 @@ textarea:focus-visible{
 <body>
 
 <!-- =======================================================
-     A-FRAME SCENE
+     A-FRAME
 ======================================================== -->
 
 <a-scene
   id="scene"
-
   embedded
-
-  vr-mode-ui="enabled: true"
-
-  device-orientation-permission-ui="enabled: true"
-
+  vr-mode-ui="enabled:true"
+  device-orientation-permission-ui="enabled:true"
   renderer="
-    antialias: true;
-    colorManagement: true;
-    highRefreshRate: true;
-    physicallyCorrectLights: false;
+    antialias:true;
+    colorManagement:true;
+    highRefreshRate:true;
+    physicallyCorrectLights:false;
   "
-
   background="color:#000000">
-
-  <!-- ASSETS -->
 
   <a-assets timeout="20000">
 
@@ -455,23 +427,16 @@ textarea:focus-visible{
 
   </a-assets>
 
-  <!-- PANORAMA -->
-
   <a-sky
     id="sky"
     src="#panoramaImage"
     rotation="0 0 0">
   </a-sky>
 
-  <!-- HOTSPOTS -->
-
   <a-entity id="hotspotContainer"></a-entity>
 
   <!-- =====================================================
-       VR INFO CARD
-
-       SPREMEMBA:
-       ozadje je modrikasto, da se beli reticle ne izgubi.
+       VR INFO - MODRIKASTO OZADJE
   ====================================================== -->
 
   <a-entity
@@ -481,9 +446,7 @@ textarea:focus-visible{
     <a-plane
       width="3.4"
       height="1.9"
-
       color="#b9ddff"
-
       material="
         shader:flat;
         opacity:0.96;
@@ -493,71 +456,46 @@ textarea:focus-visible{
 
     <a-text
       id="vrInfoTitle"
-
       value=""
-
       color="#10243e"
-
       width="3"
-
       align="center"
       anchor="center"
-
       wrap-count="30"
-
       position="0 0.46 0.015">
     </a-text>
 
     <a-text
       id="vrInfoDescription"
-
       value=""
-
       color="#17324f"
-
       width="2.8"
-
       align="center"
       anchor="center"
-
       wrap-count="42"
-
       position="0 -0.15 0.015">
     </a-text>
 
-    <!-- ===================================================
-         VR KRIŽEC
-
-         Tudi ta uporablja isti 1.2 s gaze sistem.
-    ==================================================== -->
+    <!-- VR CLOSE -->
 
     <a-circle
       id="vrCloseButton"
-
       class="vr-close gaze-target"
-
       radius="0.19"
-
       color="#1e3a5f"
-
       material="
         shader:flat;
         opacity:0.98;
         transparent:true;
       "
-
       position="1.40 0.72 0.035">
 
       <a-text
         value="×"
-
         color="#ffffff"
-
         width="0.75"
-
         align="center"
         anchor="center"
-
         position="0 0 0.01">
       </a-text>
 
@@ -575,11 +513,8 @@ textarea:focus-visible{
 
     <a-camera
       id="camera"
-
       position="0 0 0"
-
       wasd-controls="enabled:false"
-
       look-controls="
         enabled:true;
         magicWindowTrackingEnabled:true;
@@ -588,19 +523,29 @@ textarea:focus-visible{
         pointerLockEnabled:false;
       ">
 
-      <!-- VR gaze reticle -->
+      <!--
+        POMEMBNO:
+        RETICLE JE PRIVZETO SKRIT.
+
+        Prikaže se samo ob ENTER-VR.
+        Navaden fullscreen ga NE vključi.
+      -->
 
       <a-entity
         id="reticle"
 
+        visible="false"
+
         position="0 0 -1"
 
         cursor="
+          enabled:false;
           fuse:true;
           fuseTimeout:1200;
         "
 
         raycaster="
+          enabled:false;
           objects:.gaze-target;
           far:100;
           interval:50;
@@ -658,18 +603,15 @@ textarea:focus-visible{
 </div>
 
 <!-- =======================================================
-     NORMALNI POPUP
+     NORMAL POPUP
 ======================================================== -->
 
 <div
   id="popup"
-
   role="dialog"
   aria-modal="true"
   aria-labelledby="readerTitle"
   aria-describedby="readerDescription">
-
-  <!-- KRIŽEC DESNO ZGORAJ -->
 
   <button
     id="popupClose"
@@ -678,8 +620,6 @@ textarea:focus-visible{
     title="Zapri">
     ×
   </button>
-
-  <!-- BRANJE -->
 
   <div id="reader">
 
@@ -708,8 +648,6 @@ textarea:focus-visible{
     </div>
 
   </div>
-
-  <!-- UREJANJE -->
 
   <div id="editor">
 
@@ -788,8 +726,6 @@ textarea:focus-visible{
 
 </div>
 
-<!-- SCREEN READER LIVE REGION -->
-
 <div
   id="screenReaderAnnouncement"
   class="sr-only"
@@ -836,10 +772,6 @@ textarea:focus-visible{
    A-FRAME COMPONENTS
 ========================================================= */
 
-/*
-  Hotspot marker je vedno obrnjen proti centru panorame.
-*/
-
 AFRAME.registerComponent(
   "look-at-center",
   {
@@ -861,10 +793,6 @@ AFRAME.registerComponent(
   }
 );
 
-
-/*
-  VR kartica je vedno obrnjena proti kameri.
-*/
 
 AFRAME.registerComponent(
   "vr-card-face-camera",
@@ -1034,8 +962,6 @@ vrInfo.setAttribute(
 
 /* =========================================================
    STORAGE
-
-   ISTI KLJUČ KOT PREJ
 ========================================================= */
 
 const STORAGE_KEY =
@@ -1202,8 +1128,6 @@ function makeHotspotCanvas(number){
   );
 
 
-  /* White border */
-
   ctx.beginPath();
 
   ctx.arc(
@@ -1220,8 +1144,6 @@ function makeHotspotCanvas(number){
   ctx.fill();
 
 
-  /* Red center */
-
   ctx.beginPath();
 
   ctx.arc(
@@ -1237,8 +1159,6 @@ function makeHotspotCanvas(number){
 
   ctx.fill();
 
-
-  /* Number */
 
   ctx.fillStyle =
     "#ffffff";
@@ -1338,14 +1258,10 @@ function renderHotspots(){
       );
 
 
-      /*
-        .hotspot = obstoječa logika
-        .gaze-target = VR raycaster
-      */
-
       marker.classList.add(
         "hotspot"
       );
+
 
       marker.classList.add(
         "gaze-target"
@@ -1355,6 +1271,14 @@ function renderHotspots(){
       marker.dataset.hotspotId =
         hotspot.id;
 
+
+      /*
+        NAVADEN / FULLSCREEN:
+        običajen klik miške ali tap.
+
+        CARDBOARD:
+        A-Frame gaze click.
+      */
 
       marker.addEventListener(
         "click",
@@ -1503,10 +1427,6 @@ function openReader(id){
   positionPopup();
 
 
-  /*
-    Bralnik zaslona dobi naslov in opis.
-  */
-
   announceToScreenReader(
     title + ". " + description
   );
@@ -1588,25 +1508,12 @@ function openEditor(id){
 
   positionPopup();
 
-
-  /*
-    Na telefonu ne odpiramo tipkovnice avtomatsko.
-  */
-
 }
 
-
-/* =========================================================
-   NORMALNI POPUP KRIŽEC
-========================================================= */
 
 popupClose.onclick =
   closePopup;
 
-
-/* =========================================================
-   EDIT
-========================================================= */
 
 editBtn.onclick =
   ()=>{
@@ -1621,10 +1528,6 @@ editBtn.onclick =
 
   };
 
-
-/* =========================================================
-   SAVE
-========================================================= */
 
 saveBtn.onclick =
   ()=>{
@@ -1664,10 +1567,6 @@ saveBtn.onclick =
   };
 
 
-/* =========================================================
-   CANCEL
-========================================================= */
-
 cancelBtn.onclick =
   ()=>{
 
@@ -1701,10 +1600,6 @@ cancelBtn.onclick =
 
   };
 
-
-/* =========================================================
-   DELETE
-========================================================= */
 
 deleteBtn.onclick =
   ()=>{
@@ -1764,10 +1659,6 @@ let dictationButton =
   null;
 
 
-/*
-  Če browser nareka ne podpira, gumba skrijemo.
-*/
-
 if(!speechRecognitionSupported){
 
   dictateTitleBtn.style.display =
@@ -1778,10 +1669,6 @@ if(!speechRecognitionSupported){
 
 }
 
-
-/* =========================================================
-   STOP DICTATION
-========================================================= */
 
 function stopDictation(){
 
@@ -1829,19 +1716,10 @@ function stopDictation(){
 }
 
 
-/* =========================================================
-   START DICTATION
-========================================================= */
-
 function startDictation(
   target,
   button
 ){
-
-  /*
-    Če isti mikrofon že posluša,
-    klik ga ustavi.
-  */
 
   if(
     dictationRunning &&
@@ -1878,10 +1756,6 @@ function startDictation(
   recognition =
     new SpeechRecognitionClass();
 
-
-  /*
-    SLOVENŠČINA
-  */
 
   recognition.lang =
     "sl-SI";
@@ -2367,7 +2241,7 @@ if(
 
 
 /* =========================================================
-   ESC = ZAPRI NORMALNI POPUP
+   ESCAPE
 ========================================================= */
 
 document.addEventListener(
@@ -2815,7 +2689,7 @@ function createHotspotAtScreenPoint(
 
 
 /* =========================================================
-   INSTALL POINTER EVENTS
+   INSTALL POINTER CONTROLS
 ========================================================= */
 
 function installPointerControls(){
@@ -3069,6 +2943,11 @@ zoomOutBtn.onclick =
 
 /* =========================================================
    FULLSCREEN
+
+   POMEMBNO:
+   TO JE SAMO FULLSCREEN.
+   NE VKLOPI GAZE.
+   NE VKLOPI RETICLA.
 ========================================================= */
 
 fullscreenBtn.onclick =
@@ -3119,10 +2998,6 @@ function hideVRInfo(){
   );
 
 
-  /*
-    Po zapiranju vrnemo barvo X gumba.
-  */
-
   vrCloseButton.setAttribute(
     "color",
     "#1e3a5f"
@@ -3130,11 +3005,6 @@ function hideVRInfo(){
 
 }
 
-
-/*
-  TO JE ŠE VEDNO ISTA LOGIKA:
-  kartico postavimo 2.6 m pred kamero.
-*/
 
 function showVRInfo(id){
 
@@ -3217,14 +3087,21 @@ function showVRInfo(id){
 
 
 /* =========================================================
-   VR KRIŽEC
-
-   Pogled nanj 1.2 sekunde = zapri kartico.
+   VR CLOSE
 ========================================================= */
 
 vrCloseButton.addEventListener(
   "fusing",
   ()=>{
+
+    if(
+      !scene.is(
+        "vr-mode"
+      )
+    ){
+      return;
+    }
+
 
     vrCloseButton.setAttribute(
       "color",
@@ -3269,12 +3146,21 @@ vrCloseButton.addEventListener(
 /* =========================================================
    GAZE
 
-   ISTI PRINCIP KOT V TVOJI DELUJOČI VERZIJI.
+   DELUJE SAMO V VR.
 ========================================================= */
 
 reticle.addEventListener(
   "fusing",
   ()=>{
+
+    if(
+      !scene.is(
+        "vr-mode"
+      )
+    ){
+      return;
+    }
+
 
     reticle.setAttribute(
       "material",
@@ -3323,10 +3209,6 @@ reticle.addEventListener(
     }
 
 
-    /*
-      Če gledamo X, zapremo popup.
-    */
-
     if(
       target.classList.contains(
         "vr-close"
@@ -3339,10 +3221,6 @@ reticle.addEventListener(
 
     }
 
-
-    /*
-      Če gledamo hotspot, odpremo vsebino.
-    */
 
     if(
       target.classList.contains(
@@ -3437,9 +3315,6 @@ async function releaseWakeLock(){
 
 /* =========================================================
    CARDBOARD
-
-   TA DEL OSTAJA PO ISTEM PRINCIPU KOT TVOJA
-   DELUJOČA VERZIJA.
 ========================================================= */
 
 vrBtn.onclick =
@@ -3473,11 +3348,6 @@ cancelVRBtn.onclick =
 
 startVRBtn.onclick =
   async ()=>{
-
-    /*
-      iOS motion permission.
-      Galaxy A36 / Android tega običajno ne zahteva.
-    */
 
     if(
       typeof DeviceOrientationEvent !==
@@ -3522,10 +3392,6 @@ startVRBtn.onclick =
       "none";
 
 
-    /*
-      Landscape.
-    */
-
     try{
 
       if(
@@ -3542,12 +3408,6 @@ startVRBtn.onclick =
     }
     catch(e){}
 
-
-    /*
-      A-FRAME PREVZAME VR.
-
-      TEGA NE NADOMEŠČAMO Z LASTNIM RENDERERJEM.
-    */
 
     try{
 
@@ -3567,6 +3427,11 @@ startVRBtn.onclick =
 
 /* =========================================================
    ENTER VR
+
+   ŠELE TUKAJ VKLOPIMO:
+   - krožec
+   - cursor fuse
+   - raycaster
 ========================================================= */
 
 scene.addEventListener(
@@ -3595,6 +3460,34 @@ scene.addEventListener(
     hideVRInfo();
 
 
+    /*
+      GAZE VKLOPIMO SAMO V VR.
+    */
+
+    reticle.setAttribute(
+      "visible",
+      true
+    );
+
+
+    reticle.setAttribute(
+      "cursor",
+      "enabled:true; fuse:true; fuseTimeout:1200"
+    );
+
+
+    reticle.setAttribute(
+      "raycaster",
+      "enabled:true; objects:.gaze-target; far:100; interval:50"
+    );
+
+
+    reticle.setAttribute(
+      "material",
+      "color:#ffffff; shader:flat; opacity:0.95"
+    );
+
+
     await acquireWakeLock();
 
 
@@ -3606,11 +3499,41 @@ scene.addEventListener(
 
 /* =========================================================
    EXIT VR
+
+   RETICLE POPOLNOMA IZKLOPIMO.
 ========================================================= */
 
 scene.addEventListener(
   "exit-vr",
   async ()=>{
+
+    /*
+      Najprej ugasnemo gaze.
+    */
+
+    reticle.setAttribute(
+      "cursor",
+      "enabled:false; fuse:true; fuseTimeout:1200"
+    );
+
+
+    reticle.setAttribute(
+      "raycaster",
+      "enabled:false; objects:.gaze-target; far:100; interval:50"
+    );
+
+
+    reticle.setAttribute(
+      "visible",
+      false
+    );
+
+
+    reticle.setAttribute(
+      "material",
+      "color:#ffffff; shader:flat; opacity:0.95"
+    );
+
 
     toolbar.style.display =
       "flex";
@@ -3728,6 +3651,46 @@ document.addEventListener(
 
 
 /* =========================================================
+   FULLSCREEN CHANGE SAFETY
+
+   Če smo samo v browser fullscreen načinu in NE v VR,
+   reticle mora ostati izklopljen.
+========================================================= */
+
+document.addEventListener(
+  "fullscreenchange",
+  ()=>{
+
+    if(
+      !scene.is(
+        "vr-mode"
+      )
+    ){
+
+      reticle.setAttribute(
+        "visible",
+        false
+      );
+
+
+      reticle.setAttribute(
+        "cursor",
+        "enabled:false; fuse:true; fuseTimeout:1200"
+      );
+
+
+      reticle.setAttribute(
+        "raycaster",
+        "enabled:false; objects:.gaze-target; far:100; interval:50"
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
    SCENE READY
 ========================================================= */
 
@@ -3738,10 +3701,6 @@ scene.addEventListener(
     renderHotspots();
 
 
-    /*
-      Namestimo TOUCH + MOUSE pointer podporo.
-    */
-
     installPointerControls();
 
 
@@ -3751,8 +3710,26 @@ scene.addEventListener(
 
 
     /*
-      Mouse wheel zoom samo na desktopu.
+      Ob zagonu gaze zagotovo izklopljen.
     */
+
+    reticle.setAttribute(
+      "visible",
+      false
+    );
+
+
+    reticle.setAttribute(
+      "cursor",
+      "enabled:false; fuse:true; fuseTimeout:1200"
+    );
+
+
+    reticle.setAttribute(
+      "raycaster",
+      "enabled:false; objects:.gaze-target; far:100; interval:50"
+    );
+
 
     if(scene.canvas){
 
