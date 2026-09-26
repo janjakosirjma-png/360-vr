@@ -558,7 +558,7 @@ const IMAGE_URL =
 */
 
 const STORAGE_KEY =
-    "moja-360-tura-v10";
+    "moja-360-tura-v11";
 
 
 /* ==========================================================
@@ -1276,6 +1276,28 @@ document.getElementById("saveBtn")
 
 
         /*
+           Preberi zapis nazaj iz localStorage in preveri,
+           da je hotspot res shranjen.
+        */
+        try {
+            const verify = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            const stored = verify.find(h => h.id === selectedId);
+
+            if (!stored) {
+                throw new Error("Hotspot po shranjevanju ni v localStorage.");
+            }
+
+            hotspots = verify;
+            rebuildHotspots();
+        }
+        catch(error) {
+            console.error(error);
+            alert("Hotspot se ni pravilno shranil.\n" + error.message);
+            return;
+        }
+
+
+        /*
            Zelo pomembno:
            po shranjevanju selectedId
            ni več potreben.
@@ -1377,6 +1399,7 @@ function cancelEditor() {
             );
 
 
+        saveAll();
         rebuildHotspots();
 
     }
@@ -1697,6 +1720,17 @@ function handleClick(event) {
     hotspots.push(
         hotspot
     );
+
+
+    /*
+       Hotspot shranimo TAKOJ ob nastanku.
+       Editor nato spreminja že shranjen objekt.
+    */
+    if (!saveAll()) {
+        hotspots = hotspots.filter(h => h.id !== hotspot.id);
+        rebuildHotspots();
+        return;
+    }
 
 
     rebuildHotspots();
