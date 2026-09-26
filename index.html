@@ -3,53 +3,48 @@
 <head>
 <meta charset="UTF-8">
 
-<meta
-  name="viewport"
-  content="width=device-width,
-           initial-scale=1,
-           maximum-scale=1,
-           user-scalable=no,
-           viewport-fit=cover"
->
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
-<title>360° Cardboard Viewer</title>
+<title>360° Panorama + Cardboard</title>
 
 <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 
 <style>
-
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-html,
-body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #000;
-  font-family: Arial, Helvetica, sans-serif;
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-button,
-input,
-textarea {
-  font: inherit;
+button, input, textarea {
+    font: inherit;
 }
 
 #viewer {
-  position: fixed;
-  inset: 0;
+    position: fixed;
+    inset: 0;
+    background: #000;
 }
 
 a-scene {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 
@@ -58,60 +53,53 @@ a-scene {
 ===================================================== */
 
 #toolbar {
-  position: fixed;
-  z-index: 10000;
+    position: fixed;
+    z-index: 10000;
+    top: 14px;
+    left: 14px;
 
-  top: 15px;
-  left: 15px;
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    flex-wrap: wrap;
 
-  display: flex;
-  gap: 7px;
-  align-items: center;
-  flex-wrap: wrap;
+    padding: 8px;
+    border-radius: 14px;
 
-  padding: 8px;
-
-  border-radius: 14px;
-
-  background: rgba(15,15,15,.88);
-
-  box-shadow: 0 8px 30px rgba(0,0,0,.35);
+    background: rgba(15,15,15,.88);
+    box-shadow: 0 8px 30px rgba(0,0,0,.35);
 }
 
-.tool-button {
-  height: 42px;
+.toolButton {
+    height: 42px;
+    padding: 0 14px;
 
-  padding: 0 14px;
+    border: 0;
+    border-radius: 9px;
 
-  border: 0;
-  border-radius: 9px;
+    background: rgba(255,255,255,.14);
+    color: #fff;
 
-  background: rgba(255,255,255,.13);
-
-  color: white;
-
-  font-weight: 700;
-
-  cursor: pointer;
+    font-weight: 700;
+    cursor: pointer;
 }
 
-#addHotspotBtn {
-  background: #2563eb;
+#addBtn {
+    background: #2563eb;
 }
 
-#addHotspotBtn.active {
-  background: #16a34a;
+#addBtn.active {
+    background: #16a34a;
 }
 
 #cardboardBtn {
-  background: #7c3aed;
+    background: #7c3aed;
 }
 
 .separator {
-  width: 1px;
-  height: 25px;
-
-  background: rgba(255,255,255,.2);
+    width: 1px;
+    height: 25px;
+    background: rgba(255,255,255,.2);
 }
 
 
@@ -120,190 +108,177 @@ a-scene {
 ===================================================== */
 
 #instruction {
-  position: fixed;
-  z-index: 10000;
+    position: fixed;
+    z-index: 10000;
 
-  left: 50%;
-  bottom: 25px;
+    left: 50%;
+    bottom: 25px;
+    transform: translateX(-50%);
 
-  transform: translateX(-50%);
+    display: none;
 
-  display: none;
+    padding: 11px 18px;
 
-  padding: 11px 18px;
+    border-radius: 30px;
 
-  border-radius: 30px;
+    background: rgba(0,0,0,.82);
+    color: white;
 
-  background: rgba(0,0,0,.82);
-
-  color: white;
-
-  pointer-events: none;
+    pointer-events: none;
 }
 
 
 /* =====================================================
-   POPUP
+   HOTSPOT POPUP
 ===================================================== */
 
 #popup {
-  position: fixed;
-  z-index: 20000;
+    position: fixed;
+    z-index: 20000;
 
-  display: none;
+    display: none;
 
-  width: 330px;
-  max-width: calc(100vw - 30px);
+    width: 330px;
+    max-width: calc(100vw - 30px);
 
-  padding: 18px;
+    padding: 18px;
 
-  border-radius: 14px;
+    border-radius: 14px;
 
-  background: white;
+    background: #fff;
+    color: #222;
 
-  color: #222;
-
-  box-shadow: 0 15px 45px rgba(0,0,0,.4);
+    box-shadow: 0 15px 45px rgba(0,0,0,.4);
 }
 
 #popup::before {
-  content: "";
+    content: "";
 
-  position: absolute;
+    position: absolute;
 
-  left: -9px;
-  top: 50%;
+    left: -9px;
+    top: 50%;
 
-  transform: translateY(-50%);
+    transform: translateY(-50%);
 
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-right: 9px solid white;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-right: 9px solid white;
 }
 
-#popup.open-left::before {
-  left: auto;
-  right: -9px;
+#popup.openLeft::before {
+    left: auto;
+    right: -9px;
 
-  border-right: 0;
-  border-left: 9px solid white;
+    border-right: 0;
+    border-left: 9px solid white;
 }
 
 #popupClose {
-  position: absolute;
+    position: absolute;
 
-  right: 9px;
-  top: 9px;
+    right: 9px;
+    top: 9px;
 
-  width: 30px;
-  height: 30px;
+    width: 30px;
+    height: 30px;
 
-  padding: 0;
+    padding: 0;
 
-  border: 0;
-  border-radius: 50%;
+    border: 0;
+    border-radius: 50%;
 
-  background: #eee;
+    background: #eee;
 
-  font-size: 20px;
-
-  cursor: pointer;
+    font-size: 20px;
+    cursor: pointer;
 }
 
-#readerMode,
-#editorMode {
-  display: none;
+#reader,
+#editor {
+    display: none;
 }
 
 #readerTitle {
-  margin: 0 35px 10px 0;
+    margin: 0 35px 10px 0;
 }
 
 #readerDescription {
-  margin-bottom: 17px;
-
-  white-space: pre-wrap;
-
-  line-height: 1.5;
+    margin-bottom: 17px;
+    white-space: pre-wrap;
+    line-height: 1.5;
 }
 
 #editBtn {
-  width: 100%;
+    width: 100%;
+    padding: 10px;
 
-  padding: 10px;
+    border: 0;
+    border-radius: 8px;
 
-  border: 0;
-  border-radius: 8px;
+    background: #2563eb;
+    color: white;
 
-  background: #2563eb;
-
-  color: white;
-
-  font-weight: bold;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.field-label {
-  display: block;
+.fieldLabel {
+    display: block;
+    margin: 0 0 5px;
 
-  margin: 0 0 5px;
-
-  font-size: 12px;
-
-  font-weight: bold;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 #titleInput,
 #descriptionInput {
-  width: 100%;
+    width: 100%;
 
-  padding: 10px;
+    padding: 10px;
 
-  border: 1px solid #ccc;
-  border-radius: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
 }
 
 #titleInput {
-  margin-bottom: 12px;
+    margin-bottom: 12px;
 }
 
 #descriptionInput {
-  min-height: 120px;
-
-  margin-bottom: 12px;
-
-  resize: vertical;
+    min-height: 120px;
+    margin-bottom: 12px;
+    resize: vertical;
 }
 
-.editor-buttons {
-  display: flex;
-  gap: 7px;
+.editorButtons {
+    display: flex;
+    gap: 7px;
 }
 
-.editor-buttons button {
-  padding: 9px 12px;
+.editorButtons button {
+    padding: 9px 12px;
 
-  border: 0;
-  border-radius: 8px;
+    border: 0;
+    border-radius: 8px;
 
-  font-weight: bold;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 #saveBtn {
-  flex: 1;
-
-  background: #16a34a;
-
-  color: white;
+    flex: 1;
+    background: #16a34a;
+    color: white;
 }
 
 #cancelBtn {
-  background: #ddd;
+    background: #ddd;
 }
 
 #deleteBtn {
-  background: #dc2626;
-
-  color: white;
+    background: #dc2626;
+    color: white;
 }
 
 
@@ -311,164 +286,60 @@ a-scene {
    CARDBOARD START
 ===================================================== */
 
-#cardboardStartPanel {
-  position: fixed;
-  inset: 0;
+#cardboardStart {
+    position: fixed;
+    inset: 0;
 
-  z-index: 50000;
+    z-index: 50000;
 
-  display: none;
+    display: none;
+    align-items: center;
+    justify-content: center;
 
-  align-items: center;
-  justify-content: center;
+    padding: 20px;
 
-  padding: 20px;
-
-  background: rgba(0,0,0,.9);
+    background: rgba(0,0,0,.93);
 }
 
 #cardboardStartBox {
-  width: 390px;
-  max-width: 100%;
+    width: 390px;
+    max-width: 100%;
 
-  padding: 25px;
+    padding: 24px;
 
-  border-radius: 18px;
+    border-radius: 18px;
 
-  background: white;
+    background: white;
+    color: #111;
 
-  text-align: center;
+    text-align: center;
+}
+
+#cardboardStartBox h2 {
+    margin-top: 0;
+}
+
+#startCardboardBtn,
+#cancelCardboardBtn {
+    width: 100%;
+
+    padding: 13px;
+
+    border: 0;
+    border-radius: 10px;
+
+    font-weight: bold;
+    cursor: pointer;
 }
 
 #startCardboardBtn {
-  width: 100%;
-
-  padding: 13px;
-
-  border: 0;
-  border-radius: 10px;
-
-  background: #7c3aed;
-
-  color: white;
-
-  font-weight: bold;
+    background: #7c3aed;
+    color: white;
 }
 
 #cancelCardboardBtn {
-  width: 100%;
-
-  margin-top: 8px;
-
-  padding: 11px;
-
-  border: 0;
-  border-radius: 10px;
-
-  background: #ddd;
-
-  font-weight: bold;
-}
-
-
-/* =====================================================
-   CARDBOARD OVERLAY
-===================================================== */
-
-#cardboardUI {
-  position: fixed;
-  inset: 0;
-
-  z-index: 30000;
-
-  display: none;
-
-  pointer-events: none;
-}
-
-.gaze {
-  position: absolute;
-
-  top: 50%;
-
-  width: 25px;
-  height: 25px;
-
-  transform: translate(-50%,-50%);
-
-  border: 2px solid white;
-
-  border-radius: 50%;
-
-  box-shadow: 0 0 8px black;
-}
-
-.gaze::after {
-  content: "";
-
-  position: absolute;
-
-  left: 50%;
-  top: 50%;
-
-  width: 4px;
-  height: 4px;
-
-  transform: translate(-50%,-50%);
-
-  background: white;
-
-  border-radius: 50%;
-}
-
-#gazeLeft {
-  left: 25%;
-}
-
-#gazeRight {
-  left: 75%;
-}
-
-.gaze.active {
-  animation: gazeAnimation 1.2s linear forwards;
-}
-
-@keyframes gazeAnimation {
-
-  from {
-    transform:
-      translate(-50%,-50%)
-      scale(1);
-  }
-
-  to {
-    transform:
-      translate(-50%,-50%)
-      scale(1.7);
-  }
-
-}
-
-#exitCardboardBtn {
-  position: absolute;
-
-  right: 12px;
-  top: 12px;
-
-  z-index: 31000;
-
-  pointer-events: auto;
-
-  padding: 10px 14px;
-
-  border: 0;
-  border-radius: 9px;
-
-  background: rgba(0,0,0,.75);
-
-  color: white;
-
-  font-weight: bold;
+    margin-top: 8px;
+    background: #ddd;
 }
 
 
@@ -477,47 +348,146 @@ a-scene {
 ===================================================== */
 
 #permissionPanel {
-  position: fixed;
-  inset: 0;
+    position: fixed;
+    inset: 0;
 
-  z-index: 60000;
+    z-index: 60000;
 
-  display: none;
+    display: none;
+    align-items: center;
+    justify-content: center;
 
-  align-items: center;
-  justify-content: center;
+    padding: 20px;
 
-  padding: 20px;
-
-  background: rgba(0,0,0,.9);
+    background: rgba(0,0,0,.93);
 }
 
 #permissionBox {
-  width: 350px;
-  max-width: 100%;
+    width: 360px;
+    max-width: 100%;
 
-  padding: 24px;
+    padding: 24px;
 
-  border-radius: 16px;
+    border-radius: 16px;
 
-  background: white;
-
-  text-align: center;
+    background: white;
+    text-align: center;
 }
 
-#permissionButton {
-  width: 100%;
+#permissionBtn {
+    width: 100%;
+    padding: 12px;
 
-  padding: 12px;
+    border: 0;
+    border-radius: 9px;
 
-  border: 0;
-  border-radius: 9px;
+    background: #7c3aed;
+    color: white;
 
-  background: #7c3aed;
+    font-weight: bold;
+}
 
-  color: white;
 
-  font-weight: bold;
+/* =====================================================
+   CARDBOARD OVERLAY
+===================================================== */
+
+#cardboardUI {
+    position: fixed;
+    inset: 0;
+
+    z-index: 30000;
+
+    display: none;
+
+    pointer-events: none;
+}
+
+
+/*
+   YT screenshot:
+   center posamezne slike je približno
+   na 30 % in 70 % širine zaslona.
+*/
+
+.gaze {
+    position: absolute;
+    top: 50%;
+
+    width: 23px;
+    height: 23px;
+
+    transform: translate(-50%,-50%);
+
+    border: 2px solid white;
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 3px black,
+        0 0 8px black;
+}
+
+.gaze::after {
+    content: "";
+
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    width: 4px;
+    height: 4px;
+
+    transform: translate(-50%,-50%);
+
+    border-radius: 50%;
+    background: white;
+}
+
+#gazeLeft {
+    left: 30%;
+}
+
+#gazeRight {
+    left: 70%;
+}
+
+.gaze.active {
+    animation: gazeProgress 1.2s linear forwards;
+}
+
+@keyframes gazeProgress {
+    from {
+        transform: translate(-50%,-50%) scale(1);
+    }
+
+    to {
+        transform: translate(-50%,-50%) scale(1.65);
+    }
+}
+
+#exitCardboardBtn {
+    position: absolute;
+
+    top: 12px;
+    left: 12px;
+
+    z-index: 31000;
+
+    pointer-events: auto;
+
+    width: 45px;
+    height: 45px;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: rgba(0,0,0,.65);
+    color: white;
+
+    font-size: 25px;
+    cursor: pointer;
 }
 
 
@@ -525,103 +495,68 @@ a-scene {
    MOBILE
 ===================================================== */
 
-@media(max-width:650px) {
+@media (max-width: 650px) {
 
-  #toolbar {
-    top: 8px;
-    left: 8px;
-    right: 8px;
+    #toolbar {
+        top: 8px;
+        left: 8px;
+        right: 8px;
 
-    justify-content: center;
-  }
+        justify-content: center;
+    }
 
-  .tool-button {
-    height: 38px;
-
-    padding: 0 10px;
-
-    font-size: 12px;
-  }
-
+    .toolButton {
+        height: 38px;
+        padding: 0 10px;
+        font-size: 12px;
+    }
 }
-
 </style>
 </head>
-
 
 <body>
 
 
 <!-- =====================================================
-     360 VIEWER
+     A-FRAME
 ===================================================== -->
 
 <div id="viewer">
 
 <a-scene
-  id="scene"
+    id="scene"
+    embedded
+    vr-mode-ui="enabled:false"
+    renderer="antialias:true; colorManagement:true"
+    loading-screen="enabled:true"
+    cursor="rayOrigin:mouse"
+    raycaster="objects:.clickable;far:100">
 
-  embedded
+    <a-assets>
+        <img
+            id="panoramaImage"
+            src="360.jpg?v=100"
+            crossorigin="anonymous">
+    </a-assets>
 
-  vr-mode-ui="enabled:false"
+    <a-sky
+        id="sky"
+        src="#panoramaImage"
+        rotation="0 -90 0">
+    </a-sky>
 
-  renderer="
-    antialias:true;
-    colorManagement:true
-  "
+    <a-entity id="hotspotContainer"></a-entity>
 
-  loading-screen="enabled:true"
+    <a-entity id="cameraRig">
 
-  cursor="rayOrigin:mouse"
+        <a-camera
+            id="camera"
+            position="0 0 0"
+            look-controls="enabled:true;magicWindowTrackingEnabled:false"
+            wasd-controls="enabled:false">
+        </a-camera>
 
-  raycaster="
-    objects:.clickable;
-    far:100
-  "
->
-
-<a-assets>
-
-  <!--
-    Če telefon kaže staro 360 sliko,
-    povečaj v=20 na v=21.
-  -->
-
-  <img
-    id="panoramaImage"
-    src="360.jpg?v=20"
-    crossorigin="anonymous"
-  >
-
-</a-assets>
-
-
-<a-sky
-  id="sky"
-  src="#panoramaImage"
-  rotation="0 -90 0"
-></a-sky>
-
-
-<a-entity id="hotspotContainer"></a-entity>
-
-
-<a-entity id="cameraRig">
-
-  <a-camera
-    id="camera"
-
-    position="0 0 0"
-
-    look-controls="
-      enabled:true;
-      magicWindowTrackingEnabled:false
-    "
-
-    wasd-controls="enabled:false"
-  ></a-camera>
-
-</a-entity>
+    </a-entity>
 
 </a-scene>
 
@@ -629,128 +564,100 @@ a-scene {
 
 
 <!-- =====================================================
-     TOOLBAR
+     NORMAL TOOLBAR
 ===================================================== -->
 
 <div id="toolbar">
 
-<button
-  id="addHotspotBtn"
-  class="tool-button"
->
-+ Dodaj hotspot
-</button>
+    <button id="addBtn" class="toolButton">
+        + Dodaj hotspot
+    </button>
 
+    <div class="separator"></div>
 
-<div class="separator"></div>
+    <button id="zoomInBtn" class="toolButton">
+        +
+    </button>
 
+    <button id="zoomOutBtn" class="toolButton">
+        −
+    </button>
 
-<button
-  id="zoomInBtn"
-  class="tool-button"
->
-+
-</button>
+    <div class="separator"></div>
 
+    <button id="fullscreenBtn" class="toolButton">
+        ⛶ Fullscreen
+    </button>
 
-<button
-  id="zoomOutBtn"
-  class="tool-button"
->
-−
-</button>
-
-
-<div class="separator"></div>
-
-
-<button
-  id="fullscreenBtn"
-  class="tool-button"
->
-⛶ Fullscreen
-</button>
-
-
-<button
-  id="cardboardBtn"
-  class="tool-button"
->
-🥽 CARDBOARD
-</button>
+    <button id="cardboardBtn" class="toolButton">
+        🥽 CARDBOARD
+    </button>
 
 </div>
 
 
 <div id="instruction">
-Klikni na mesto v panorami.
+    Klikni na mesto v panorami.
 </div>
 
 
 <!-- =====================================================
-     HOTSPOT POPUP
+     NORMAL POPUP
 ===================================================== -->
 
 <div id="popup">
 
-<button id="popupClose">
-×
-</button>
+    <button id="popupClose">×</button>
+
+    <div id="reader">
+
+        <h2 id="readerTitle"></h2>
+
+        <div id="readerDescription"></div>
+
+        <button id="editBtn">
+            Uredi
+        </button>
+
+    </div>
 
 
-<div id="readerMode">
+    <div id="editor">
 
-<h2 id="readerTitle"></h2>
+        <label class="fieldLabel">
+            Naslov
+        </label>
 
-<div id="readerDescription"></div>
+        <input
+            id="titleInput"
+            type="text"
+            placeholder="Naslov hotspota">
 
-<button id="editBtn">
-Uredi
-</button>
+        <label class="fieldLabel">
+            Opis
+        </label>
 
-</div>
+        <textarea
+            id="descriptionInput"
+            placeholder="Opis..."></textarea>
 
+        <div class="editorButtons">
 
-<div id="editorMode">
+            <button id="saveBtn">
+                Shrani
+            </button>
 
-<label class="field-label">
-Naslov
-</label>
+            <button id="cancelBtn">
+                Prekliči
+            </button>
 
-<input
-  id="titleInput"
-  type="text"
-  placeholder="Naslov hotspota"
->
+            <button id="deleteBtn">
+                Izbriši
+            </button>
 
+        </div>
 
-<label class="field-label">
-Opis
-</label>
-
-<textarea
-  id="descriptionInput"
-  placeholder="Opis..."
-></textarea>
-
-
-<div class="editor-buttons">
-
-<button id="saveBtn">
-Shrani
-</button>
-
-<button id="cancelBtn">
-Prekliči
-</button>
-
-<button id="deleteBtn">
-Izbriši
-</button>
-
-</div>
-
-</div>
+    </div>
 
 </div>
 
@@ -759,37 +666,58 @@ Izbriši
      CARDBOARD START
 ===================================================== -->
 
-<div id="cardboardStartPanel">
+<div id="cardboardStart">
 
-<div id="cardboardStartBox">
+    <div id="cardboardStartBox">
 
-<h2>🥽 Cardboard</h2>
+        <h2>🥽 Cardboard</h2>
 
-<p>
-Telefon obrni vodoravno in ga vstavi v
-Esperanza Apocalypse.
-</p>
+        <p>
+            Obrni telefon vodoravno.
+        </p>
 
-<p>
-Prikaz uporablja dve optično ukrivljeni sliki,
-podobno kot Cardboard način.
-</p>
+        <p>
+            Prikaz je narejen po obliki
+            YT Cardboard prikaza s tvojega posnetka.
+        </p>
 
-<p>
-Zaslon bo med ogledom ostal prižgan.
-</p>
+        <p>
+            Zaslon bo med ogledom ostal prižgan.
+        </p>
 
+        <button id="startCardboardBtn">
+            ZAŽENI CARDBOARD
+        </button>
 
-<button id="startCardboardBtn">
-ZAŽENI CARDBOARD
-</button>
+        <button id="cancelCardboardBtn">
+            Prekliči
+        </button>
 
-
-<button id="cancelCardboardBtn">
-Prekliči
-</button>
+    </div>
 
 </div>
+
+
+<!-- =====================================================
+     IOS SENSOR PERMISSION
+===================================================== -->
+
+<div id="permissionPanel">
+
+    <div id="permissionBox">
+
+        <h2>Senzor gibanja</h2>
+
+        <p>
+            Za obračanje 360° slike dovoli
+            uporabo senzorjev telefona.
+        </p>
+
+        <button id="permissionBtn">
+            DOVOLI
+        </button>
+
+    </div>
 
 </div>
 
@@ -800,145 +728,113 @@ Prekliči
 
 <div id="cardboardUI">
 
-<div
-  id="gazeLeft"
-  class="gaze"
-></div>
+    <div id="gazeLeft" class="gaze"></div>
+    <div id="gazeRight" class="gaze"></div>
 
-<div
-  id="gazeRight"
-  class="gaze"
-></div>
-
-
-<button id="exitCardboardBtn">
-✕
-</button>
-
-</div>
-
-
-<!-- =====================================================
-     SENSOR PERMISSION
-===================================================== -->
-
-<div id="permissionPanel">
-
-<div id="permissionBox">
-
-<h2>Gibanje telefona</h2>
-
-<p>
-Dovoli uporabo senzorjev telefona.
-</p>
-
-<button id="permissionButton">
-Dovoli in zaženi
-</button>
-
-</div>
+    <button id="exitCardboardBtn">
+        ×
+    </button>
 
 </div>
 
 
 <script>
-
 /* =====================================================
    ELEMENTS
 ===================================================== */
 
 const scene =
-  document.querySelector("#scene");
+    document.querySelector("#scene");
 
-const camera =
-  document.querySelector("#camera");
+const cameraEl =
+    document.querySelector("#camera");
 
 const hotspotContainer =
-  document.querySelector("#hotspotContainer");
+    document.querySelector("#hotspotContainer");
 
 const toolbar =
-  document.querySelector("#toolbar");
+    document.querySelector("#toolbar");
 
-const addHotspotBtn =
-  document.querySelector("#addHotspotBtn");
+const addBtn =
+    document.querySelector("#addBtn");
 
 const zoomInBtn =
-  document.querySelector("#zoomInBtn");
+    document.querySelector("#zoomInBtn");
 
 const zoomOutBtn =
-  document.querySelector("#zoomOutBtn");
+    document.querySelector("#zoomOutBtn");
 
 const fullscreenBtn =
-  document.querySelector("#fullscreenBtn");
+    document.querySelector("#fullscreenBtn");
 
 const cardboardBtn =
-  document.querySelector("#cardboardBtn");
+    document.querySelector("#cardboardBtn");
 
 const instruction =
-  document.querySelector("#instruction");
+    document.querySelector("#instruction");
 
 const popup =
-  document.querySelector("#popup");
+    document.querySelector("#popup");
 
 const popupClose =
-  document.querySelector("#popupClose");
+    document.querySelector("#popupClose");
 
-const readerMode =
-  document.querySelector("#readerMode");
+const reader =
+    document.querySelector("#reader");
 
-const editorMode =
-  document.querySelector("#editorMode");
+const editor =
+    document.querySelector("#editor");
 
 const readerTitle =
-  document.querySelector("#readerTitle");
+    document.querySelector("#readerTitle");
 
 const readerDescription =
-  document.querySelector("#readerDescription");
+    document.querySelector("#readerDescription");
 
 const editBtn =
-  document.querySelector("#editBtn");
+    document.querySelector("#editBtn");
 
 const titleInput =
-  document.querySelector("#titleInput");
+    document.querySelector("#titleInput");
 
 const descriptionInput =
-  document.querySelector("#descriptionInput");
+    document.querySelector("#descriptionInput");
 
 const saveBtn =
-  document.querySelector("#saveBtn");
+    document.querySelector("#saveBtn");
 
 const cancelBtn =
-  document.querySelector("#cancelBtn");
+    document.querySelector("#cancelBtn");
 
 const deleteBtn =
-  document.querySelector("#deleteBtn");
+    document.querySelector("#deleteBtn");
 
-const cardboardStartPanel =
-  document.querySelector("#cardboardStartPanel");
+const cardboardStart =
+    document.querySelector("#cardboardStart");
 
 const startCardboardBtn =
-  document.querySelector("#startCardboardBtn");
+    document.querySelector("#startCardboardBtn");
 
 const cancelCardboardBtn =
-  document.querySelector("#cancelCardboardBtn");
-
-const cardboardUI =
-  document.querySelector("#cardboardUI");
-
-const gazeLeft =
-  document.querySelector("#gazeLeft");
-
-const gazeRight =
-  document.querySelector("#gazeRight");
-
-const exitCardboardBtn =
-  document.querySelector("#exitCardboardBtn");
+    document.querySelector("#cancelCardboardBtn");
 
 const permissionPanel =
-  document.querySelector("#permissionPanel");
+    document.querySelector("#permissionPanel");
 
-const permissionButton =
-  document.querySelector("#permissionButton");
+const permissionBtn =
+    document.querySelector("#permissionBtn");
+
+const cardboardUI =
+    document.querySelector("#cardboardUI");
+
+const gazeLeft =
+    document.querySelector("#gazeLeft");
+
+const gazeRight =
+    document.querySelector("#gazeRight");
+
+const exitCardboardBtn =
+    document.querySelector("#exitCardboardBtn");
 
 
 /* =====================================================
@@ -946,172 +842,105 @@ const permissionButton =
 ===================================================== */
 
 const STORAGE_KEY =
-  "stable-360-hotspots-v5";
+    "stable-360-hotspots-v5";
 
+let hotspots = [];
 
-let hotspots =
-  JSON.parse(
-    localStorage.getItem(STORAGE_KEY)
-  ) || [];
+try {
+
+    hotspots =
+        JSON.parse(
+            localStorage.getItem(STORAGE_KEY)
+        ) || [];
+
+}
+catch(e) {
+
+    hotspots = [];
+
+}
 
 
 function saveHotspots() {
 
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(hotspots)
-  );
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(hotspots)
+    );
 
 }
 
 
 /* =====================================================
-   STATE
+   NORMAL STATE
 ===================================================== */
 
-let selectedHotspotId =
-  null;
+let selectedHotspotId = null;
 
-let addMode =
-  false;
+let addMode = false;
 
-let cardboardMode =
-  false;
-
-let pointerStartX =
-  0;
-
-let pointerStartY =
-  0;
-
-let pointerDistance =
-  0;
+let pointerStartX = 0;
+let pointerStartY = 0;
+let pointerDistance = 0;
 
 
 /* =====================================================
-   WAKE LOCK
+   CARDBOARD SETTINGS
+
+   Te številke določajo obliko, podobno
+   tvojemu YT screenshotu.
+
+   EYE_CENTER_X:
+   center leve/desne slike.
+
+   EYE_HALF_WIDTH:
+   polovica širine optičnega območja.
+
+   EYE_HALF_HEIGHT:
+   polovica višine.
 ===================================================== */
 
-let wakeLock =
-  null;
+const CB = {
 
+    eyeCenterLeft:
+        -0.405,
 
-async function enableWakeLock() {
+    eyeCenterRight:
+         0.405,
 
-  if (
-    !("wakeLock" in navigator)
-  ) {
+    eyeHalfWidth:
+         0.355,
 
-    console.log(
-      "Wake Lock ni podprt."
-    );
+    eyeHalfHeight:
+         0.745,
 
-    return;
+    /*
+       Ukrivljenost.
 
-  }
+       0 = brez ukrivljenosti.
+    */
 
+    distortion1:
+         0.145,
 
-  if (
-    wakeLock &&
-    !wakeLock.released
-  )
-    return;
+    distortion2:
+         0.035,
 
+    /*
+       Navidezna razdalja oči.
+    */
 
-  try {
+    eyeSeparation:
+         0.064,
 
-    wakeLock =
-      await navigator
-        .wakeLock
-        .request("screen");
+    /*
+       FOV.
+    */
 
+    fov:
+         78
 
-    console.log(
-      "Wake Lock AKTIVEN"
-    );
-
-
-    wakeLock.addEventListener(
-      "release",
-      () => {
-
-        wakeLock =
-          null;
-
-      }
-    );
-
-  }
-
-  catch(error) {
-
-    console.log(
-      "Wake Lock:",
-      error
-    );
-
-  }
-
-}
-
-
-async function disableWakeLock() {
-
-  if (!wakeLock)
-    return;
-
-
-  try {
-
-    await wakeLock.release();
-
-  }
-
-  catch(error) {}
-
-
-  wakeLock =
-    null;
-
-}
-
-
-/*
-   Če brskalnik Wake Lock začasno
-   sprosti, ga ob vrnitvi ponovno vključimo.
-*/
-
-document.addEventListener(
-  "visibilitychange",
-  async () => {
-
-    if (
-      cardboardMode &&
-      document.visibilityState === "visible"
-    ) {
-
-      await enableWakeLock();
-
-    }
-
-  }
-);
-
-
-window.addEventListener(
-  "focus",
-  async () => {
-
-    if (
-      cardboardMode
-    ) {
-
-      await enableWakeLock();
-
-    }
-
-  }
-);
+};
 
 
 /* =====================================================
@@ -1119,51 +948,49 @@ window.addEventListener(
 ===================================================== */
 
 function sphericalToVector(
-  yaw,
-  pitch,
-  radius = 8
+    yaw,
+    pitch,
+    radius = 8
 ) {
 
-  return new THREE.Vector3(
+    return new THREE.Vector3(
 
-    radius *
-    Math.cos(pitch) *
-    Math.sin(yaw),
+        radius *
+        Math.cos(pitch) *
+        Math.sin(yaw),
 
-    radius *
-    Math.sin(pitch),
+        radius *
+        Math.sin(pitch),
 
-    -radius *
-    Math.cos(pitch) *
-    Math.cos(yaw)
+        -radius *
+        Math.cos(pitch) *
+        Math.cos(yaw)
 
-  );
+    );
 
 }
 
 
-function directionToSpherical(
-  direction
-) {
+function directionToSpherical(direction) {
 
-  return {
+    return {
 
-    yaw:
-      Math.atan2(
-        direction.x,
-        -direction.z
-      ),
+        yaw:
+            Math.atan2(
+                direction.x,
+                -direction.z
+            ),
 
-    pitch:
-      Math.asin(
-        THREE.MathUtils.clamp(
-          direction.y,
-          -1,
-          1
-        )
-      )
+        pitch:
+            Math.asin(
+                THREE.MathUtils.clamp(
+                    direction.y,
+                    -1,
+                    1
+                )
+            )
 
-  };
+    };
 
 }
 
@@ -1173,356 +1000,326 @@ function directionToSpherical(
 ===================================================== */
 
 AFRAME.registerComponent(
-  "face-camera",
-  {
+    "face-camera",
+    {
 
-    tick:function() {
+        tick: function() {
 
-      if(cardboardMode)
-        return;
+            if(cardboardMode)
+                return;
 
+            const cam =
+                cameraEl.object3D;
 
-      const cam =
-        camera.object3D;
+            if(!cam)
+                return;
 
+            const p =
+                new THREE.Vector3();
 
-      if(!cam)
-        return;
+            cam.getWorldPosition(p);
 
+            this.el.object3D.lookAt(p);
 
-      const p =
-        new THREE.Vector3();
-
-
-      cam.getWorldPosition(p);
-
-
-      this.el.object3D.lookAt(p);
+        }
 
     }
-
-  }
 );
 
 
 /* =====================================================
-   CREATE HOTSPOT
+   HOTSPOT ENTITY
 ===================================================== */
 
 function createHotspotEntity(
-  hotspot,
-  number
+    hotspot,
+    number
 ) {
 
-  const root =
-    document.createElement(
-      "a-entity"
+    const root =
+        document.createElement(
+            "a-entity"
+        );
+
+    root.dataset.id =
+        hotspot.id;
+
+    root.classList.add(
+        "clickable"
+    );
+
+    root.setAttribute(
+        "face-camera",
+        ""
     );
 
 
-  root.dataset.id =
-    hotspot.id;
+    const p =
+        sphericalToVector(
+            hotspot.yaw,
+            hotspot.pitch
+        );
 
-
-  root.classList.add(
-    "clickable"
-  );
-
-
-  root.setAttribute(
-    "face-camera",
-    ""
-  );
-
-
-  const p =
-    sphericalToVector(
-      hotspot.yaw,
-      hotspot.pitch
+    root.setAttribute(
+        "position",
+        `${p.x} ${p.y} ${p.z}`
     );
 
 
-  root.setAttribute(
-    "position",
-    `${p.x} ${p.y} ${p.z}`
-  );
+    const border =
+        document.createElement(
+            "a-circle"
+        );
 
+    border.setAttribute(
+        "radius",
+        "0.26"
+    );
 
-  const border =
-    document.createElement(
-      "a-circle"
+    border.setAttribute(
+        "color",
+        "#ffffff"
+    );
+
+    border.setAttribute(
+        "material",
+        "shader:flat;side:double"
     );
 
 
-  border.setAttribute(
-    "radius",
-    "0.26"
-  );
+    const dot =
+        document.createElement(
+            "a-circle"
+        );
 
-  border.setAttribute(
-    "color",
-    "#fff"
-  );
+    dot.setAttribute(
+        "radius",
+        "0.20"
+    );
 
-  border.setAttribute(
-    "material",
-    "shader:flat;side:double"
-  );
+    dot.setAttribute(
+        "position",
+        "0 0 0.01"
+    );
 
+    dot.setAttribute(
+        "color",
+        "#ef4444"
+    );
 
-  const dot =
-    document.createElement(
-      "a-circle"
+    dot.setAttribute(
+        "material",
+        "shader:flat;side:double"
     );
 
 
-  dot.setAttribute(
-    "radius",
-    "0.20"
-  );
+    const numberText =
+        document.createElement(
+            "a-text"
+        );
 
-  dot.setAttribute(
-    "position",
-    "0 0 0.01"
-  );
+    numberText.setAttribute(
+        "value",
+        String(number)
+    );
 
-  dot.setAttribute(
-    "color",
-    "#ef4444"
-  );
+    numberText.setAttribute(
+        "align",
+        "center"
+    );
 
-  dot.setAttribute(
-    "material",
-    "shader:flat;side:double"
-  );
+    numberText.setAttribute(
+        "anchor",
+        "center"
+    );
 
+    numberText.setAttribute(
+        "baseline",
+        "center"
+    );
 
-  const text =
-    document.createElement(
-      "a-text"
+    numberText.setAttribute(
+        "color",
+        "#ffffff"
+    );
+
+    numberText.setAttribute(
+        "width",
+        "1"
+    );
+
+    numberText.setAttribute(
+        "position",
+        "0 0 0.025"
     );
 
 
-  text.setAttribute(
-    "value",
-    String(number)
-  );
-
-  text.setAttribute(
-    "align",
-    "center"
-  );
-
-  text.setAttribute(
-    "anchor",
-    "center"
-  );
-
-  text.setAttribute(
-    "baseline",
-    "center"
-  );
-
-  text.setAttribute(
-    "color",
-    "#fff"
-  );
-
-  text.setAttribute(
-    "width",
-    "1"
-  );
-
-  text.setAttribute(
-    "position",
-    "0 0 0.025"
-  );
+    root.appendChild(border);
+    root.appendChild(dot);
+    root.appendChild(numberText);
 
 
-  root.appendChild(border);
-  root.appendChild(dot);
-  root.appendChild(text);
+    root.addEventListener(
+        "click",
+        event => {
+
+            if(cardboardMode)
+                return;
+
+            event.stopPropagation();
+
+            stopAddMode();
+
+            openReader(
+                hotspot.id
+            );
+
+        }
+    );
 
 
-  root.addEventListener(
-    "click",
-    event => {
-
-      if(cardboardMode)
-        return;
-
-
-      event.stopPropagation();
-
-      stopAddMode();
-
-      openReader(
-        hotspot.id
-      );
-
-    }
-  );
-
-
-  hotspotContainer.appendChild(
-    root
-  );
+    hotspotContainer.appendChild(
+        root
+    );
 
 }
 
-
-/* =====================================================
-   RENDER HOTSPOTS
-===================================================== */
 
 function renderHotspots() {
 
-  hotspotContainer.innerHTML =
-    "";
+    hotspotContainer.innerHTML =
+        "";
 
+    hotspots.forEach(
+        (hotspot,index) => {
 
-  hotspots.forEach(
-    (hotspot,index) => {
+            createHotspotEntity(
+                hotspot,
+                index + 1
+            );
 
-      createHotspotEntity(
-        hotspot,
-        index + 1
-      );
-
-    }
-  );
+        }
+    );
 
 }
 
 
 /* =====================================================
-   SCREEN DIRECTION
+   SCREEN -> DIRECTION
 ===================================================== */
 
 function screenToDirection(
-  clientX,
-  clientY
+    clientX,
+    clientY
 ) {
 
-  const cam =
-    camera.getObject3D(
-      "camera"
-    );
+    const cam =
+        cameraEl.getObject3D(
+            "camera"
+        );
+
+    if(!cam)
+        return null;
 
 
-  if(!cam)
-    return null;
+    const rect =
+        scene.canvas
+            .getBoundingClientRect();
 
 
-  const rect =
-    scene.canvas
-      .getBoundingClientRect();
+    const x =
+        (
+            (clientX - rect.left)
+            / rect.width
+        ) * 2 - 1;
 
 
-  const x =
-    (
-      (clientX - rect.left)
-      / rect.width
-    ) * 2 - 1;
+    const y =
+        -(
+            (
+                clientY - rect.top
+            )
+            / rect.height
+            * 2 - 1
+        );
 
 
-  const y =
-    -(
-      (
-        clientY - rect.top
-      )
-      / rect.height
-      * 2 - 1
-    );
+    const v =
+        new THREE.Vector3(
+            x,
+            y,
+            0.5
+        );
 
 
-  const vector =
-    new THREE.Vector3(
-      x,
-      y,
-      .5
-    );
+    v.unproject(cam);
 
 
-  vector.unproject(cam);
+    const cp =
+        new THREE.Vector3();
+
+    cam.getWorldPosition(cp);
 
 
-  const cp =
-    new THREE.Vector3();
-
-
-  cam.getWorldPosition(cp);
-
-
-  return vector
-    .sub(cp)
-    .normalize();
+    return v
+        .sub(cp)
+        .normalize();
 
 }
 
 
 /* =====================================================
-   ADD MODE
+   ADD HOTSPOT
 ===================================================== */
 
-addHotspotBtn.addEventListener(
-  "click",
-  () => {
+addBtn.addEventListener(
+    "click",
+    () => {
 
-    if(cardboardMode)
-      return;
+        if(cardboardMode)
+            return;
 
+        closePopup();
 
-    addMode =
-      !addMode;
+        addMode =
+            !addMode;
 
+        if(addMode) {
 
-    closePopup();
+            addBtn.classList.add(
+                "active"
+            );
 
+            addBtn.textContent =
+                "Klikni v panoramo";
 
-    if(addMode) {
+            instruction.style.display =
+                "block";
 
-      addHotspotBtn
-        .classList
-        .add("active");
+        }
+        else {
 
+            stopAddMode();
 
-      addHotspotBtn.textContent =
-        "Klikni v panoramo";
-
-
-      instruction.style.display =
-        "block";
-
-    }
-
-    else {
-
-      stopAddMode();
+        }
 
     }
-
-  }
 );
 
 
 function stopAddMode() {
 
-  addMode =
-    false;
+    addMode = false;
 
+    addBtn.classList.remove(
+        "active"
+    );
 
-  addHotspotBtn
-    .classList
-    .remove("active");
+    addBtn.textContent =
+        "+ Dodaj hotspot";
 
-
-  addHotspotBtn.textContent =
-    "+ Dodaj hotspot";
-
-
-  instruction.style.display =
-    "none";
+    instruction.style.display =
+        "none";
 
 }
 
@@ -1532,42 +1329,41 @@ function stopAddMode() {
 ===================================================== */
 
 scene.addEventListener(
-  "pointerdown",
-  e => {
+    "pointerdown",
+    event => {
 
-    pointerStartX =
-      e.clientX;
+        pointerStartX =
+            event.clientX;
 
-    pointerStartY =
-      e.clientY;
+        pointerStartY =
+            event.clientY;
 
-    pointerDistance =
-      0;
+        pointerDistance =
+            0;
 
-  }
+    }
 );
 
 
 scene.addEventListener(
-  "pointermove",
-  e => {
+    "pointermove",
+    event => {
 
-    const dx =
-      e.clientX -
-      pointerStartX;
+        const dx =
+            event.clientX -
+            pointerStartX;
 
+        const dy =
+            event.clientY -
+            pointerStartY;
 
-    const dy =
-      e.clientY -
-      pointerStartY;
+        pointerDistance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
 
-
-    pointerDistance =
-      Math.sqrt(
-        dx*dx + dy*dy
-      );
-
-  }
+    }
 );
 
 
@@ -1576,69 +1372,73 @@ scene.addEventListener(
 ===================================================== */
 
 scene.addEventListener(
-  "click",
-  e => {
+    "click",
+    event => {
 
-    if(
-      !addMode ||
-      cardboardMode ||
-      pointerDistance > 8
-    )
-      return;
-
-
-    const direction =
-      screenToDirection(
-        e.clientX,
-        e.clientY
-      );
+        if(
+            !addMode ||
+            cardboardMode ||
+            pointerDistance > 8
+        )
+            return;
 
 
-    if(!direction)
-      return;
+        const direction =
+            screenToDirection(
+                event.clientX,
+                event.clientY
+            );
+
+        if(!direction)
+            return;
 
 
-    const s =
-      directionToSpherical(
-        direction
-      );
+        const spherical =
+            directionToSpherical(
+                direction
+            );
 
 
-    const hotspot = {
+        const hotspot = {
 
-      id:
-        "hs-" +
-        Date.now() +
-        "-" +
-        Math.random()
-          .toString(36)
-          .slice(2,7),
+            id:
+                "hs-" +
+                Date.now() +
+                "-" +
+                Math.random()
+                    .toString(36)
+                    .slice(2,7),
 
-      yaw:s.yaw,
+            yaw:
+                spherical.yaw,
 
-      pitch:s.pitch,
+            pitch:
+                spherical.pitch,
 
-      title:"",
+            title:
+                "",
 
-      description:""
+            description:
+                ""
 
-    };
-
-
-    hotspots.push(hotspot);
+        };
 
 
-    saveHotspots();
+        hotspots.push(
+            hotspot
+        );
 
-    stopAddMode();
+        saveHotspots();
 
-    renderHotspots();
+        stopAddMode();
 
-    openEditor(
-      hotspot.id
-    );
+        renderHotspots();
 
-  }
+        openEditor(
+            hotspot.id
+        );
+
+    }
 );
 
 
@@ -1647,424 +1447,397 @@ scene.addEventListener(
 ===================================================== */
 
 function getHotspotScreenPosition(
-  hotspot
+    hotspot
 ) {
 
-  const cam =
-    camera.getObject3D(
-      "camera"
-    );
+    const cam =
+        cameraEl.getObject3D(
+            "camera"
+        );
+
+    if(!cam)
+        return null;
 
 
-  if(!cam)
-    return null;
+    const p =
+        sphericalToVector(
+            hotspot.yaw,
+            hotspot.pitch
+        );
 
 
-  const p =
-    sphericalToVector(
-      hotspot.yaw,
-      hotspot.pitch
-    );
+    const cp =
+        new THREE.Vector3();
+
+    const cd =
+        new THREE.Vector3();
 
 
-  const cameraPosition =
-    new THREE.Vector3();
+    cam.getWorldPosition(cp);
+
+    cam.getWorldDirection(cd);
 
 
-  const cameraDirection =
-    new THREE.Vector3();
+    const toHotspot =
+        p.clone()
+         .sub(cp)
+         .normalize();
 
 
-  cam.getWorldPosition(
-    cameraPosition
-  );
+    if(
+        cd.dot(toHotspot)
+        <= 0
+    )
+        return null;
 
 
-  cam.getWorldDirection(
-    cameraDirection
-  );
+    p.project(cam);
 
 
-  const direction =
-    p.clone()
-     .sub(cameraPosition)
-     .normalize();
+    return {
 
+        x:
+            (p.x + 1)
+            * 0.5
+            * window.innerWidth,
 
-  if(
-    cameraDirection.dot(direction)
-    <= 0
-  )
-    return null;
+        y:
+            (-p.y + 1)
+            * 0.5
+            * window.innerHeight
 
-
-  p.project(cam);
-
-
-  return {
-
-    x:
-      (p.x + 1) /
-      2 *
-      window.innerWidth,
-
-    y:
-      (-p.y + 1) /
-      2 *
-      window.innerHeight
-
-  };
+    };
 
 }
 
 
 function positionPopup() {
 
-  if(
-    cardboardMode ||
-    !selectedHotspotId ||
-    popup.style.display === "none"
-  )
-    return;
+    if(
+        cardboardMode ||
+        !selectedHotspotId ||
+        popup.style.display === "none"
+    )
+        return;
 
 
-  const hotspot =
-    hotspots.find(
-      h =>
-        h.id ===
-        selectedHotspotId
-    );
+    const hotspot =
+        hotspots.find(
+            h =>
+                h.id ===
+                selectedHotspotId
+        );
+
+    if(!hotspot)
+        return;
 
 
-  if(!hotspot)
-    return;
+    const screen =
+        getHotspotScreenPosition(
+            hotspot
+        );
 
 
-  const screen =
-    getHotspotScreenPosition(
-      hotspot
-    );
+    if(!screen) {
 
+        popup.style.visibility =
+            "hidden";
 
-  if(!screen) {
+        return;
+
+    }
+
 
     popup.style.visibility =
-      "hidden";
-
-    return;
-
-  }
+        "visible";
 
 
-  popup.style.visibility =
-    "visible";
+    const width =
+        popup.offsetWidth;
+
+    const height =
+        popup.offsetHeight;
+
+    const gap =
+        32;
 
 
-  const width =
-    popup.offsetWidth;
+    let left;
 
-  const height =
-    popup.offsetHeight;
-
-  const gap =
-    32;
+    let top =
+        screen.y -
+        height / 2;
 
 
-  let left;
+    if(
+        screen.x <
+        window.innerWidth / 2
+    ) {
 
-  let top =
-    screen.y -
-    height / 2;
+        popup.classList.remove(
+            "openLeft"
+        );
 
+        left =
+            screen.x + gap;
 
-  if(
-    screen.x <
-    window.innerWidth / 2
-  ) {
+    }
+    else {
 
-    popup.classList.remove(
-      "open-left"
-    );
+        popup.classList.add(
+            "openLeft"
+        );
 
+        left =
+            screen.x -
+            width -
+            gap;
 
-    left =
-      screen.x + gap;
-
-  }
-
-  else {
-
-    popup.classList.add(
-      "open-left"
-    );
+    }
 
 
     left =
-      screen.x -
-      width -
-      gap;
-
-  }
-
-
-  left =
-    Math.max(
-      10,
-      Math.min(
-        left,
-        window.innerWidth -
-        width -
-        10
-      )
-    );
+        Math.max(
+            10,
+            Math.min(
+                left,
+                window.innerWidth -
+                width -
+                10
+            )
+        );
 
 
-  top =
-    Math.max(
-      10,
-      Math.min(
-        top,
-        window.innerHeight -
-        height -
-        10
-      )
-    );
+    top =
+        Math.max(
+            10,
+            Math.min(
+                top,
+                window.innerHeight -
+                height -
+                10
+            )
+        );
 
 
-  popup.style.left =
-    left + "px";
+    popup.style.left =
+        left + "px";
 
-
-  popup.style.top =
-    top + "px";
+    popup.style.top =
+        top + "px";
 
 }
 
 
-(function popupLoop(){
+(function popupLoop() {
 
-  positionPopup();
+    positionPopup();
 
-  requestAnimationFrame(
-    popupLoop
-  );
+    requestAnimationFrame(
+        popupLoop
+    );
 
 })();
 
 
 /* =====================================================
-   READER
+   POPUP READER / EDITOR
 ===================================================== */
 
 function openReader(id) {
 
-  const h =
-    hotspots.find(
-      h => h.id === id
-    );
+    const hotspot =
+        hotspots.find(
+            h => h.id === id
+        );
+
+    if(!hotspot)
+        return;
 
 
-  if(!h)
-    return;
+    selectedHotspotId =
+        id;
 
 
-  selectedHotspotId =
-    id;
+    readerTitle.textContent =
+        hotspot.title ||
+        "Brez naslova";
 
 
-  readerTitle.textContent =
-    h.title ||
-    "Brez naslova";
+    readerDescription.textContent =
+        hotspot.description ||
+        "Ni opisa.";
 
 
-  readerDescription.textContent =
-    h.description ||
-    "Ni opisa.";
+    editor.style.display =
+        "none";
 
+    reader.style.display =
+        "block";
 
-  editorMode.style.display =
-    "none";
-
-
-  readerMode.style.display =
-    "block";
-
-
-  popup.style.display =
-    "block";
+    popup.style.display =
+        "block";
 
 }
 
-
-/* =====================================================
-   EDITOR
-===================================================== */
 
 function openEditor(id) {
 
-  const h =
-    hotspots.find(
-      h => h.id === id
-    );
+    const hotspot =
+        hotspots.find(
+            h => h.id === id
+        );
+
+    if(!hotspot)
+        return;
 
 
-  if(!h)
-    return;
+    selectedHotspotId =
+        id;
 
 
-  selectedHotspotId =
-    id;
+    titleInput.value =
+        hotspot.title || "";
+
+    descriptionInput.value =
+        hotspot.description || "";
 
 
-  titleInput.value =
-    h.title || "";
+    reader.style.display =
+        "none";
 
+    editor.style.display =
+        "block";
 
-  descriptionInput.value =
-    h.description || "";
-
-
-  readerMode.style.display =
-    "none";
-
-
-  editorMode.style.display =
-    "block";
-
-
-  popup.style.display =
-    "block";
+    popup.style.display =
+        "block";
 
 }
-
-
-saveBtn.addEventListener(
-  "click",
-  () => {
-
-    const h =
-      hotspots.find(
-        h =>
-          h.id ===
-          selectedHotspotId
-      );
-
-
-    if(!h)
-      return;
-
-
-    h.title =
-      titleInput.value.trim();
-
-
-    h.description =
-      descriptionInput
-        .value
-        .trim();
-
-
-    saveHotspots();
-
-
-    openReader(h.id);
-
-  }
-);
-
-
-editBtn.addEventListener(
-  "click",
-  () => {
-
-    if(selectedHotspotId) {
-
-      openEditor(
-        selectedHotspotId
-      );
-
-    }
-
-  }
-);
-
-
-cancelBtn.addEventListener(
-  "click",
-  () => {
-
-    const h =
-      hotspots.find(
-        h =>
-          h.id ===
-          selectedHotspotId
-      );
-
-
-    if(
-      h &&
-      (
-        h.title ||
-        h.description
-      )
-    ) {
-
-      openReader(h.id);
-
-    }
-
-    else {
-
-      closePopup();
-
-    }
-
-  }
-);
-
-
-deleteBtn.addEventListener(
-  "click",
-  () => {
-
-    if(!selectedHotspotId)
-      return;
-
-
-    hotspots =
-      hotspots.filter(
-        h =>
-          h.id !==
-          selectedHotspotId
-      );
-
-
-    saveHotspots();
-
-    closePopup();
-
-    renderHotspots();
-
-  }
-);
-
-
-popupClose.addEventListener(
-  "click",
-  closePopup
-);
 
 
 function closePopup() {
 
-  popup.style.display =
-    "none";
+    popup.style.display =
+        "none";
 
-
-  selectedHotspotId =
-    null;
+    selectedHotspotId =
+        null;
 
 }
+
+
+popupClose.addEventListener(
+    "click",
+    closePopup
+);
+
+
+editBtn.addEventListener(
+    "click",
+    () => {
+
+        if(selectedHotspotId) {
+
+            openEditor(
+                selectedHotspotId
+            );
+
+        }
+
+    }
+);
+
+
+saveBtn.addEventListener(
+    "click",
+    () => {
+
+        const hotspot =
+            hotspots.find(
+                h =>
+                    h.id ===
+                    selectedHotspotId
+            );
+
+        if(!hotspot)
+            return;
+
+
+        hotspot.title =
+            titleInput.value.trim();
+
+        hotspot.description =
+            descriptionInput.value.trim();
+
+
+        saveHotspots();
+
+        openReader(
+            hotspot.id
+        );
+
+    }
+);
+
+
+cancelBtn.addEventListener(
+    "click",
+    () => {
+
+        const hotspot =
+            hotspots.find(
+                h =>
+                    h.id ===
+                    selectedHotspotId
+            );
+
+        if(
+            hotspot &&
+            (
+                hotspot.title ||
+                hotspot.description
+            )
+        ) {
+
+            openReader(
+                hotspot.id
+            );
+
+        }
+        else {
+
+            closePopup();
+
+        }
+
+    }
+);
+
+
+deleteBtn.addEventListener(
+    "click",
+    () => {
+
+        if(!selectedHotspotId)
+            return;
+
+
+        hotspots =
+            hotspots.filter(
+                h =>
+                    h.id !==
+                    selectedHotspotId
+            );
+
+
+        saveHotspots();
+
+        closePopup();
+
+        renderHotspots();
+
+    }
+);
 
 
 /* =====================================================
@@ -2073,62 +1846,58 @@ function closePopup() {
 
 function changeZoom(amount) {
 
-  const cam =
-    camera.getObject3D(
-      "camera"
-    );
+    const cam =
+        cameraEl.getObject3D(
+            "camera"
+        );
+
+    if(!cam)
+        return;
 
 
-  if(!cam)
-    return;
+    cam.fov =
+        THREE.MathUtils.clamp(
+            cam.fov + amount,
+            30,
+            100
+        );
 
-
-  cam.fov =
-    THREE.MathUtils.clamp(
-      cam.fov + amount,
-      30,
-      100
-    );
-
-
-  cam.updateProjectionMatrix();
+    cam.updateProjectionMatrix();
 
 }
 
 
 zoomInBtn.addEventListener(
-  "click",
-  () => changeZoom(-10)
+    "click",
+    () => changeZoom(-10)
 );
 
 
 zoomOutBtn.addEventListener(
-  "click",
-  () => changeZoom(10)
+    "click",
+    () => changeZoom(10)
 );
 
 
 scene.addEventListener(
-  "wheel",
-  e => {
+    "wheel",
+    event => {
 
-    if(cardboardMode)
-      return;
+        if(cardboardMode)
+            return;
 
+        event.preventDefault();
 
-    e.preventDefault();
+        changeZoom(
+            event.deltaY > 0
+                ? 5
+                : -5
+        );
 
-
-    changeZoom(
-      e.deltaY > 0
-      ? 5
-      : -5
-    );
-
-  },
-  {
-    passive:false
-  }
+    },
+    {
+        passive: false
+    }
 );
 
 
@@ -2137,139 +1906,137 @@ scene.addEventListener(
 ===================================================== */
 
 fullscreenBtn.addEventListener(
-  "click",
-  async () => {
+    "click",
+    async () => {
 
-    try {
+        try {
 
-      if(!document.fullscreenElement) {
+            if(
+                !document.fullscreenElement &&
+                document.documentElement.requestFullscreen
+            ) {
 
-        await document
-          .documentElement
-          .requestFullscreen();
+                await document
+                    .documentElement
+                    .requestFullscreen();
 
-      }
+            }
+            else if(
+                document.fullscreenElement &&
+                document.exitFullscreen
+            ) {
 
-      else {
+                await document
+                    .exitFullscreen();
 
-        await document
-          .exitFullscreen();
+            }
 
-      }
+        }
+        catch(error) {}
 
     }
-
-    catch(error){}
-
-  }
 );
 
 
 /* =====================================================
-   OPEN CARDBOARD
+   WAKE LOCK
 ===================================================== */
 
-cardboardBtn.addEventListener(
-  "click",
-  () => {
-
-    stopAddMode();
-
-    closePopup();
+let wakeLock = null;
 
 
-    cardboardStartPanel.style.display =
-      "flex";
-
-  }
-);
-
-
-cancelCardboardBtn.addEventListener(
-  "click",
-  () => {
-
-    cardboardStartPanel.style.display =
-      "none";
-
-  }
-);
-
-
-/* =====================================================
-   START
-===================================================== */
-
-startCardboardBtn.addEventListener(
-  "click",
-  async () => {
-
-    cardboardStartPanel.style.display =
-      "none";
-
+async function requestWakeLock() {
 
     if(
-      typeof DeviceOrientationEvent !==
-      "undefined" &&
-
-      typeof DeviceOrientationEvent
-        .requestPermission ===
-        "function"
+        !("wakeLock" in navigator)
     ) {
 
-      permissionPanel.style.display =
-        "flex";
-
-      return;
-
-    }
-
-
-    await enterCardboard();
-
-  }
-);
-
-
-permissionButton.addEventListener(
-  "click",
-  async () => {
-
-    try {
-
-      const result =
-        await DeviceOrientationEvent
-          .requestPermission();
-
-
-      if(result !== "granted") {
-
-        alert(
-          "Senzorji niso dovoljeni."
+        console.log(
+            "Wake Lock API ni na voljo."
         );
 
         return;
 
-      }
-
-
-      permissionPanel.style.display =
-        "none";
-
-
-      await enterCardboard();
-
     }
 
+
+    try {
+
+        if(
+            wakeLock &&
+            !wakeLock.released
+        )
+            return;
+
+
+        wakeLock =
+            await navigator
+                .wakeLock
+                .request("screen");
+
+
+        wakeLock.addEventListener(
+            "release",
+            () => {
+
+                wakeLock =
+                    null;
+
+            }
+        );
+
+
+        console.log(
+            "Wake Lock aktiven."
+        );
+
+    }
     catch(error) {
 
-      alert(
-        "Senzorjev ni mogoče zagnati."
-      );
+        console.log(
+            "Wake Lock ni uspel:",
+            error
+        );
 
     }
 
-  }
+}
+
+
+async function releaseWakeLock() {
+
+    if(!wakeLock)
+        return;
+
+
+    try {
+
+        await wakeLock.release();
+
+    }
+    catch(error) {}
+
+
+    wakeLock = null;
+
+}
+
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if(
+            cardboardMode &&
+            document.visibilityState ===
+            "visible"
+        ) {
+
+            requestWakeLock();
+
+        }
+
+    }
 );
 
 
@@ -2281,144 +2048,131 @@ let deviceAlpha = 0;
 let deviceBeta = 0;
 let deviceGamma = 0;
 
-let hasOrientation =
-  false;
+let hasOrientation = false;
 
 
-function orientationHandler(e) {
+function orientationHandler(event) {
 
-  if(e.alpha === null)
-    return;
-
-
-  deviceAlpha =
-    e.alpha || 0;
-
-  deviceBeta =
-    e.beta || 0;
-
-  deviceGamma =
-    e.gamma || 0;
+    if(event.alpha === null)
+        return;
 
 
-  hasOrientation =
-    true;
+    deviceAlpha =
+        event.alpha || 0;
+
+    deviceBeta =
+        event.beta || 0;
+
+    deviceGamma =
+        event.gamma || 0;
+
+    hasOrientation =
+        true;
 
 }
 
 
-/* =====================================================
-   ORIENTATION QUATERNION
-===================================================== */
-
 const zee =
-  new THREE.Vector3(
-    0,0,1
-  );
+    new THREE.Vector3(
+        0,
+        0,
+        1
+    );
 
 
 const orientationEuler =
-  new THREE.Euler();
+    new THREE.Euler();
 
 
 const orientationQ0 =
-  new THREE.Quaternion();
+    new THREE.Quaternion();
 
 
 const orientationQ1 =
-  new THREE.Quaternion(
-    -Math.sqrt(.5),
-    0,
-    0,
-    Math.sqrt(.5)
-  );
-
-
-function updateCardboardOrientation(
-  object
-) {
-
-  if(
-    !hasOrientation ||
-    !object
-  )
-    return;
-
-
-  const alpha =
-    THREE.MathUtils.degToRad(
-      deviceAlpha
+    new THREE.Quaternion(
+        -Math.sqrt(0.5),
+        0,
+        0,
+        Math.sqrt(0.5)
     );
 
 
-  const beta =
-    THREE.MathUtils.degToRad(
-      deviceBeta
+function updatePhoneOrientation(object) {
+
+    if(
+        !object ||
+        !hasOrientation
+    )
+        return;
+
+
+    const alpha =
+        THREE.MathUtils.degToRad(
+            deviceAlpha
+        );
+
+    const beta =
+        THREE.MathUtils.degToRad(
+            deviceBeta
+        );
+
+    const gamma =
+        THREE.MathUtils.degToRad(
+            deviceGamma
+        );
+
+
+    let screenAngle = 0;
+
+
+    if(
+        screen.orientation &&
+        typeof screen.orientation.angle ===
+        "number"
+    ) {
+
+        screenAngle =
+            THREE.MathUtils.degToRad(
+                screen.orientation.angle
+            );
+
+    }
+    else if(
+        typeof window.orientation ===
+        "number"
+    ) {
+
+        screenAngle =
+            THREE.MathUtils.degToRad(
+                window.orientation
+            );
+
+    }
+
+
+    orientationEuler.set(
+        beta,
+        alpha,
+        -gamma,
+        "YXZ"
     );
 
 
-  const gamma =
-    THREE.MathUtils.degToRad(
-      deviceGamma
+    object.quaternion
+        .setFromEuler(
+            orientationEuler
+        );
+
+
+    object.quaternion.multiply(
+        orientationQ1
     );
 
 
-  let orient =
-    0;
-
-
-  if(
-    screen.orientation &&
-    typeof screen.orientation.angle
-      === "number"
-  ) {
-
-    orient =
-      THREE.MathUtils.degToRad(
-        screen.orientation.angle
-      );
-
-  }
-
-  else if(
-    typeof window.orientation
-      === "number"
-  ) {
-
-    orient =
-      THREE.MathUtils.degToRad(
-        window.orientation
-      );
-
-  }
-
-
-  orientationEuler.set(
-    beta,
-    alpha,
-    -gamma,
-    "YXZ"
-  );
-
-
-  object.quaternion
-    .setFromEuler(
-      orientationEuler
-    );
-
-
-  object.quaternion
-    .multiply(
-      orientationQ1
-    );
-
-
-  object.quaternion
-    .multiply(
-      orientationQ0
-        .setFromAxisAngle(
-          zee,
-          -orient
+    object.quaternion.multiply(
+        orientationQ0.setFromAxisAngle(
+            zee,
+            -screenAngle
         )
     );
 
@@ -2426,202 +2180,257 @@ function updateCardboardOrientation(
 
 
 /* =====================================================
-   CARDBOARD RENDERER
+   CARDBOARD GLOBALS
 ===================================================== */
 
-let renderer =
-  null;
+let cardboardMode = false;
 
-let world =
-  null;
+let renderer = null;
+let world = null;
+let vrCamera = null;
 
-let vrCamera =
-  null;
+let stereoCamera = null;
 
-let stereoCamera =
-  null;
+let leftTarget = null;
+let rightTarget = null;
 
-let leftTarget =
-  null;
+let outputScene = null;
+let outputCamera = null;
 
-let rightTarget =
-  null;
+let leftEyeMesh = null;
+let rightEyeMesh = null;
 
-let distortionScene =
-  null;
+let cardboardAnimationId = null;
 
-let distortionCamera =
-  null;
+let originalFov = 80;
+let originalAspect = 1;
 
-let leftDistortionMesh =
-  null;
-
-let rightDistortionMesh =
-  null;
-
-let cardboardAnimationId =
-  null;
-
-let cardboardInfoGroup =
-  null;
-
-let originalFov =
-  80;
+let cardboardInfoGroup = null;
 
 
 /* =====================================================
-   DISTORTION SHADER
+   IMPORTANT:
+   YT-LIKE EYE SHADER
 
-   To naredi optično ukrivljene robove
-   podobne Cardboard/YouTube prikazu.
+   Ta shader ne uporablja navadnega
+   pravokotnega viewporta.
+
+   Vsako oko:
+   - ima svoje optično okno
+   - črn rob
+   - zaobljen zunanji rob
+   - ukrivljen zgornji/spodnji rob
+   - radialno pred-deformacijo
 ===================================================== */
 
-const distortionVertexShader = `
+const eyeVertexShader = `
 
 varying vec2 vUv;
 
 void main() {
 
-  vUv = uv;
+    vUv = uv;
 
-  gl_Position =
-    vec4(
-      position.xy,
-      0.0,
-      1.0
-    );
+    gl_Position =
+        vec4(
+            position.xy,
+            0.0,
+            1.0
+        );
 
 }
 
 `;
 
 
-const distortionFragmentShader = `
+const eyeFragmentShader = `
 
 precision highp float;
 
 uniform sampler2D eyeTexture;
 
-uniform float k1;
-uniform float k2;
+uniform float distortion1;
+uniform float distortion2;
 
 varying vec2 vUv;
 
 
 void main() {
 
-  /*
-     UV:
-     0..1 -> -1..1
-  */
+    /*
+       Lokalna koordinata posameznega očesa.
 
-  vec2 p =
-    vUv * 2.0 - 1.0;
+       -1 ... +1
+    */
 
-
-  /*
-     Rahlo drugačna horizontalna
-     geometrija zaradi razmerja
-     telefonskega viewporta.
-  */
-
-  vec2 q = p;
-
-  q.x *= 1.04;
+    vec2 p =
+        vUv * 2.0 - 1.0;
 
 
-  float r2 =
-    dot(q,q);
+    /*
+       YT/Cardboard podoben optical shape.
+
+       Horizontalna os je malo širša.
+    */
+
+    vec2 optical = p;
+
+    optical.x *= 0.94;
 
 
-  /*
-     Inverzna radialna korekcija.
-
-     S tem dobimo "pincushion"
-     pred-deformacijo, ki jo nato
-     leča vizualno popravi.
-  */
-
-  float factor =
-    1.0 +
-    k1 * r2 +
-    k2 * r2 * r2;
+    float r2 =
+        dot(
+            optical,
+            optical
+        );
 
 
-  vec2 distorted =
-    q * factor;
+    /*
+       Radialna pred-deformacija.
+    */
+
+    float radial =
+        1.0 +
+        distortion1 * r2 +
+        distortion2 * r2 * r2;
 
 
-  distorted.x /= 1.04;
+    vec2 source =
+        optical * radial;
 
 
-  vec2 uv =
-    distorted * 0.5 + 0.5;
+    source.x /= 0.94;
 
 
-  /*
-     Vse izven optičnega območja
-     postane ČRNO.
-  */
+    /*
+       Nazaj v texture UV.
+    */
 
-  if(
-    uv.x < 0.0 ||
-    uv.x > 1.0 ||
-    uv.y < 0.0 ||
-    uv.y > 1.0
-  ) {
+    vec2 uv =
+        source * 0.5 + 0.5;
+
+
+    /*
+       Če smo izven teksture:
+       ČRNO.
+    */
+
+    if(
+        uv.x < 0.0 ||
+        uv.x > 1.0 ||
+        uv.y < 0.0 ||
+        uv.y > 1.0
+    ) {
+
+        gl_FragColor =
+            vec4(
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            );
+
+        return;
+
+    }
+
+
+    /*
+       ----------------------------------
+       OPTICAL WINDOW MASK
+       ----------------------------------
+
+       To je pomembni del.
+
+       Ne naredimo kroga.
+       Oblika je bližje YT screenshotu:
+       precej ravna v sredini,
+       zaobljena na vogalih.
+    */
+
+
+    float ax =
+        abs(p.x);
+
+    float ay =
+        abs(p.y);
+
+
+    /*
+       Superellipse.
+
+       n=4 da bolj spominja
+       na zaobljen pravokotnik.
+    */
+
+    float shape =
+        pow(
+            ax / 1.00,
+            4.0
+        )
+        +
+        pow(
+            ay / 1.00,
+            4.0
+        );
+
+
+    if(shape > 1.0) {
+
+        gl_FragColor =
+            vec4(
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            );
+
+        return;
+
+    }
+
+
+    /*
+       Rahlo dodatno odrežemo
+       zgornje/zunanje vogale.
+    */
+
+    float corner =
+        pow(
+            ax / 1.05,
+            6.0
+        )
+        +
+        pow(
+            ay / 1.02,
+            6.0
+        );
+
+
+    if(corner > 1.08) {
+
+        gl_FragColor =
+            vec4(
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            );
+
+        return;
+
+    }
+
+
+    /*
+       Končna panorama.
+    */
 
     gl_FragColor =
-      vec4(
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      );
-
-    return;
-
-  }
-
-
-  /*
-     Dodatna optična maska.
-
-     Zaradi tega dobimo obliko
-     podobno screenshotu YouTube.
-  */
-
-  vec2 maskP = p;
-
-  maskP.x *= 0.91;
-
-  float maskR =
-    dot(
-      maskP,
-      maskP
-    );
-
-
-  if(maskR > 1.30) {
-
-    gl_FragColor =
-      vec4(
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      );
-
-    return;
-
-  }
-
-
-  gl_FragColor =
-    texture2D(
-      eyeTexture,
-      uv
-    );
+        texture2D(
+            eyeTexture,
+            uv
+        );
 
 }
 
@@ -2629,213 +2438,251 @@ void main() {
 
 
 /* =====================================================
-   CREATE DISTORTION SYSTEM
+   CREATE OUTPUT SYSTEM
 ===================================================== */
 
-function createDistortionSystem() {
+function createCardboardOutput() {
 
-  const canvas =
-    renderer.domElement;
+    const canvas =
+        renderer.domElement;
 
 
-  const pixelRatio =
-    Math.min(
-      window.devicePixelRatio || 1,
-      2
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+
+    /*
+       Render target posameznega očesa.
+    */
+
+    const eyeWidth =
+        Math.max(
+            600,
+            Math.floor(
+                canvas.clientWidth *
+                0.5 *
+                dpr
+            )
+        );
+
+
+    const eyeHeight =
+        Math.max(
+            600,
+            Math.floor(
+                canvas.clientHeight *
+                dpr
+            )
+        );
+
+
+    leftTarget =
+        new THREE.WebGLRenderTarget(
+            eyeWidth,
+            eyeHeight,
+            {
+                minFilter:
+                    THREE.LinearFilter,
+
+                magFilter:
+                    THREE.LinearFilter,
+
+                format:
+                    THREE.RGBAFormat,
+
+                depthBuffer:
+                    true
+            }
+        );
+
+
+    rightTarget =
+        new THREE.WebGLRenderTarget(
+            eyeWidth,
+            eyeHeight,
+            {
+                minFilter:
+                    THREE.LinearFilter,
+
+                magFilter:
+                    THREE.LinearFilter,
+
+                format:
+                    THREE.RGBAFormat,
+
+                depthBuffer:
+                    true
+            }
+        );
+
+
+    /*
+       Posebna scena samo za
+       končni Cardboard output.
+    */
+
+    outputScene =
+        new THREE.Scene();
+
+
+    outputCamera =
+        new THREE.Camera();
+
+
+    /*
+       LEFT material
+    */
+
+    const leftMaterial =
+        new THREE.ShaderMaterial({
+
+            uniforms: {
+
+                eyeTexture: {
+                    value:
+                        leftTarget.texture
+                },
+
+                distortion1: {
+                    value:
+                        CB.distortion1
+                },
+
+                distortion2: {
+                    value:
+                        CB.distortion2
+                }
+
+            },
+
+            vertexShader:
+                eyeVertexShader,
+
+            fragmentShader:
+                eyeFragmentShader,
+
+            depthTest:
+                false,
+
+            depthWrite:
+                false
+
+        });
+
+
+    /*
+       RIGHT material
+    */
+
+    const rightMaterial =
+        new THREE.ShaderMaterial({
+
+            uniforms: {
+
+                eyeTexture: {
+                    value:
+                        rightTarget.texture
+                },
+
+                distortion1: {
+                    value:
+                        CB.distortion1
+                },
+
+                distortion2: {
+                    value:
+                        CB.distortion2
+                }
+
+            },
+
+            vertexShader:
+                eyeVertexShader,
+
+            fragmentShader:
+                eyeFragmentShader,
+
+            depthTest:
+                false,
+
+            depthWrite:
+                false
+
+        });
+
+
+    /*
+       Geometry je v clip-space.
+
+       Širina:
+       2 * eyeHalfWidth
+
+       Višina:
+       2 * eyeHalfHeight
+    */
+
+    const geometryLeft =
+        new THREE.PlaneGeometry(
+            CB.eyeHalfWidth * 2,
+            CB.eyeHalfHeight * 2
+        );
+
+
+    const geometryRight =
+        new THREE.PlaneGeometry(
+            CB.eyeHalfWidth * 2,
+            CB.eyeHalfHeight * 2
+        );
+
+
+    leftEyeMesh =
+        new THREE.Mesh(
+            geometryLeft,
+            leftMaterial
+        );
+
+
+    rightEyeMesh =
+        new THREE.Mesh(
+            geometryRight,
+            rightMaterial
+        );
+
+
+    /*
+       YT-LIKE položaj.
+
+       Ne na 25/75 %.
+
+       Bližje screenshotu:
+       približno 30/70 %.
+    */
+
+    leftEyeMesh.position.set(
+        CB.eyeCenterLeft,
+        0,
+        0
     );
 
 
-  const eyeWidth =
-    Math.max(
-      512,
-      Math.floor(
-        canvas.clientWidth /
-        2 *
-        pixelRatio
-      )
+    rightEyeMesh.position.set(
+        CB.eyeCenterRight,
+        0,
+        0
     );
 
 
-  const eyeHeight =
-    Math.max(
-      512,
-      Math.floor(
-        canvas.clientHeight *
-        pixelRatio
-      )
+    outputScene.add(
+        leftEyeMesh
     );
 
 
-  leftTarget =
-    new THREE.WebGLRenderTarget(
-      eyeWidth,
-      eyeHeight,
-      {
-        minFilter:
-          THREE.LinearFilter,
-
-        magFilter:
-          THREE.LinearFilter,
-
-        format:
-          THREE.RGBAFormat,
-
-        depthBuffer:
-          true
-      }
+    outputScene.add(
+        rightEyeMesh
     );
-
-
-  rightTarget =
-    new THREE.WebGLRenderTarget(
-      eyeWidth,
-      eyeHeight,
-      {
-        minFilter:
-          THREE.LinearFilter,
-
-        magFilter:
-          THREE.LinearFilter,
-
-        format:
-          THREE.RGBAFormat,
-
-        depthBuffer:
-          true
-      }
-    );
-
-
-  distortionScene =
-    new THREE.Scene();
-
-
-  distortionCamera =
-    new THREE.Camera();
-
-
-  /*
-     Material za levo oko.
-  */
-
-  const leftMaterial =
-    new THREE.ShaderMaterial({
-
-      uniforms: {
-
-        eyeTexture: {
-          value:
-            leftTarget.texture
-        },
-
-        /*
-           Glavna ukrivljenost.
-        */
-
-        k1: {
-          value:
-            0.20
-        },
-
-        k2: {
-          value:
-            0.07
-        }
-
-      },
-
-      vertexShader:
-        distortionVertexShader,
-
-      fragmentShader:
-        distortionFragmentShader,
-
-      depthTest:
-        false,
-
-      depthWrite:
-        false
-
-    });
-
-
-  /*
-     Material za desno oko.
-  */
-
-  const rightMaterial =
-    leftMaterial.clone();
-
-
-  rightMaterial.uniforms =
-    THREE.UniformsUtils.clone(
-      leftMaterial.uniforms
-    );
-
-
-  rightMaterial.uniforms
-    .eyeTexture
-    .value =
-      rightTarget.texture;
-
-
-  /*
-     Fullscreen geometry.
-
-     Vsaka ravnina zavzame malo manj
-     kot polovico zaslona.
-
-     Tako dobimo črne robove kot
-     na YouTube screenshotu.
-  */
-
-  const geometry =
-    new THREE.PlaneGeometry(
-      1,
-      1.72
-    );
-
-
-  leftDistortionMesh =
-    new THREE.Mesh(
-      geometry,
-      leftMaterial
-    );
-
-
-  rightDistortionMesh =
-    new THREE.Mesh(
-      geometry.clone(),
-      rightMaterial
-    );
-
-
-  /*
-     Celoten clip-space je -1..+1.
-
-     Levo oko:
-     center približno -0.5
-
-     Desno oko:
-     center približno +0.5
-  */
-
-  leftDistortionMesh.position.x =
-    -0.50;
-
-
-  rightDistortionMesh.position.x =
-    0.50;
-
-
-  distortionScene.add(
-    leftDistortionMesh
-  );
-
-
-  distortionScene.add(
-    rightDistortionMesh
-  );
 
 }
 
@@ -2846,43 +2693,154 @@ function createDistortionSystem() {
 
 async function preparePhone() {
 
-  try {
+    /*
+       Fullscreen
+    */
 
-    if(
-      !document.fullscreenElement &&
-      document.documentElement
-        .requestFullscreen
-    ) {
+    try {
 
-      await document
-        .documentElement
-        .requestFullscreen();
+        if(
+            !document.fullscreenElement &&
+            document.documentElement.requestFullscreen
+        ) {
 
-    }
+            await document
+                .documentElement
+                .requestFullscreen();
 
-  }
-
-  catch(error){}
-
-
-  try {
-
-    if(
-      screen.orientation &&
-      screen.orientation.lock
-    ) {
-
-      await screen.orientation.lock(
-        "landscape"
-      );
+        }
 
     }
+    catch(error) {}
 
-  }
 
-  catch(error){}
+    /*
+       Landscape lock.
+    */
+
+    try {
+
+        if(
+            screen.orientation &&
+            screen.orientation.lock
+        ) {
+
+            await screen.orientation.lock(
+                "landscape"
+            );
+
+        }
+
+    }
+    catch(error) {}
 
 }
+
+
+/* =====================================================
+   CARDBOARD START BUTTON
+===================================================== */
+
+cardboardBtn.addEventListener(
+    "click",
+    () => {
+
+        stopAddMode();
+        closePopup();
+
+        cardboardStart.style.display =
+            "flex";
+
+    }
+);
+
+
+cancelCardboardBtn.addEventListener(
+    "click",
+    () => {
+
+        cardboardStart.style.display =
+            "none";
+
+    }
+);
+
+
+startCardboardBtn.addEventListener(
+    "click",
+    async () => {
+
+        cardboardStart.style.display =
+            "none";
+
+
+        /*
+           iPhone/iPad mora permission
+           zahtevati neposredno iz klika.
+        */
+
+        if(
+            typeof DeviceOrientationEvent !==
+                "undefined" &&
+
+            typeof DeviceOrientationEvent
+                .requestPermission ===
+                "function"
+        ) {
+
+            permissionPanel.style.display =
+                "flex";
+
+            return;
+
+        }
+
+
+        await enterCardboard();
+
+    }
+);
+
+
+permissionBtn.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            const result =
+                await DeviceOrientationEvent
+                    .requestPermission();
+
+
+            if(result !== "granted") {
+
+                alert(
+                    "Uporaba senzorjev ni dovoljena."
+                );
+
+                return;
+
+            }
+
+
+            permissionPanel.style.display =
+                "none";
+
+
+            await enterCardboard();
+
+        }
+        catch(error) {
+
+            alert(
+                "Senzorjev ni bilo mogoče zagnati."
+            );
+
+        }
+
+    }
+);
 
 
 /* =====================================================
@@ -2891,307 +2849,326 @@ async function preparePhone() {
 
 async function enterCardboard() {
 
-  if(cardboardMode)
-    return;
+    if(cardboardMode)
+        return;
 
 
-  cardboardMode =
-    true;
+    cardboardMode =
+        true;
 
 
-  /*
-     TELEFON OSTANE PRIŽGAN
-  */
+    /*
+       Najprej Wake Lock.
+    */
 
-  await enableWakeLock();
-
-
-  await preparePhone();
+    await requestWakeLock();
 
 
-  window.addEventListener(
-    "deviceorientation",
-    orientationHandler,
-    true
-  );
+    /*
+       Fullscreen + landscape.
+    */
+
+    await preparePhone();
 
 
-  toolbar.style.display =
-    "none";
-
-
-  popup.style.display =
-    "none";
-
-
-  instruction.style.display =
-    "none";
-
-
-  cardboardUI.style.display =
-    "block";
-
-
-  renderer =
-    scene.renderer;
-
-
-  world =
-    scene.object3D;
-
-
-  vrCamera =
-    camera.getObject3D(
-      "camera"
+    window.addEventListener(
+        "deviceorientation",
+        orientationHandler,
+        true
     );
 
 
-  if(
-    !renderer ||
-    !vrCamera
-  ) {
+    toolbar.style.display =
+        "none";
 
-    cardboardMode =
-      false;
+    popup.style.display =
+        "none";
 
-    await disableWakeLock();
+    instruction.style.display =
+        "none";
 
-    return;
-
-  }
+    cardboardUI.style.display =
+        "block";
 
 
-  originalFov =
-    vrCamera.fov;
+    renderer =
+        scene.renderer;
+
+    world =
+        scene.object3D;
+
+    vrCamera =
+        cameraEl.getObject3D(
+            "camera"
+        );
 
 
-  camera.setAttribute(
-    "look-controls",
-    "enabled",
-    false
-  );
+    if(
+        !renderer ||
+        !world ||
+        !vrCamera
+    ) {
+
+        cardboardMode =
+            false;
+
+        await releaseWakeLock();
+
+        return;
+
+    }
 
 
-  stereoCamera =
-    new THREE.StereoCamera();
+    originalFov =
+        vrCamera.fov;
+
+    originalAspect =
+        vrCamera.aspect;
 
 
-  /*
-     Standardna stereo razdalja.
-  */
+    /*
+       Normalni mouse/touch look
+       izklopimo.
+    */
 
-  stereoCamera.eyeSep =
-    0.064;
+    cameraEl.setAttribute(
+        "look-controls",
+        "enabled",
+        false
+    );
 
 
-  createDistortionSystem();
+    /*
+       Stereo camera.
+    */
+
+    stereoCamera =
+        new THREE.StereoCamera();
 
 
-  setTimeout(
-    () => {
+    stereoCamera.eyeSep =
+        CB.eyeSeparation;
 
-      if(cardboardMode) {
 
-        cardboardLoop();
+    /*
+       Ustvari YT-like output.
+    */
 
-      }
+    createCardboardOutput();
 
-    },
-    150
-  );
+
+    /*
+       Zaženemo Cardboard loop.
+    */
+
+    cardboardLoop();
 
 }
 
 
 /* =====================================================
-   RENDER CARDBOARD
+   FACE HOTSPOTS TO CAMERA
+===================================================== */
+
+const hotspotCameraPosition =
+    new THREE.Vector3();
+
+
+function orientHotspotsToCamera() {
+
+    if(!vrCamera)
+        return;
+
+
+    vrCamera.getWorldPosition(
+        hotspotCameraPosition
+    );
+
+
+    document
+        .querySelectorAll(
+            "#hotspotContainer > a-entity"
+        )
+        .forEach(
+            entity => {
+
+                entity.object3D.lookAt(
+                    hotspotCameraPosition
+                );
+
+            }
+        );
+
+}
+
+
+/* =====================================================
+   CARDBOARD RENDER
 ===================================================== */
 
 function renderCardboard() {
 
-  if(
-    !renderer ||
-    !vrCamera ||
-    !stereoCamera
-  )
-    return;
-
-
-  const canvas =
-    renderer.domElement;
-
-
-  const width =
-    canvas.clientWidth;
-
-
-  const height =
-    canvas.clientHeight;
-
-
-  if(
-    width <= 0 ||
-    height <= 0
-  )
-    return;
-
-
-  /*
-     Vsako oko ima polovico zaslona.
-  */
-
-  vrCamera.aspect =
-    (width / 2) /
-    height;
-
-
-  /*
-     Približno Cardboard FOV.
-
-     Ker shader sliko še deformira,
-     je malo širši pogled bolj primeren.
-  */
-
-  vrCamera.fov =
-    82;
-
-
-  vrCamera.updateProjectionMatrix();
-
-
-  vrCamera.updateMatrixWorld(
-    true
-  );
-
-
-  stereoCamera.update(
-    vrCamera
-  );
-
-
-  /*
-     -----------------------------------------
-     1. LEVO OKO -> OFFSCREEN TEXTURE
-     -----------------------------------------
-  */
-
-  renderer.setRenderTarget(
-    leftTarget
-  );
-
-
-  renderer.setScissorTest(
-    false
-  );
-
-
-  renderer.setClearColor(
-    0x000000,
-    1
-  );
-
-
-  renderer.clear(
-    true,
-    true,
-    true
-  );
-
-
-  renderer.render(
-    world,
-    stereoCamera.cameraL
-  );
-
-
-  /*
-     -----------------------------------------
-     2. DESNO OKO -> OFFSCREEN TEXTURE
-     -----------------------------------------
-  */
-
-  renderer.setRenderTarget(
-    rightTarget
-  );
-
-
-  renderer.clear(
-    true,
-    true,
-    true
-  );
-
-
-  renderer.render(
-    world,
-    stereoCamera.cameraR
-  );
-
-
-  /*
-     -----------------------------------------
-     3. DISTORTED OUTPUT -> TELEFON
-     -----------------------------------------
-  */
-
-  renderer.setRenderTarget(
-    null
-  );
-
-
-  renderer.setScissorTest(
-    false
-  );
-
-
-  renderer.setClearColor(
-    0x000000,
-    1
-  );
-
-
-  renderer.clear(
-    true,
-    true,
-    true
-  );
-
-
-  renderer.render(
-    distortionScene,
-    distortionCamera
-  );
-
-}
-
-
-/* =====================================================
-   FACE HOTSPOTS
-===================================================== */
-
-function orientHotspotsToCamera() {
-
-  if(!vrCamera)
-    return;
-
-
-  const p =
-    new THREE.Vector3();
-
-
-  vrCamera.getWorldPosition(p);
-
-
-  document
-    .querySelectorAll(
-      "#hotspotContainer > a-entity"
+    if(
+        !renderer ||
+        !vrCamera ||
+        !stereoCamera ||
+        !leftTarget ||
+        !rightTarget
     )
-    .forEach(
-      entity => {
+        return;
 
-        entity.object3D.lookAt(p);
 
-      }
+    const canvas =
+        renderer.domElement;
+
+
+    const cssWidth =
+        Math.max(
+            1,
+            canvas.clientWidth
+        );
+
+
+    const cssHeight =
+        Math.max(
+            1,
+            canvas.clientHeight
+        );
+
+
+    /*
+       Pomembno:
+       kamera je narejena za posamezno
+       optično oko, ne za cel zaslon.
+    */
+
+    const opticalWidth =
+        cssWidth *
+        CB.eyeHalfWidth;
+
+
+    const opticalHeight =
+        cssHeight *
+        CB.eyeHalfHeight;
+
+
+    vrCamera.aspect =
+        opticalWidth /
+        opticalHeight;
+
+
+    vrCamera.fov =
+        CB.fov;
+
+
+    vrCamera.updateProjectionMatrix();
+
+    vrCamera.updateMatrixWorld(
+        true
+    );
+
+
+    stereoCamera.update(
+        vrCamera
+    );
+
+
+    /*
+       ==================================
+       LEFT EYE
+       ==================================
+    */
+
+    renderer.setRenderTarget(
+        leftTarget
+    );
+
+
+    renderer.setScissorTest(
+        false
+    );
+
+
+    renderer.setClearColor(
+        0x000000,
+        1
+    );
+
+
+    renderer.clear(
+        true,
+        true,
+        true
+    );
+
+
+    renderer.render(
+        world,
+        stereoCamera.cameraL
+    );
+
+
+    /*
+       ==================================
+       RIGHT EYE
+       ==================================
+    */
+
+    renderer.setRenderTarget(
+        rightTarget
+    );
+
+
+    renderer.clear(
+        true,
+        true,
+        true
+    );
+
+
+    renderer.render(
+        world,
+        stereoCamera.cameraR
+    );
+
+
+    /*
+       ==================================
+       FINAL SCREEN
+       ==================================
+    */
+
+    renderer.setRenderTarget(
+        null
+    );
+
+
+    renderer.setScissorTest(
+        false
+    );
+
+
+    renderer.setClearColor(
+        0x000000,
+        1
+    );
+
+
+    renderer.clear(
+        true,
+        true,
+        true
+    );
+
+
+    /*
+       Zdaj izrišemo samo obe optični
+       okni na popolnoma črno ozadje.
+    */
+
+    renderer.render(
+        outputScene,
+        outputCamera
     );
 
 }
@@ -3202,510 +3179,553 @@ function orientHotspotsToCamera() {
 ===================================================== */
 
 const gazeRaycaster =
-  new THREE.Raycaster();
+    new THREE.Raycaster();
 
 
 const gazeCenter =
-  new THREE.Vector2(
-    0,
-    0
-  );
+    new THREE.Vector2(
+        0,
+        0
+    );
 
 
 const GAZE_TIME =
-  1200;
+    1200;
 
 
 let gazeTargetId =
-  null;
+    null;
 
-let gazeStartedAt =
-  0;
+let gazeStart =
+    0;
 
 let gazeActivated =
-  false;
+    false;
 
 
 function updateGaze() {
 
-  if(!vrCamera)
-    return;
+    if(!vrCamera)
+        return;
 
 
-  gazeRaycaster.setFromCamera(
-    gazeCenter,
-    vrCamera
-  );
+    gazeRaycaster.setFromCamera(
+        gazeCenter,
+        vrCamera
+    );
 
 
-  const targets =
-    [];
+    const targets = [];
 
 
-  document
-    .querySelectorAll(
-      "#hotspotContainer > a-entity"
-    )
-    .forEach(
-      entity => {
+    document
+        .querySelectorAll(
+            "#hotspotContainer > a-entity"
+        )
+        .forEach(
+            entity => {
 
-        entity.object3D.traverse(
-          child => {
+                entity.object3D.traverse(
+                    child => {
 
-            if(child.isMesh) {
+                        if(child.isMesh) {
 
-              child.userData.hotspotId =
-                entity.dataset.id;
+                            child.userData.hotspotId =
+                                entity.dataset.id;
 
+                            targets.push(
+                                child
+                            );
 
-              targets.push(child);
+                        }
+
+                    }
+                );
 
             }
-
-          }
         );
 
-      }
-    );
+
+    const hits =
+        gazeRaycaster.intersectObjects(
+            targets,
+            false
+        );
 
 
-  const hits =
-    gazeRaycaster.intersectObjects(
-      targets,
-      false
-    );
+    const id =
+        hits.length
+            ? hits[0]
+                .object
+                .userData
+                .hotspotId
+            : null;
 
 
-  const id =
-    hits.length
-    ? hits[0]
-        .object
-        .userData
-        .hotspotId
-    : null;
+    if(!id) {
 
+        resetGaze();
 
-  if(!id) {
-
-    resetGaze();
-
-    return;
-
-  }
-
-
-  if(gazeTargetId !== id) {
-
-    gazeTargetId =
-      id;
-
-
-    gazeStartedAt =
-      performance.now();
-
-
-    gazeActivated =
-      false;
-
-
-    gazeLeft.classList.remove(
-      "active"
-    );
-
-
-    gazeRight.classList.remove(
-      "active"
-    );
-
-
-    void gazeLeft.offsetWidth;
-
-
-    gazeLeft.classList.add(
-      "active"
-    );
-
-
-    gazeRight.classList.add(
-      "active"
-    );
-
-
-    return;
-
-  }
-
-
-  if(
-    !gazeActivated &&
-    performance.now() -
-    gazeStartedAt >=
-    GAZE_TIME
-  ) {
-
-    gazeActivated =
-      true;
-
-
-    const h =
-      hotspots.find(
-        h =>
-          h.id ===
-          gazeTargetId
-      );
-
-
-    if(h) {
-
-      showCardboardInfo(h);
+        return;
 
     }
 
-  }
+
+    if(gazeTargetId !== id) {
+
+        gazeTargetId =
+            id;
+
+        gazeStart =
+            performance.now();
+
+        gazeActivated =
+            false;
+
+
+        gazeLeft.classList.remove(
+            "active"
+        );
+
+        gazeRight.classList.remove(
+            "active"
+        );
+
+
+        void gazeLeft.offsetWidth;
+
+
+        gazeLeft.classList.add(
+            "active"
+        );
+
+        gazeRight.classList.add(
+            "active"
+        );
+
+
+        return;
+
+    }
+
+
+    if(
+        !gazeActivated &&
+        performance.now() -
+        gazeStart >=
+        GAZE_TIME
+    ) {
+
+        gazeActivated =
+            true;
+
+
+        const hotspot =
+            hotspots.find(
+                h =>
+                    h.id ===
+                    gazeTargetId
+            );
+
+
+        if(hotspot) {
+
+            showCardboardInfo(
+                hotspot
+            );
+
+        }
+
+    }
 
 }
 
 
 function resetGaze() {
 
-  gazeTargetId =
-    null;
+    gazeTargetId =
+        null;
+
+    gazeStart =
+        0;
+
+    gazeActivated =
+        false;
 
 
-  gazeStartedAt =
-    0;
+    gazeLeft.classList.remove(
+        "active"
+    );
 
-
-  gazeActivated =
-    false;
-
-
-  gazeLeft.classList.remove(
-    "active"
-  );
-
-
-  gazeRight.classList.remove(
-    "active"
-  );
+    gazeRight.classList.remove(
+        "active"
+    );
 
 }
 
 
 /* =====================================================
-   VR INFO
+   CARDBOARD INFO CARD
 ===================================================== */
 
-function showCardboardInfo(hotspot) {
+function showCardboardInfo(
+    hotspot
+) {
 
-  removeCardboardInfo();
-
-
-  const group =
-    new THREE.Group();
+    removeCardboardInfo();
 
 
-  const panel =
-    new THREE.Mesh(
+    const group =
+        new THREE.Group();
 
-      new THREE.PlaneGeometry(
-        2.7,
-        1.45
-      ),
 
-      new THREE.MeshBasicMaterial({
+    /*
+       Bela podlaga.
+    */
 
-        color:
-          0xffffff,
+    const panel =
+        new THREE.Mesh(
 
-        transparent:
-          true,
+            new THREE.PlaneGeometry(
+                2.65,
+                1.40
+            ),
 
-        opacity:
-          .96,
+            new THREE.MeshBasicMaterial({
 
-        side:
-          THREE.DoubleSide
+                color:
+                    0xffffff,
 
-      })
+                transparent:
+                    true,
+
+                opacity:
+                    0.96,
+
+                side:
+                    THREE.DoubleSide
+
+            })
+
+        );
+
+
+    group.add(
+        panel
+    );
+
+
+    /*
+       Canvas z besedilom.
+    */
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    canvas.width =
+        1024;
+
+    canvas.height =
+        512;
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    ctx.fillStyle =
+        "#111";
+
+
+    ctx.font =
+        "bold 54px Arial";
+
+
+    drawWrappedText(
+        ctx,
+        hotspot.title ||
+        "Brez naslova",
+        70,
+        95,
+        880,
+        64,
+        2
+    );
+
+
+    ctx.fillStyle =
+        "#333";
+
+
+    ctx.font =
+        "34px Arial";
+
+
+    drawWrappedText(
+        ctx,
+        hotspot.description ||
+        "Ni opisa.",
+        70,
+        225,
+        880,
+        48,
+        5
+    );
+
+
+    const texture =
+        new THREE.CanvasTexture(
+            canvas
+        );
+
+
+    texture.needsUpdate =
+        true;
+
+
+    const textPlane =
+        new THREE.Mesh(
+
+            new THREE.PlaneGeometry(
+                2.65,
+                1.38
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                map:
+                    texture,
+
+                transparent:
+                    true,
+
+                side:
+                    THREE.DoubleSide
+
+            })
+
+        );
+
+
+    textPlane.position.z =
+        0.01;
+
+
+    group.add(
+        textPlane
+    );
+
+
+    /*
+       Postavi kartico naravnost
+       pred uporabnika.
+    */
+
+    const cameraPosition =
+        new THREE.Vector3();
+
+
+    const direction =
+        new THREE.Vector3();
+
+
+    vrCamera.getWorldPosition(
+        cameraPosition
+    );
+
+
+    vrCamera.getWorldDirection(
+        direction
+    );
+
+
+    group.position.copy(
+
+        cameraPosition
+            .clone()
+            .add(
+
+                direction
+                    .clone()
+                    .multiplyScalar(
+                        2.7
+                    )
+
+            )
 
     );
 
 
-  group.add(panel);
-
-
-  const canvas =
-    document.createElement(
-      "canvas"
+    group.lookAt(
+        cameraPosition
     );
 
 
-  canvas.width =
-    1024;
-
-
-  canvas.height =
-    512;
-
-
-  const ctx =
-    canvas.getContext(
-      "2d"
+    world.add(
+        group
     );
 
 
-  ctx.fillStyle =
-    "#111";
+    cardboardInfoGroup =
+        group;
 
 
-  ctx.font =
-    "bold 54px Arial";
-
-
-  drawWrappedText(
-    ctx,
-    hotspot.title ||
-    "Brez naslova",
-    70,
-    95,
-    880,
-    64,
-    2
-  );
-
-
-  ctx.fillStyle =
-    "#333";
-
-
-  ctx.font =
-    "34px Arial";
-
-
-  drawWrappedText(
-    ctx,
-    hotspot.description ||
-    "Ni opisa.",
-    70,
-    225,
-    880,
-    48,
-    5
-  );
-
-
-  const texture =
-    new THREE.CanvasTexture(
-      canvas
-    );
-
-
-  const text =
-    new THREE.Mesh(
-
-      new THREE.PlaneGeometry(
-        2.7,
-        1.4
-      ),
-
-      new THREE.MeshBasicMaterial({
-
-        map:
-          texture,
-
-        transparent:
-          true,
-
-        side:
-          THREE.DoubleSide
-
-      })
-
-    );
-
-
-  text.position.z =
-    .01;
-
-
-  group.add(text);
-
-
-  const cp =
-    new THREE.Vector3();
-
-
-  const direction =
-    new THREE.Vector3();
-
-
-  vrCamera.getWorldPosition(cp);
-
-
-  vrCamera.getWorldDirection(
-    direction
-  );
-
-
-  group.position.copy(
-
-    cp.clone().add(
-
-      direction.clone()
-        .multiplyScalar(2.8)
-
-    )
-
-  );
-
-
-  group.lookAt(cp);
-
-
-  world.add(group);
-
-
-  cardboardInfoGroup =
-    group;
-
-
-  resetGaze();
+    resetGaze();
 
 }
 
 
 /* =====================================================
-   WRAP TEXT
+   TEXT WRAP
 ===================================================== */
 
 function drawWrappedText(
-  ctx,
-  text,
-  x,
-  y,
-  maxWidth,
-  lineHeight,
-  maxLines
+    ctx,
+    text,
+    x,
+    y,
+    maxWidth,
+    lineHeight,
+    maxLines
 ) {
 
-  const words =
-    String(text)
-      .split(/\s+/);
+    const words =
+        String(text)
+            .split(/\s+/);
 
 
-  let line =
-    "";
-
-  let lineNumber =
-    0;
+    let line = "";
+    let lineNumber = 0;
 
 
-  for(
-    let i = 0;
-    i < words.length;
-    i++
-  ) {
+    for(
+        let i = 0;
+        i < words.length;
+        i++
+    ) {
 
-    const test =
-      line +
-      words[i] +
-      " ";
+        const test =
+            line +
+            words[i] +
+            " ";
+
+
+        if(
+            ctx.measureText(test).width >
+            maxWidth &&
+            line !== ""
+        ) {
+
+            ctx.fillText(
+                line,
+                x,
+                y +
+                lineNumber *
+                lineHeight
+            );
+
+
+            lineNumber++;
+
+
+            if(
+                lineNumber >=
+                maxLines
+            )
+                return;
+
+
+            line =
+                words[i] + " ";
+
+        }
+        else {
+
+            line =
+                test;
+
+        }
+
+    }
 
 
     if(
-      ctx.measureText(test).width
-      > maxWidth &&
-      line !== ""
+        lineNumber <
+        maxLines
     ) {
 
-      ctx.fillText(
-        line,
-        x,
-        y +
-        lineNumber *
-        lineHeight
-      );
-
-
-      lineNumber++;
-
-
-      if(
-        lineNumber >=
-        maxLines
-      )
-        return;
-
-
-      line =
-        words[i] + " ";
+        ctx.fillText(
+            line,
+            x,
+            y +
+            lineNumber *
+            lineHeight
+        );
 
     }
-
-    else {
-
-      line =
-        test;
-
-    }
-
-  }
-
-
-  if(lineNumber < maxLines) {
-
-    ctx.fillText(
-      line,
-      x,
-      y +
-      lineNumber *
-      lineHeight
-    );
-
-  }
 
 }
 
 
 /* =====================================================
-   REMOVE VR INFO
+   REMOVE CARDBOARD INFO
 ===================================================== */
 
 function removeCardboardInfo() {
 
-  if(!cardboardInfoGroup)
-    return;
+    if(!cardboardInfoGroup)
+        return;
 
 
-  world.remove(
-    cardboardInfoGroup
-  );
+    world.remove(
+        cardboardInfoGroup
+    );
 
 
-  cardboardInfoGroup.traverse(
-    child => {
+    cardboardInfoGroup.traverse(
+        child => {
 
-      if(child.geometry)
-        child.geometry.dispose();
+            if(child.geometry) {
 
+                child.geometry.dispose();
 
-      if(child.material) {
-
-        if(child.material.map)
-          child.material.map.dispose();
+            }
 
 
-        child.material.dispose();
+            if(child.material) {
 
-      }
+                if(child.material.map) {
 
-    }
-  );
+                    child.material
+                        .map
+                        .dispose();
+
+                }
 
 
-  cardboardInfoGroup =
-    null;
+                child.material.dispose();
+
+            }
+
+        }
+    );
+
+
+    cardboardInfoGroup =
+        null;
 
 }
 
@@ -3716,234 +3736,275 @@ function removeCardboardInfo() {
 
 function cardboardLoop() {
 
-  if(!cardboardMode)
-    return;
+    if(!cardboardMode)
+        return;
 
 
-  cardboardAnimationId =
-    requestAnimationFrame(
-      cardboardLoop
+    cardboardAnimationId =
+        requestAnimationFrame(
+            cardboardLoop
+        );
+
+
+    /*
+       Telefon -> kamera.
+    */
+
+    updatePhoneOrientation(
+        vrCamera
     );
 
 
-  updateCardboardOrientation(
-    vrCamera
-  );
+    vrCamera.updateMatrixWorld(
+        true
+    );
 
 
-  vrCamera.updateMatrixWorld(
-    true
-  );
+    /*
+       Hotspoti gledajo proti kameri.
+    */
+
+    orientHotspotsToCamera();
 
 
-  orientHotspotsToCamera();
+    /*
+       Pogled na hotspot.
+    */
+
+    updateGaze();
 
 
-  updateGaze();
+    /*
+       Stereo + YT-like output.
+    */
 
-
-  renderCardboard();
+    renderCardboard();
 
 }
 
 
 /* =====================================================
-   EXIT
+   EXIT CARDBOARD
 ===================================================== */
 
 exitCardboardBtn.addEventListener(
-  "click",
-  exitCardboard
+    "click",
+    exitCardboard
 );
 
 
 async function exitCardboard() {
 
-  if(!cardboardMode)
-    return;
+    if(!cardboardMode)
+        return;
 
 
-  cardboardMode =
-    false;
+    cardboardMode =
+        false;
 
 
-  await disableWakeLock();
+    if(cardboardAnimationId) {
 
-
-  if(cardboardAnimationId) {
-
-    cancelAnimationFrame(
-      cardboardAnimationId
-    );
-
-  }
-
-
-  cardboardAnimationId =
-    null;
-
-
-  window.removeEventListener(
-    "deviceorientation",
-    orientationHandler,
-    true
-  );
-
-
-  removeCardboardInfo();
-
-
-  resetGaze();
-
-
-  cardboardUI.style.display =
-    "none";
-
-
-  toolbar.style.display =
-    "flex";
-
-
-  camera.setAttribute(
-    "look-controls",
-    "enabled",
-    true
-  );
-
-
-  if(vrCamera) {
-
-    vrCamera.fov =
-      originalFov;
-
-
-    vrCamera.aspect =
-      window.innerWidth /
-      window.innerHeight;
-
-
-    vrCamera.updateProjectionMatrix();
-
-  }
-
-
-  /*
-     Dispose VR render targets.
-  */
-
-  if(leftTarget) {
-
-    leftTarget.dispose();
-
-    leftTarget =
-      null;
-
-  }
-
-
-  if(rightTarget) {
-
-    rightTarget.dispose();
-
-    rightTarget =
-      null;
-
-  }
-
-
-  if(leftDistortionMesh) {
-
-    leftDistortionMesh
-      .geometry
-      .dispose();
-
-
-    leftDistortionMesh
-      .material
-      .dispose();
-
-  }
-
-
-  if(rightDistortionMesh) {
-
-    rightDistortionMesh
-      .geometry
-      .dispose();
-
-
-    rightDistortionMesh
-      .material
-      .dispose();
-
-  }
-
-
-  distortionScene =
-    null;
-
-  distortionCamera =
-    null;
-
-  leftDistortionMesh =
-    null;
-
-  rightDistortionMesh =
-    null;
-
-
-  if(renderer) {
-
-    renderer.setRenderTarget(
-      null
-    );
-
-
-    renderer.setScissorTest(
-      false
-    );
-
-
-    renderer.setClearColor(
-      0x000000,
-      1
-    );
-
-  }
-
-
-  try {
-
-    if(
-      screen.orientation &&
-      screen.orientation.unlock
-    ) {
-
-      screen.orientation.unlock();
+        cancelAnimationFrame(
+            cardboardAnimationId
+        );
 
     }
 
-  }
 
-  catch(error){}
+    cardboardAnimationId =
+        null;
 
 
-  try {
+    window.removeEventListener(
+        "deviceorientation",
+        orientationHandler,
+        true
+    );
 
-    if(
-      document.fullscreenElement
-    ) {
 
-      await document
-        .exitFullscreen();
+    await releaseWakeLock();
+
+
+    removeCardboardInfo();
+
+    resetGaze();
+
+
+    cardboardUI.style.display =
+        "none";
+
+
+    toolbar.style.display =
+        "flex";
+
+
+    /*
+       Normalni pogled nazaj.
+    */
+
+    cameraEl.setAttribute(
+        "look-controls",
+        "enabled",
+        true
+    );
+
+
+    if(vrCamera) {
+
+        vrCamera.fov =
+            originalFov;
+
+        vrCamera.aspect =
+            originalAspect;
+
+        vrCamera.updateProjectionMatrix();
 
     }
 
-  }
 
-  catch(error){}
+    /*
+       Dispose render targets.
+    */
+
+    if(leftTarget) {
+
+        leftTarget.dispose();
+        leftTarget = null;
+
+    }
+
+
+    if(rightTarget) {
+
+        rightTarget.dispose();
+        rightTarget = null;
+
+    }
+
+
+    if(leftEyeMesh) {
+
+        if(leftEyeMesh.geometry)
+            leftEyeMesh.geometry.dispose();
+
+        if(leftEyeMesh.material)
+            leftEyeMesh.material.dispose();
+
+    }
+
+
+    if(rightEyeMesh) {
+
+        if(rightEyeMesh.geometry)
+            rightEyeMesh.geometry.dispose();
+
+        if(rightEyeMesh.material)
+            rightEyeMesh.material.dispose();
+
+    }
+
+
+    leftEyeMesh = null;
+    rightEyeMesh = null;
+
+    outputScene = null;
+    outputCamera = null;
+
+    stereoCamera = null;
+
+
+    if(renderer) {
+
+        renderer.setRenderTarget(
+            null
+        );
+
+        renderer.setScissorTest(
+            false
+        );
+
+        renderer.setClearColor(
+            0x000000,
+            1
+        );
+
+    }
+
+
+    /*
+       Orientation unlock.
+    */
+
+    try {
+
+        if(
+            screen.orientation &&
+            screen.orientation.unlock
+        ) {
+
+            screen.orientation.unlock();
+
+        }
+
+    }
+    catch(error) {}
+
+
+    /*
+       Fullscreen exit.
+    */
+
+    try {
+
+        if(
+            document.fullscreenElement &&
+            document.exitFullscreen
+        ) {
+
+            await document
+                .exitFullscreen();
+
+        }
+
+    }
+    catch(error) {}
 
 }
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        if(
+            cardboardMode &&
+            renderer
+        ) {
+
+            /*
+               Render targetov ni treba
+               ob vsakem resize takoj
+               ustvarjati na novo.
+
+               Kamera se prilagodi v
+               renderCardboard().
+            */
+
+            renderer.setSize(
+                window.innerWidth,
+                window.innerHeight,
+                false
+            );
+
+        }
+
+    }
+);
 
 
 /* =====================================================
@@ -3951,41 +4012,41 @@ async function exitCardboard() {
 ===================================================== */
 
 document.addEventListener(
-  "keydown",
-  e => {
+    "keydown",
+    event => {
 
-    if(e.key !== "Escape")
-      return;
+        if(event.key !== "Escape")
+            return;
 
 
-    if(cardboardMode) {
+        if(cardboardMode) {
 
-      exitCardboard();
+            exitCardboard();
 
-      return;
+            return;
+
+        }
+
+
+        closePopup();
+
+        stopAddMode();
 
     }
-
-
-    closePopup();
-
-    stopAddMode();
-
-  }
 );
 
 
 /* =====================================================
-   START
+   LOAD
 ===================================================== */
 
 scene.addEventListener(
-  "loaded",
-  () => {
+    "loaded",
+    () => {
 
-    renderHotspots();
+        renderHotspots();
 
-  }
+    }
 );
 
 </script>
