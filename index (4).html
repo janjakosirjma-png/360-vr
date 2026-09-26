@@ -9,302 +9,306 @@
 
 <title>360° VR ogled</title>
 
-<!-- A-FRAME: stereo VR + žiroskop + Cardboard/WebXR -->
+<!-- A-FRAME -->
 <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
 
 <style>
-* {
-  box-sizing: border-box;
+*{
+  box-sizing:border-box;
 }
 
 html,
-body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #000;
-  font-family: Arial, Helvetica, sans-serif;
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  font-family:Arial,Helvetica,sans-serif;
 }
 
-body {
-  touch-action: none;
+body{
+  touch-action:none;
 }
 
 /* =========================================================
    A-FRAME
 ========================================================= */
 
-a-scene {
-  position: fixed !important;
-  inset: 0;
-  width: 100% !important;
-  height: 100% !important;
+a-scene{
+  position:fixed !important;
+  inset:0;
+  width:100% !important;
+  height:100% !important;
 }
 
 /* =========================================================
    NORMAL UI
 ========================================================= */
 
-#toolbar {
-  position: fixed;
-  z-index: 10000;
-  top: 10px;
-  left: 10px;
+#toolbar{
+  position:fixed;
+  z-index:10000;
 
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
+  top:max(10px,env(safe-area-inset-top));
+  left:max(10px,env(safe-area-inset-left));
 
-  padding: 8px;
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
 
-  border-radius: 14px;
-  background: rgba(0,0,0,.82);
+  padding:8px;
+
+  border-radius:14px;
+  background:rgba(0,0,0,.82);
 }
 
-button {
-  min-height: 40px;
-  padding: 0 12px;
+button{
+  min-height:42px;
+  padding:0 13px;
 
-  border: 0;
-  border-radius: 9px;
+  border:0;
+  border-radius:9px;
 
-  background: #333;
-  color: #fff;
+  background:#333;
+  color:#fff;
 
-  font-weight: 700;
-  cursor: pointer;
+  font-size:14px;
+  font-weight:700;
+
+  cursor:pointer;
+  touch-action:manipulation;
 }
 
-#addBtn {
-  background: #2563eb;
+#addBtn{
+  background:#2563eb;
 }
 
-#addBtn.active {
-  background: #16a34a;
+#addBtn.active{
+  background:#16a34a;
 }
 
-#vrBtn {
-  background: #7c3aed;
+#vrBtn{
+  background:#7c3aed;
 }
 
-#hint {
-  position: fixed;
-  z-index: 10001;
+#hint{
+  position:fixed;
+  z-index:10001;
 
-  display: none;
+  display:none;
 
-  left: 50%;
-  bottom: 22px;
+  left:50%;
+  bottom:max(22px,env(safe-area-inset-bottom));
 
-  transform: translateX(-50%);
+  transform:translateX(-50%);
 
-  padding: 10px 17px;
+  width:max-content;
+  max-width:calc(100vw - 30px);
 
-  border-radius: 30px;
+  padding:11px 18px;
 
-  background: rgba(0,0,0,.86);
-  color: #fff;
+  border-radius:30px;
 
-  pointer-events: none;
+  background:rgba(0,0,0,.88);
+  color:#fff;
+
+  text-align:center;
+
+  pointer-events:none;
 }
 
 /* =========================================================
    POPUP
 ========================================================= */
 
-#popup {
-  position: fixed;
-  z-index: 10002;
+#popup{
+  position:fixed;
+  z-index:10002;
 
-  display: none;
+  display:none;
 
-  width: 330px;
-  max-width: calc(100vw - 20px);
+  width:330px;
+  max-width:calc(100vw - 20px);
 
-  padding: 18px;
+  padding:18px;
 
-  border-radius: 14px;
+  border-radius:14px;
 
-  background: #fff;
-  color: #111;
+  background:#fff;
+  color:#111;
 
-  box-shadow: 0 12px 45px rgba(0,0,0,.5);
+  box-shadow:0 12px 45px rgba(0,0,0,.5);
 }
 
-#popupClose {
-  position: absolute;
+#popupClose{
+  position:absolute;
 
-  right: 8px;
-  top: 8px;
+  right:8px;
+  top:8px;
 
-  width: 30px;
-  height: 30px;
-  min-height: 0;
+  width:32px;
+  height:32px;
+  min-height:0;
 
-  padding: 0;
+  padding:0;
 
-  border-radius: 50%;
+  border-radius:50%;
 
-  background: #e5e5e5;
-  color: #111;
+  background:#e5e5e5;
+  color:#111;
 
-  font-size: 21px;
+  font-size:21px;
 }
 
 #reader,
-#editor {
-  display: none;
+#editor{
+  display:none;
 }
 
-#readerTitle {
-  margin: 0 38px 10px 0;
+#readerTitle{
+  margin:0 38px 10px 0;
 }
 
-#readerDescription {
-  margin-bottom: 15px;
+#readerDescription{
+  margin-bottom:15px;
 
-  white-space: pre-wrap;
-  line-height: 1.45;
+  white-space:pre-wrap;
+  line-height:1.45;
 }
 
-#editBtn {
-  width: 100%;
-  background: #2563eb;
+#editBtn{
+  width:100%;
+  background:#2563eb;
 }
 
-.fieldLabel {
-  display: block;
+.fieldLabel{
+  display:block;
 
-  margin: 9px 0 4px;
+  margin:9px 0 4px;
 
-  font-size: 13px;
-  font-weight: 700;
+  font-size:13px;
+  font-weight:700;
 }
 
 #titleInput,
-#descriptionInput {
-  width: 100%;
+#descriptionInput{
+  width:100%;
 
-  padding: 10px;
+  padding:11px;
 
-  border: 1px solid #aaa;
-  border-radius: 8px;
+  border:1px solid #aaa;
+  border-radius:8px;
 
-  font: inherit;
+  font:inherit;
 }
 
-#descriptionInput {
-  min-height: 110px;
-  resize: vertical;
+#descriptionInput{
+  min-height:110px;
+  resize:vertical;
 }
 
-.editorButtons {
-  display: flex;
-  gap: 6px;
+.editorButtons{
+  display:flex;
+  gap:6px;
 
-  margin-top: 10px;
+  margin-top:10px;
 }
 
-.editorButtons button {
-  flex: 1;
+.editorButtons button{
+  flex:1;
 }
 
-#saveBtn {
-  background: #16a34a;
+#saveBtn{
+  background:#16a34a;
 }
 
-#cancelBtn {
-  background: #666;
+#cancelBtn{
+  background:#666;
 }
 
-#deleteBtn {
-  background: #dc2626;
+#deleteBtn{
+  background:#dc2626;
 }
 
 /* =========================================================
-   VR START WINDOW
+   VR START
 ========================================================= */
 
-#vrStart {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
+#vrStart{
+  position:fixed;
+  inset:0;
+  z-index:20000;
 
-  display: none;
+  display:none;
 
-  align-items: center;
-  justify-content: center;
+  align-items:center;
+  justify-content:center;
 
-  padding: 20px;
+  padding:20px;
 
-  background: rgba(0,0,0,.94);
+  background:rgba(0,0,0,.94);
 }
 
-#vrStartBox {
-  width: 390px;
-  max-width: 100%;
+#vrStartBox{
+  width:390px;
+  max-width:100%;
 
-  padding: 24px;
+  padding:24px;
 
-  border-radius: 16px;
+  border-radius:16px;
 
-  background: #fff;
-  color: #111;
+  background:#fff;
+  color:#111;
 
-  text-align: center;
+  text-align:center;
 }
 
-#vrStartBox h2 {
-  margin-top: 0;
+#vrStartBox h2{
+  margin-top:0;
 }
 
-#vrStartBox button {
-  width: 100%;
-  margin-top: 8px;
+#vrStartBox button{
+  width:100%;
+  margin-top:8px;
 }
 
-#startVRBtn {
-  background: #7c3aed;
+#startVRBtn{
+  background:#7c3aed;
 }
 
-#cancelVRBtn {
-  background: #666;
+#cancelVRBtn{
+  background:#666;
 }
 
 /* =========================================================
    ROTATE WARNING
 ========================================================= */
 
-#rotateWarning {
-  position: fixed;
-  inset: 0;
-  z-index: 30000;
+#rotateWarning{
+  position:fixed;
+  inset:0;
+  z-index:30000;
 
-  display: none;
+  display:none;
 
-  align-items: center;
-  justify-content: center;
+  align-items:center;
+  justify-content:center;
 
-  padding: 30px;
+  padding:30px;
 
-  background: #000;
-  color: #fff;
+  background:#000;
+  color:#fff;
 
-  text-align: center;
+  text-align:center;
 
-  font-size: 22px;
-  font-weight: bold;
+  font-size:22px;
+  font-weight:bold;
 }
 
-/* =========================================================
-   HIDE DEFAULT A-FRAME VR BUTTON
-
-   Uporabimo svoj CARDBOARD gumb.
-========================================================= */
-
-.a-enter-vr {
-  display: none !important;
+/* uporabljamo svoj Cardboard gumb */
+.a-enter-vr{
+  display:none !important;
 }
 </style>
 </head>
@@ -331,20 +335,14 @@ button {
     physicallyCorrectLights: false;
   "
 
-  background="color: #000000">
+  background="color:#000000">
+
 
   <!-- =====================================================
        ASSETS
   ====================================================== -->
 
   <a-assets timeout="20000">
-
-    <!--
-      Mapa:
-
-      index.html
-      360.jpg
-    -->
 
     <img
       id="panoramaImage"
@@ -355,7 +353,7 @@ button {
 
 
   <!-- =====================================================
-       360 PANORAMA
+       PANORAMA
   ====================================================== -->
 
   <a-sky
@@ -374,9 +372,6 @@ button {
 
   <!-- =====================================================
        VR INFO CARD
-
-       Ta objekt obstaja v 3D prostoru, zato ga A-Frame
-       pravilno izriše za obe očesi.
   ====================================================== -->
 
   <a-entity
@@ -384,35 +379,49 @@ button {
     visible="false">
 
     <a-plane
-      id="vrInfoBackground"
       width="3.4"
       height="1.8"
+
       color="#ffffff"
+
       material="
-        shader: flat;
-        opacity: 0.96;
-        transparent: true;
+        shader:flat;
+        opacity:0.96;
+        transparent:true;
       ">
     </a-plane>
 
+
     <a-text
       id="vrInfoTitle"
+
       value=""
+
       color="#111111"
+
       width="3"
+
       align="center"
       anchor="center"
+
       position="0 0.45 0.015">
     </a-text>
 
+
     <a-text
       id="vrInfoDescription"
+
       value=""
+
       color="#333333"
+
       width="2.8"
+
       align="center"
       anchor="center"
+
       wrap-count="42"
+
       position="0 -0.15 0.015">
     </a-text>
 
@@ -432,21 +441,18 @@ button {
 
       position="0 0 0"
 
-      wasd-controls="enabled: false"
+      wasd-controls="enabled:false"
 
       look-controls="
-        enabled: true;
-        magicWindowTrackingEnabled: true;
-        touchEnabled: true;
-        mouseEnabled: true;
-        pointerLockEnabled: false;
+        enabled:true;
+        magicWindowTrackingEnabled:true;
+        touchEnabled:true;
+        mouseEnabled:true;
+        pointerLockEnabled:false;
       ">
 
-      <!--
-        RETICLE
 
-        A-Frame ga v VR načinu sam izriše v stereo pogledu.
-      -->
+      <!-- VR gaze reticle -->
 
       <a-entity
         id="reticle"
@@ -454,26 +460,26 @@ button {
         position="0 0 -1"
 
         cursor="
-          fuse: true;
-          fuseTimeout: 1200;
+          fuse:true;
+          fuseTimeout:1200;
         "
 
         raycaster="
-          objects: .hotspot;
-          far: 100;
-          interval: 50;
+          objects:.hotspot;
+          far:100;
+          interval:50;
         "
 
         geometry="
-          primitive: ring;
-          radiusInner: 0.012;
-          radiusOuter: 0.019;
+          primitive:ring;
+          radiusInner:0.012;
+          radiusOuter:0.019;
         "
 
         material="
-          color: #ffffff;
-          shader: flat;
-          opacity: 0.95;
+          color:#ffffff;
+          shader:flat;
+          opacity:0.95;
         ">
       </a-entity>
 
@@ -485,7 +491,7 @@ button {
 
 
 <!-- =======================================================
-     HTML UI
+     TOOLBAR
 ======================================================== -->
 
 <div id="toolbar">
@@ -514,12 +520,12 @@ button {
 
 
 <div id="hint">
-  Klikni na mesto v panorami
+  Tapni točno mesto v panorami
 </div>
 
 
 <!-- =======================================================
-     HOTSPOT POPUP
+     POPUP
 ======================================================== -->
 
 <div id="popup">
@@ -527,6 +533,7 @@ button {
   <button id="popupClose">
     ×
   </button>
+
 
   <div id="reader">
 
@@ -556,9 +563,7 @@ button {
       Opis
     </label>
 
-    <textarea
-      id="descriptionInput">
-    </textarea>
+    <textarea id="descriptionInput"></textarea>
 
 
     <div class="editorButtons">
@@ -583,7 +588,7 @@ button {
 
 
 <!-- =======================================================
-     CARDBOARD START
+     VR START
 ======================================================== -->
 
 <div id="vrStart">
@@ -596,10 +601,6 @@ button {
 
     <p>
       Obrni telefon vodoravno in ga vstavi v Cardboard očala.
-    </p>
-
-    <p>
-      A-Frame bo prevzel stereo VR prikaz in žiroskop.
     </p>
 
     <button id="startVRBtn">
@@ -624,20 +625,89 @@ button {
 "use strict";
 
 /* =========================================================
+   A-FRAME COMPONENTS
+========================================================= */
+
+/*
+  Hotspot marker je vedno obrnjen proti centru panorame.
+*/
+
+AFRAME.registerComponent(
+  "look-at-center",
+  {
+
+    tick:function(){
+
+      if(!this.el.object3D){
+        return;
+      }
+
+      this.el.object3D.lookAt(
+        0,
+        0,
+        0
+      );
+
+    }
+
+  }
+);
+
+
+/*
+  VR kartica je vedno obrnjena proti kameri.
+*/
+
+AFRAME.registerComponent(
+  "vr-card-face-camera",
+  {
+
+    tick:function(){
+
+      const cameraEl =
+        document.getElementById(
+          "camera"
+        );
+
+      if(
+        !this.el.object3D ||
+        !cameraEl ||
+        !cameraEl.object3D
+      ){
+        return;
+      }
+
+      const cameraPosition =
+        new THREE.Vector3();
+
+      cameraEl.object3D.getWorldPosition(
+        cameraPosition
+      );
+
+      this.el.object3D.lookAt(
+        cameraPosition
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
    DOM
 ========================================================= */
 
-const $ = id =>
-  document.getElementById(id);
+const $ =
+  id =>
+    document.getElementById(id);
+
 
 const scene =
   $("scene");
 
 const camera =
   $("camera");
-
-const sky =
-  $("sky");
 
 const hotspotContainer =
   $("hotspotContainer");
@@ -727,20 +797,27 @@ const rotateWarning =
   $("rotateWarning");
 
 
+vrInfo.setAttribute(
+  "vr-card-face-camera",
+  ""
+);
+
+
 /* =========================================================
    STORAGE
 
-   TOČNO ISTI KLJUČ KOT PREJ.
-
-   Obstoječi hotspoti se zato ohranijo.
+   ISTI KLJUČ KOT PREJ
 ========================================================= */
 
 const STORAGE_KEY =
   "stable-360-hotspots-v5";
 
-let hotspots = [];
 
-try {
+let hotspots =
+  [];
+
+
+try{
 
   hotspots =
     JSON.parse(
@@ -750,14 +827,15 @@ try {
     ) || [];
 
 }
-catch (e) {
+catch(e){
 
-  hotspots = [];
+  hotspots =
+    [];
 
 }
 
 
-function saveHotspots() {
+function saveHotspots(){
 
   localStorage.setItem(
     STORAGE_KEY,
@@ -769,26 +847,25 @@ function saveHotspots() {
 }
 
 
-function getHotspot(id) {
+function getHotspot(id){
 
   return hotspots.find(
-    h => h.id === id
+    hotspot =>
+      hotspot.id === id
   );
 
 }
 
 
 /* =========================================================
-   COORDINATE
-
-   Ohranimo yaw/pitch format stare kode.
+   SPHERICAL COORDINATES
 ========================================================= */
 
 function sphericalToVector(
   yaw,
   pitch,
-  radius = 8
-) {
+  radius=8
+){
 
   return {
 
@@ -811,34 +888,37 @@ function sphericalToVector(
 }
 
 
-function vectorToSpherical(v) {
+function vectorToSpherical(v){
 
   const length =
     Math.sqrt(
-      v.x * v.x +
-      v.y * v.y +
-      v.z * v.z
+      v.x*v.x +
+      v.y*v.y +
+      v.z*v.z
     );
 
-  if (!length) {
 
-    return {
-      yaw: 0,
-      pitch: 0
+  if(!length){
+
+    return{
+      yaw:0,
+      pitch:0
     };
 
   }
 
+
   const x =
-    v.x / length;
+    v.x/length;
 
   const y =
-    v.y / length;
+    v.y/length;
 
   const z =
-    v.z / length;
+    v.z/length;
 
-  return {
+
+  return{
 
     yaw:
       Math.atan2(
@@ -848,12 +928,10 @@ function vectorToSpherical(v) {
 
     pitch:
       Math.asin(
-        Math.max(
+        THREE.MathUtils.clamp(
+          y,
           -1,
-          Math.min(
-            1,
-            y
-          )
+          1
         )
       )
 
@@ -863,25 +941,26 @@ function vectorToSpherical(v) {
 
 
 /* =========================================================
-   HOTSPOT LABEL TEXTURE
+   HOTSPOT IMAGE
 ========================================================= */
 
-function makeHotspotCanvas(number) {
+function makeHotspotCanvas(number){
 
-  const canvas =
+  const c =
     document.createElement(
       "canvas"
     );
 
-  canvas.width =
+
+  c.width =
     256;
 
-  canvas.height =
+  c.height =
     256;
 
 
   const ctx =
-    canvas.getContext(
+    c.getContext(
       "2d"
     );
 
@@ -895,7 +974,7 @@ function makeHotspotCanvas(number) {
 
 
   /*
-    WHITE OUTER CIRCLE
+    White border
   */
 
   ctx.beginPath();
@@ -905,7 +984,7 @@ function makeHotspotCanvas(number) {
     128,
     112,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
 
   ctx.fillStyle =
@@ -915,7 +994,7 @@ function makeHotspotCanvas(number) {
 
 
   /*
-    RED INNER CIRCLE
+    Red center
   */
 
   ctx.beginPath();
@@ -925,7 +1004,7 @@ function makeHotspotCanvas(number) {
     128,
     91,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
 
   ctx.fillStyle =
@@ -935,7 +1014,7 @@ function makeHotspotCanvas(number) {
 
 
   /*
-    NUMBER
+    Number
   */
 
   ctx.fillStyle =
@@ -957,20 +1036,20 @@ function makeHotspotCanvas(number) {
   );
 
 
-  return canvas;
+  return c;
 
 }
 
 
 /* =========================================================
-   HOTSPOTS
+   RENDER HOTSPOTS
 ========================================================= */
 
-function renderHotspots() {
+function renderHotspots(){
 
-  while (
+  while(
     hotspotContainer.firstChild
-  ) {
+  ){
 
     hotspotContainer.removeChild(
       hotspotContainer.firstChild
@@ -980,25 +1059,13 @@ function renderHotspots() {
 
 
   hotspots.forEach(
-    (hotspot, index) => {
+    (hotspot,index)=>{
 
       const position =
         sphericalToVector(
           hotspot.yaw,
           hotspot.pitch,
           8
-        );
-
-
-      const canvas =
-        makeHotspotCanvas(
-          index + 1
-        );
-
-
-      const dataURL =
-        canvas.toDataURL(
-          "image/png"
         );
 
 
@@ -1010,7 +1077,11 @@ function renderHotspots() {
 
       marker.setAttribute(
         "src",
-        dataURL
+        makeHotspotCanvas(
+          index+1
+        ).toDataURL(
+          "image/png"
+        )
       );
 
 
@@ -1033,22 +1104,10 @@ function renderHotspots() {
 
 
       marker.setAttribute(
-        "transparent",
-        "true"
-      );
-
-
-      marker.setAttribute(
         "material",
-        "shader: flat; transparent: true; alphaTest: 0.05"
+        "shader:flat; transparent:true; alphaTest:0.05"
       );
 
-
-      /*
-        Billboard:
-        A-Frame look-at component ni v osnovnem A-Frame,
-        zato marker ročno obračamo proti centru.
-      */
 
       marker.setAttribute(
         "look-at-center",
@@ -1065,30 +1124,38 @@ function renderHotspots() {
         hotspot.id;
 
 
+      /*
+        Desktop click + A-Frame gaze click.
+
+        Mobilni tap za dodajanje je ločeno obdelan spodaj.
+      */
+
       marker.addEventListener(
         "click",
-        () => {
+        event=>{
 
           /*
-            V VR:
-            samo reader kartica.
-
-            Normalno:
-            HTML popup.
+            Če ravno dodajamo nov hotspot,
+            klik na obstoječ marker ignoriramo.
           */
 
-          if (
+          if(addMode){
+            return;
+          }
+
+
+          if(
             scene.is(
               "vr-mode"
             )
-          ) {
+          ){
 
             showVRInfo(
               hotspot.id
             );
 
           }
-          else {
+          else{
 
             openReader(
               hotspot.id
@@ -1111,95 +1178,6 @@ function renderHotspots() {
 
 
 /* =========================================================
-   BILLBOARD COMPONENT
-
-   Marker je vedno obrnjen proti uporabniku.
-========================================================= */
-
-AFRAME.registerComponent(
-  "look-at-center",
-  {
-
-    tick: function () {
-
-      if (
-        !this.el.object3D
-      ) {
-        return;
-      }
-
-
-      this.el.object3D.lookAt(
-        0,
-        0,
-        0
-      );
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   VR INFO CARD BILLBOARD
-========================================================= */
-
-AFRAME.registerComponent(
-  "vr-card-face-camera",
-  {
-
-    tick: function () {
-
-      if (
-        !this.el.object3D ||
-        !camera ||
-        !camera.object3D
-      ) {
-        return;
-      }
-
-
-      const cameraPosition =
-        new THREE.Vector3();
-
-
-      camera.object3D.getWorldPosition(
-        cameraPosition
-      );
-
-
-      this.el.object3D.lookAt(
-        cameraPosition
-      );
-
-    }
-
-  }
-);
-
-
-vrInfo.setAttribute(
-  "vr-card-face-camera",
-  ""
-);
-
-
-/* =========================================================
-   INITIAL HOTSPOTS
-========================================================= */
-
-scene.addEventListener(
-  "loaded",
-  () => {
-
-    renderHotspots();
-
-  }
-);
-
-
-/* =========================================================
    POPUP
 ========================================================= */
 
@@ -1207,10 +1185,13 @@ let selectedHotspotId =
   null;
 
 
-function closePopup() {
+function closePopup(){
 
   popup.style.display =
     "none";
+
+  popup.style.visibility =
+    "visible";
 
   selectedHotspotId =
     null;
@@ -1218,13 +1199,13 @@ function closePopup() {
 }
 
 
-function openReader(id) {
+function openReader(id){
 
   const hotspot =
     getHotspot(id);
 
 
-  if (!hotspot) {
+  if(!hotspot){
     return;
   }
 
@@ -1255,18 +1236,22 @@ function openReader(id) {
     "block";
 
 
+  popup.style.visibility =
+    "visible";
+
+
   positionPopup();
 
 }
 
 
-function openEditor(id) {
+function openEditor(id){
 
   const hotspot =
     getHotspot(id);
 
 
-  if (!hotspot) {
+  if(!hotspot){
     return;
   }
 
@@ -1276,13 +1261,11 @@ function openEditor(id) {
 
 
   titleInput.value =
-    hotspot.title ||
-    "";
+    hotspot.title || "";
 
 
   descriptionInput.value =
-    hotspot.description ||
-    "";
+    hotspot.description || "";
 
 
   reader.style.display =
@@ -1297,7 +1280,17 @@ function openEditor(id) {
     "block";
 
 
+  popup.style.visibility =
+    "visible";
+
+
   positionPopup();
+
+
+  /*
+    Na telefonu ne odpiramo tipkovnice avtomatsko.
+    Uporabnik sam tapne polje.
+  */
 
 }
 
@@ -1307,11 +1300,9 @@ popupClose.onclick =
 
 
 editBtn.onclick =
-  () => {
+  ()=>{
 
-    if (
-      selectedHotspotId
-    ) {
+    if(selectedHotspotId){
 
       openEditor(
         selectedHotspotId
@@ -1323,7 +1314,7 @@ editBtn.onclick =
 
 
 saveBtn.onclick =
-  () => {
+  ()=>{
 
     const hotspot =
       getHotspot(
@@ -1331,7 +1322,7 @@ saveBtn.onclick =
       );
 
 
-    if (!hotspot) {
+    if(!hotspot){
       return;
     }
 
@@ -1346,7 +1337,9 @@ saveBtn.onclick =
 
     saveHotspots();
 
+
     renderHotspots();
+
 
     openReader(
       hotspot.id
@@ -1356,7 +1349,7 @@ saveBtn.onclick =
 
 
 cancelBtn.onclick =
-  () => {
+  ()=>{
 
     const hotspot =
       getHotspot(
@@ -1364,20 +1357,20 @@ cancelBtn.onclick =
       );
 
 
-    if (
+    if(
       hotspot &&
       (
         hotspot.title ||
         hotspot.description
       )
-    ) {
+    ){
 
       openReader(
         hotspot.id
       );
 
     }
-    else {
+    else{
 
       closePopup();
 
@@ -1387,11 +1380,9 @@ cancelBtn.onclick =
 
 
 deleteBtn.onclick =
-  () => {
+  ()=>{
 
-    if (
-      !selectedHotspotId
-    ) {
+    if(!selectedHotspotId){
       return;
     }
 
@@ -1406,7 +1397,9 @@ deleteBtn.onclick =
 
     saveHotspots();
 
+
     closePopup();
+
 
     renderHotspots();
 
@@ -1417,26 +1410,13 @@ deleteBtn.onclick =
    POPUP POSITION
 ========================================================= */
 
-function positionPopup() {
+function positionPopup(){
 
-  if (
+  if(
     !selectedHotspotId ||
     popup.style.display === "none" ||
     scene.is("vr-mode")
-  ) {
-
-    return;
-
-  }
-
-
-  const hotspot =
-    getHotspot(
-      selectedHotspotId
-    );
-
-
-  if (!hotspot) {
+  ){
     return;
   }
 
@@ -1444,20 +1424,18 @@ function positionPopup() {
   const marker =
     [...hotspotContainer.children]
       .find(
-        el =>
-          el.dataset.hotspotId ===
+        element =>
+          element.dataset.hotspotId ===
           selectedHotspotId
       );
 
 
-  if (
+  if(
     !marker ||
     !marker.object3D ||
     !scene.camera
-  ) {
-
+  ){
     return;
-
   }
 
 
@@ -1470,12 +1448,12 @@ function positionPopup() {
   );
 
 
-  const cameraWorld =
+  const cameraPosition =
     new THREE.Vector3();
 
 
   scene.camera.getWorldPosition(
-    cameraWorld
+    cameraPosition
   );
 
 
@@ -1488,24 +1466,20 @@ function positionPopup() {
   );
 
 
-  const toMarker =
+  const markerDirection =
     worldPosition
       .clone()
       .sub(
-        cameraWorld
+        cameraPosition
       )
       .normalize();
 
 
-  /*
-    Hotspot za kamero.
-  */
-
-  if (
+  if(
     cameraDirection.dot(
-      toMarker
+      markerDirection
     ) <= 0
-  ) {
+  ){
 
     popup.style.visibility =
       "hidden";
@@ -1526,18 +1500,18 @@ function positionPopup() {
 
   const x =
     (
-      worldPosition.x + 1
+      worldPosition.x+1
     ) *
     0.5 *
-    window.innerWidth;
+    innerWidth;
 
 
   const y =
     (
-      -worldPosition.y + 1
+      -worldPosition.y+1
     ) *
     0.5 *
-    window.innerHeight;
+    innerHeight;
 
 
   const width =
@@ -1551,73 +1525,99 @@ function positionPopup() {
   let left;
 
 
-  if (
+  if(
     x <
-    window.innerWidth / 2
-  ) {
+    innerWidth/2
+  ){
 
     left =
-      x + 28;
+      x+28;
 
   }
-  else {
+  else{
 
     left =
-      x -
-      width -
-      28;
+      x-width-28;
 
   }
 
 
   let top =
-    y -
-    height / 2;
+    y-height/2;
 
 
   left =
-    Math.max(
+    THREE.MathUtils.clamp(
+      left,
       8,
-      Math.min(
-        window.innerWidth -
-        width -
-        8,
-        left
-      )
+      innerWidth-width-8
     );
 
 
   top =
-    Math.max(
+    THREE.MathUtils.clamp(
+      top,
       8,
-      Math.min(
-        window.innerHeight -
-        height -
-        8,
-        top
-      )
+      innerHeight-height-8
     );
 
 
   popup.style.left =
-    left + "px";
+    left+"px";
 
 
   popup.style.top =
-    top + "px";
+    top+"px";
 
 }
 
 
 /* =========================================================
-   ADD HOTSPOT
+   ADD MODE
 ========================================================= */
 
 let addMode =
   false;
 
 
-function stopAddMode() {
+function startAddMode(){
+
+  if(
+    scene.is(
+      "vr-mode"
+    )
+  ){
+    return;
+  }
+
+
+  closePopup();
+
+
+  addMode =
+    true;
+
+
+  addBtn.classList.add(
+    "active"
+  );
+
+
+  addBtn.textContent =
+    "PREKLIČI";
+
+
+  hint.textContent =
+    "Tapni točno mesto v panorami";
+
+
+  hint.style.display =
+    "block";
+
+}
+
+
+function stopAddMode(){
 
   addMode =
     false;
@@ -1638,247 +1638,494 @@ function stopAddMode() {
 }
 
 
-addBtn.onclick =
-  () => {
+addBtn.addEventListener(
+  "click",
+  event=>{
 
-    if (
-      scene.is(
-        "vr-mode"
-      )
-    ) {
+    /*
+      Preprečimo, da isti klik/tap, s katerim smo vključili
+      addMode, takoj ustvari tudi hotspot na canvasu.
+    */
 
-      return;
-
-    }
+    event.stopPropagation();
 
 
-    closePopup();
-
-
-    addMode =
-      !addMode;
-
-
-    if (
-      addMode
-    ) {
-
-      addBtn.classList.add(
-        "active"
-      );
-
-
-      addBtn.textContent =
-        "Klikni v panoramo";
-
-
-      hint.style.display =
-        "block";
-
-    }
-    else {
+    if(addMode){
 
       stopAddMode();
 
     }
+    else{
 
-  };
+      startAddMode();
 
-
-/* =========================================================
-   CLICK ON PANORAMA TO ADD HOTSPOT
-
-   Uporabimo A-Frame/Three.js kamero in raycaster.
-========================================================= */
-
-scene.addEventListener(
-  "loaded",
-  () => {
-
-    const sceneCanvas =
-      scene.canvas;
-
-
-    sceneCanvas.addEventListener(
-      "click",
-      event => {
-
-        if (
-          !addMode ||
-          scene.is(
-            "vr-mode"
-          )
-        ) {
-
-          return;
-
-        }
-
-
-        /*
-          Če smo kliknili obstoječi hotspot,
-          ne dodamo novega.
-        */
-
-        if (
-          event.target &&
-          event.target.closest &&
-          event.target.closest(
-            ".hotspot"
-          )
-        ) {
-
-          return;
-
-        }
-
-
-        const rect =
-          sceneCanvas.getBoundingClientRect();
-
-
-        const mouse =
-          new THREE.Vector2(
-
-            (
-              (
-                event.clientX -
-                rect.left
-              ) /
-              rect.width
-            ) *
-            2 -
-            1,
-
-            -(
-              (
-                event.clientY -
-                rect.top
-              ) /
-              rect.height
-            ) *
-            2 +
-            1
-
-          );
-
-
-        const raycaster =
-          new THREE.Raycaster();
-
-
-        raycaster.setFromCamera(
-          mouse,
-          scene.camera
-        );
-
-
-        const direction =
-          raycaster
-            .ray
-            .direction
-            .clone()
-            .normalize();
-
-
-        const spherical =
-          vectorToSpherical(
-            direction
-          );
-
-
-        const hotspot = {
-
-          id:
-            "hs-" +
-            Date.now() +
-            "-" +
-            Math.random()
-              .toString(36)
-              .slice(
-                2,
-                7
-              ),
-
-          yaw:
-            spherical.yaw,
-
-          pitch:
-            spherical.pitch,
-
-          title:
-            "",
-
-          description:
-            ""
-
-        };
-
-
-        hotspots.push(
-          hotspot
-        );
-
-
-        saveHotspots();
-
-        renderHotspots();
-
-        stopAddMode();
-
-
-        /*
-          Počakamo en frame,
-          da A-Frame ustvari object3D.
-        */
-
-        requestAnimationFrame(
-          () => {
-
-            openEditor(
-              hotspot.id
-            );
-
-          }
-        );
-
-      }
-    );
+    }
 
   }
 );
 
 
 /* =========================================================
-   ZOOM
+   MOBILE + DESKTOP POINTER HOTSPOT PLACEMENT
 
-   A-Frame kamera uporablja Three.js PerspectiveCamera.
+   TO JE GLAVNA SPREMEMBA.
+
+   Deluje:
+   - mouse
+   - touchscreen
+   - Samsung Galaxy A36
+   - stylus
+
+   Tap = ustvari hotspot.
+   Drag = samo obrača panoramo.
+========================================================= */
+
+let sceneCanvas =
+  null;
+
+
+let pointerTracking =
+  false;
+
+
+let pointerStartX =
+  0;
+
+
+let pointerStartY =
+  0;
+
+
+let pointerStartTime =
+  0;
+
+
+let pointerWasDrag =
+  false;
+
+
+/*
+  Koliko se lahko prst premakne in je še vedno tap.
+
+  Na telefonu potrebujemo nekaj tolerance.
+*/
+
+const TAP_MOVE_LIMIT =
+  14;
+
+
+/*
+  Dolg pritisk ne štejemo kot tap.
+*/
+
+const TAP_TIME_LIMIT =
+  650;
+
+
+/* =========================================================
+   CREATE HOTSPOT FROM SCREEN POSITION
+========================================================= */
+
+function createHotspotAtScreenPoint(
+  clientX,
+  clientY
+){
+
+  if(
+    !sceneCanvas ||
+    !scene.camera
+  ){
+    return;
+  }
+
+
+  const rect =
+    sceneCanvas.getBoundingClientRect();
+
+
+  /*
+    Preverimo, ali je tap dejansko znotraj A-Frame canvas.
+  */
+
+  if(
+    clientX < rect.left ||
+    clientX > rect.right ||
+    clientY < rect.top ||
+    clientY > rect.bottom
+  ){
+    return;
+  }
+
+
+  /*
+    Touch/mouse koordinato pretvorimo v WebGL NDC:
+      X: -1 ... +1
+      Y: -1 ... +1
+  */
+
+  const ndc =
+    new THREE.Vector2(
+
+      (
+        (
+          clientX -
+          rect.left
+        ) /
+        rect.width
+      ) *
+      2 -
+      1,
+
+      -(
+        (
+          clientY -
+          rect.top
+        ) /
+        rect.height
+      ) *
+      2 +
+      1
+
+    );
+
+
+  /*
+    Ray iz trenutne A-Frame kamere skozi točno mesto,
+    ki se ga je uporabnik dotaknil.
+  */
+
+  const raycaster =
+    new THREE.Raycaster();
+
+
+  raycaster.setFromCamera(
+    ndc,
+    scene.camera
+  );
+
+
+  const direction =
+    raycaster
+      .ray
+      .direction
+      .clone()
+      .normalize();
+
+
+  /*
+    Pretvorba v isti yaw/pitch format, ki ga že uporablja
+    stable-360-hotspots-v5.
+  */
+
+  const spherical =
+    vectorToSpherical(
+      direction
+    );
+
+
+  const hotspot = {
+
+    id:
+      "hs-" +
+      Date.now() +
+      "-" +
+      Math.random()
+        .toString(36)
+        .slice(2,7),
+
+    yaw:
+      spherical.yaw,
+
+    pitch:
+      spherical.pitch,
+
+    title:"",
+
+    description:""
+
+  };
+
+
+  hotspots.push(
+    hotspot
+  );
+
+
+  saveHotspots();
+
+
+  renderHotspots();
+
+
+  stopAddMode();
+
+
+  /*
+    Počakamo, da A-Frame vstavi nov marker v 3D sceno,
+    nato odpremo editor ob njem.
+  */
+
+  requestAnimationFrame(
+    ()=>{
+
+      requestAnimationFrame(
+        ()=>{
+
+          openEditor(
+            hotspot.id
+          );
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   INSTALL POINTER EVENTS
+========================================================= */
+
+function installPointerControls(){
+
+  sceneCanvas =
+    scene.canvas;
+
+
+  if(!sceneCanvas){
+    return;
+  }
+
+
+  /*
+    POINTER DOWN
+  */
+
+  sceneCanvas.addEventListener(
+    "pointerdown",
+    event=>{
+
+      if(
+        !addMode ||
+        scene.is(
+          "vr-mode"
+        )
+      ){
+        return;
+      }
+
+
+      /*
+        Samo glavni dotik / levi miškin gumb.
+      */
+
+      if(
+        event.pointerType === "mouse" &&
+        event.button !== 0
+      ){
+        return;
+      }
+
+
+      pointerTracking =
+        true;
+
+
+      pointerWasDrag =
+        false;
+
+
+      pointerStartX =
+        event.clientX;
+
+
+      pointerStartY =
+        event.clientY;
+
+
+      pointerStartTime =
+        performance.now();
+
+    },
+    true
+  );
+
+
+  /*
+    POINTER MOVE
+
+    Če se prst dovolj premakne, gre za drag in ne za tap.
+  */
+
+  sceneCanvas.addEventListener(
+    "pointermove",
+    event=>{
+
+      if(
+        !pointerTracking ||
+        !addMode
+      ){
+        return;
+      }
+
+
+      const distance =
+        Math.hypot(
+
+          event.clientX -
+          pointerStartX,
+
+          event.clientY -
+          pointerStartY
+
+        );
+
+
+      if(
+        distance >
+        TAP_MOVE_LIMIT
+      ){
+
+        pointerWasDrag =
+          true;
+
+      }
+
+    },
+    true
+  );
+
+
+  /*
+    POINTER CANCEL
+  */
+
+  sceneCanvas.addEventListener(
+    "pointercancel",
+    ()=>{
+
+      pointerTracking =
+        false;
+
+      pointerWasDrag =
+        false;
+
+    },
+    true
+  );
+
+
+  /*
+    POINTER UP
+
+    Če ni bil drag:
+    ustvari hotspot TOČNO na mestu dotika.
+  */
+
+  sceneCanvas.addEventListener(
+    "pointerup",
+    event=>{
+
+      if(
+        !pointerTracking
+      ){
+        return;
+      }
+
+
+      pointerTracking =
+        false;
+
+
+      if(
+        !addMode ||
+        scene.is(
+          "vr-mode"
+        )
+      ){
+        return;
+      }
+
+
+      const duration =
+        performance.now() -
+        pointerStartTime;
+
+
+      const distance =
+        Math.hypot(
+
+          event.clientX -
+          pointerStartX,
+
+          event.clientY -
+          pointerStartY
+
+        );
+
+
+      if(
+        pointerWasDrag ||
+        distance >
+        TAP_MOVE_LIMIT ||
+        duration >
+        TAP_TIME_LIMIT
+      ){
+
+        pointerWasDrag =
+          false;
+
+        return;
+
+      }
+
+
+      pointerWasDrag =
+        false;
+
+
+      /*
+        Uporabimo končni položaj tapa.
+      */
+
+      createHotspotAtScreenPoint(
+        event.clientX,
+        event.clientY
+      );
+
+    },
+    true
+  );
+
+}
+
+
+/* =========================================================
+   ZOOM
 ========================================================= */
 
 let normalFov =
   80;
 
 
-function setFov(
-  value
-) {
+function setFov(value){
 
   normalFov =
-    Math.max(
+    THREE.MathUtils.clamp(
+      value,
       35,
-      Math.min(
-        100,
-        value
-      )
+      100
     );
 
 
-  if (
+  if(
     camera &&
     camera.components &&
     camera.components.camera &&
     camera.components.camera.camera
-  ) {
+  ){
 
     const threeCamera =
       camera
@@ -1899,74 +2146,23 @@ function setFov(
 
 
 zoomInBtn.onclick =
-  () => {
+  ()=>{
 
     setFov(
-      normalFov - 8
+      normalFov-8
     );
 
   };
 
 
 zoomOutBtn.onclick =
-  () => {
+  ()=>{
 
     setFov(
-      normalFov + 8
+      normalFov+8
     );
 
   };
-
-
-scene.addEventListener(
-  "loaded",
-  () => {
-
-    setFov(
-      normalFov
-    );
-
-
-    scene.canvas.addEventListener(
-      "wheel",
-      event => {
-
-        if (
-          scene.is(
-            "vr-mode"
-          )
-        ) {
-
-          return;
-
-        }
-
-
-        event.preventDefault();
-
-
-        setFov(
-
-          normalFov +
-
-          (
-            event.deltaY > 0
-              ? 4
-              : -4
-          )
-
-        );
-
-      },
-
-      {
-        passive: false
-      }
-
-    );
-
-  }
-);
 
 
 /* =========================================================
@@ -1974,18 +2170,18 @@ scene.addEventListener(
 ========================================================= */
 
 fullscreenBtn.onclick =
-  async () => {
+  async ()=>{
 
-    try {
+    try{
 
-      if (
+      if(
         !document.fullscreenElement
-      ) {
+      ){
 
-        if (
+        if(
           document.documentElement
             .requestFullscreen
-        ) {
+        ){
 
           await document
             .documentElement
@@ -1994,30 +2190,26 @@ fullscreenBtn.onclick =
         }
 
       }
-      else {
+      else if(
+        document.exitFullscreen
+      ){
 
-        if (
-          document.exitFullscreen
-        ) {
-
-          await document
-            .exitFullscreen();
-
-        }
+        await document
+          .exitFullscreen();
 
       }
 
     }
-    catch (e) {}
+    catch(e){}
 
   };
 
 
 /* =========================================================
-   VR INFO CARD
+   VR INFO
 ========================================================= */
 
-function hideVRInfo() {
+function hideVRInfo(){
 
   vrInfo.setAttribute(
     "visible",
@@ -2027,13 +2219,13 @@ function hideVRInfo() {
 }
 
 
-function showVRInfo(id) {
+function showVRInfo(id){
 
   const hotspot =
     getHotspot(id);
 
 
-  if (!hotspot) {
+  if(!hotspot){
     return;
   }
 
@@ -2052,15 +2244,7 @@ function showVRInfo(id) {
   );
 
 
-  /*
-    Postavimo kartico 2.6 m pred trenutno smer pogleda.
-  */
-
-  const threeCamera =
-    scene.camera;
-
-
-  if (!threeCamera) {
+  if(!scene.camera){
     return;
   }
 
@@ -2073,12 +2257,12 @@ function showVRInfo(id) {
     new THREE.Vector3();
 
 
-  threeCamera.getWorldPosition(
+  scene.camera.getWorldPosition(
     cameraPosition
   );
 
 
-  threeCamera.getWorldDirection(
+  scene.camera.getWorldDirection(
     direction
   );
 
@@ -2087,10 +2271,13 @@ function showVRInfo(id) {
     cameraPosition
       .clone()
       .add(
+
         direction
+          .clone()
           .multiplyScalar(
             2.6
           )
+
       );
 
 
@@ -2113,19 +2300,12 @@ function showVRInfo(id) {
 
 
 /* =========================================================
-   RETICLE / DWELL
-
-   A-Frame cursor s fuseTimeout 1200 naredi gaze click.
+   GAZE
 ========================================================= */
 
 reticle.addEventListener(
   "fusing",
-  event => {
-
-    /*
-      Vizualna indikacija:
-      reticle med 1.2 s postane zelen.
-    */
+  ()=>{
 
     reticle.setAttribute(
       "material",
@@ -2139,7 +2319,7 @@ reticle.addEventListener(
 
 reticle.addEventListener(
   "mouseleave",
-  () => {
+  ()=>{
 
     reticle.setAttribute(
       "material",
@@ -2153,40 +2333,35 @@ reticle.addEventListener(
 
 reticle.addEventListener(
   "click",
-  event => {
+  event=>{
+
+    if(
+      !scene.is(
+        "vr-mode"
+      )
+    ){
+      return;
+    }
+
 
     const target =
       event.detail &&
       event.detail.intersectedEl;
 
 
-    if (
+    if(
       !target ||
       !target.classList.contains(
         "hotspot"
       )
-    ) {
-
+    ){
       return;
-
     }
 
 
-    const id =
-      target.dataset.hotspotId;
-
-
-    if (
-      scene.is(
-        "vr-mode"
-      )
-    ) {
-
-      showVRInfo(
-        id
-      );
-
-    }
+    showVRInfo(
+      target.dataset.hotspotId
+    );
 
   }
 );
@@ -2200,29 +2375,25 @@ let wakeLock =
   null;
 
 
-async function acquireWakeLock() {
+async function acquireWakeLock(){
 
-  if (
+  if(
     !(
       "wakeLock" in
       navigator
     )
-  ) {
-
+  ){
     return;
-
   }
 
 
-  try {
+  try{
 
-    if (
+    if(
       wakeLock &&
       !wakeLock.released
-    ) {
-
+    ){
       return;
-
     }
 
 
@@ -2236,7 +2407,7 @@ async function acquireWakeLock() {
 
     wakeLock.addEventListener(
       "release",
-      () => {
+      ()=>{
 
         wakeLock =
           null;
@@ -2245,28 +2416,24 @@ async function acquireWakeLock() {
     );
 
   }
-  catch (e) {}
+  catch(e){}
 
 }
 
 
-async function releaseWakeLock() {
+async function releaseWakeLock(){
 
-  if (
-    !wakeLock
-  ) {
-
+  if(!wakeLock){
     return;
-
   }
 
 
-  try {
+  try{
 
     await wakeLock.release();
 
   }
-  catch (e) {}
+  catch(e){}
 
 
   wakeLock =
@@ -2276,11 +2443,11 @@ async function releaseWakeLock() {
 
 
 /* =========================================================
-   CARDBOARD BUTTON
+   CARDBOARD
 ========================================================= */
 
 vrBtn.onclick =
-  () => {
+  ()=>{
 
     closePopup();
 
@@ -2293,7 +2460,7 @@ vrBtn.onclick =
 
 
 cancelVRBtn.onclick =
-  () => {
+  ()=>{
 
     vrStart.style.display =
       "none";
@@ -2302,33 +2469,33 @@ cancelVRBtn.onclick =
 
 
 startVRBtn.onclick =
-  async () => {
+  async ()=>{
 
     /*
       iOS motion permission.
-      Samsung/Android tega običajno ne potrebuje.
+      Galaxy A36 / Android tega običajno ne zahteva.
     */
 
-    if (
+    if(
       typeof DeviceOrientationEvent !==
         "undefined" &&
 
       typeof DeviceOrientationEvent
         .requestPermission ===
         "function"
-    ) {
+    ){
 
-      try {
+      try{
 
         const permission =
           await DeviceOrientationEvent
             .requestPermission();
 
 
-        if (
+        if(
           permission !==
           "granted"
-        ) {
+        ){
 
           alert(
             "Dovoljenje za senzor gibanja ni bilo odobreno."
@@ -2339,7 +2506,7 @@ startVRBtn.onclick =
         }
 
       }
-      catch (e) {
+      catch(e){
 
         return;
 
@@ -2353,15 +2520,15 @@ startVRBtn.onclick =
 
 
     /*
-      Poskus landscape orientacije.
+      Landscape.
     */
 
-    try {
+    try{
 
-      if (
+      if(
         screen.orientation &&
         screen.orientation.lock
-      ) {
+      ){
 
         await screen.orientation.lock(
           "landscape"
@@ -2370,27 +2537,21 @@ startVRBtn.onclick =
       }
 
     }
-    catch (e) {}
+    catch(e){}
 
 
     /*
-      KLJUČNA SPREMEMBA:
+      A-FRAME PREVZAME VR.
 
-      Ne ustvarjamo svojih:
-      - StereoCamera
-      - shaderjev
-      - render targetov
-      - left/right viewportov
-
-      A-Frame vstopi v VR.
+      Tega dela ne nadomeščamo več z lastnim rendererjem.
     */
 
-    try {
+    try{
 
       await scene.enterVR();
 
     }
-    catch (e) {
+    catch(e){
 
       alert(
         "Brskalnik ni uspel zagnati VR načina."
@@ -2407,19 +2568,17 @@ startVRBtn.onclick =
 
 scene.addEventListener(
   "enter-vr",
-  async () => {
+  async ()=>{
+
+    stopAddMode();
+
+    closePopup();
 
     toolbar.style.display =
       "none";
 
-
-    popup.style.display =
-      "none";
-
-
     hint.style.display =
       "none";
-
 
     hideVRInfo();
 
@@ -2439,7 +2598,7 @@ scene.addEventListener(
 
 scene.addEventListener(
   "exit-vr",
-  async () => {
+  async ()=>{
 
     toolbar.style.display =
       "flex";
@@ -2455,19 +2614,19 @@ scene.addEventListener(
     await releaseWakeLock();
 
 
-    try {
+    try{
 
-      if (
+      if(
         screen.orientation &&
         screen.orientation.unlock
-      ) {
+      ){
 
         screen.orientation.unlock();
 
       }
 
     }
-    catch (e) {}
+    catch(e){}
 
   }
 );
@@ -2477,13 +2636,13 @@ scene.addEventListener(
    ORIENTATION
 ========================================================= */
 
-function checkOrientation() {
+function checkOrientation(){
 
-  if (
+  if(
     !scene.is(
       "vr-mode"
     )
-  ) {
+  ){
 
     rotateWarning.style.display =
       "none";
@@ -2493,16 +2652,16 @@ function checkOrientation() {
   }
 
 
-  if (
-    window.innerHeight >
-    window.innerWidth
-  ) {
+  if(
+    innerHeight >
+    innerWidth
+  ){
 
     rotateWarning.style.display =
       "flex";
 
   }
-  else {
+  else{
 
     rotateWarning.style.display =
       "none";
@@ -2520,7 +2679,7 @@ window.addEventListener(
 
 window.addEventListener(
   "orientationchange",
-  () => {
+  ()=>{
 
     setTimeout(
       checkOrientation,
@@ -2537,16 +2696,16 @@ window.addEventListener(
 
 document.addEventListener(
   "visibilitychange",
-  () => {
+  ()=>{
 
-    if (
+    if(
       document.visibilityState ===
         "visible" &&
 
       scene.is(
         "vr-mode"
       )
-    ) {
+    ){
 
       acquireWakeLock();
 
@@ -2557,21 +2716,91 @@ document.addEventListener(
 
 
 /* =========================================================
-   POPUP FOLLOW HOTSPOT
+   SCENE READY
 ========================================================= */
 
-function uiLoop() {
+scene.addEventListener(
+  "loaded",
+  ()=>{
+
+    renderHotspots();
+
+
+    /*
+      Namestimo TOUCH + MOUSE pointer podporo.
+    */
+
+    installPointerControls();
+
+
+    setFov(
+      normalFov
+    );
+
+
+    /*
+      Mouse wheel zoom samo na desktopu.
+    */
+
+    if(scene.canvas){
+
+      scene.canvas.addEventListener(
+        "wheel",
+        event=>{
+
+          if(
+            scene.is(
+              "vr-mode"
+            )
+          ){
+            return;
+          }
+
+
+          event.preventDefault();
+
+
+          setFov(
+
+            normalFov +
+
+            (
+              event.deltaY > 0
+                ? 4
+                : -4
+            )
+
+          );
+
+        },
+
+        {
+          passive:false
+        }
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   UI LOOP
+========================================================= */
+
+function uiLoop(){
 
   requestAnimationFrame(
     uiLoop
   );
 
 
-  if (
+  if(
     !scene.is(
       "vr-mode"
     )
-  ) {
+  ){
 
     positionPopup();
 
