@@ -3,488 +3,519 @@
 <head>
 <meta charset="utf-8">
 
-<meta name="viewport"
-content="width=device-width,
-initial-scale=1,
-maximum-scale=1,
-user-scalable=no,
-viewport-fit=cover">
+<meta
+  name="viewport"
+  content="width=device-width,
+           initial-scale=1,
+           maximum-scale=1,
+           user-scalable=no,
+           viewport-fit=cover">
 
-<title>360 Stereo Cardboard</title>
+<title>360° Samsung Galaxy A36 Cardboard</title>
 
 <style>
-*{box-sizing:border-box}
-
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#000;
-    font-family:Arial,sans-serif;
+*{
+  box-sizing:border-box;
 }
 
-#canvas{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    display:block;
-    background:#000;
-    touch-action:none;
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  font-family:Arial,Helvetica,sans-serif;
+  overscroll-behavior:none;
 }
 
-/* =========================
+body{
+  touch-action:none;
+}
+
+#c{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  background:#000;
+  touch-action:none;
+}
+
+/* =========================================================
    NORMAL UI
-========================= */
+========================================================= */
 
 #toolbar{
-    position:fixed;
-    z-index:20;
-    left:10px;
-    top:10px;
+  position:fixed;
+  z-index:20;
+  top:10px;
+  left:10px;
 
-    display:flex;
-    gap:7px;
-    flex-wrap:wrap;
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
 
-    padding:8px;
+  padding:8px;
 
-    border-radius:14px;
-    background:rgba(0,0,0,.78);
+  border-radius:14px;
+  background:rgba(0,0,0,.82);
 }
 
 button{
-    border:0;
-    border-radius:9px;
-    padding:11px 13px;
+  min-height:40px;
+  padding:0 12px;
 
-    background:#333;
-    color:#fff;
+  border:0;
+  border-radius:9px;
 
-    font-weight:bold;
-    cursor:pointer;
+  background:#333;
+  color:#fff;
+
+  font-weight:700;
+  cursor:pointer;
 }
 
-#addBtn{background:#2563eb}
-#cardboardBtn{background:#7c3aed}
+#addBtn{
+  background:#2563eb;
+}
+
+#addBtn.active{
+  background:#16a34a;
+}
+
+#cardboardBtn{
+  background:#7c3aed;
+}
 
 #hint{
-    display:none;
+  position:fixed;
+  z-index:30;
 
-    position:fixed;
-    z-index:30;
+  display:none;
 
-    left:50%;
-    bottom:25px;
+  left:50%;
+  bottom:22px;
 
-    transform:translateX(-50%);
+  transform:translateX(-50%);
 
-    padding:10px 18px;
+  padding:10px 17px;
 
-    border-radius:25px;
+  border-radius:30px;
 
-    background:rgba(0,0,0,.8);
-    color:#fff;
+  background:rgba(0,0,0,.84);
+  color:#fff;
+
+  pointer-events:none;
 }
 
-/* =========================
-   POPUP
-========================= */
+/* =========================================================
+   HOTSPOT POPUP
+========================================================= */
 
 #popup{
-    display:none;
+  position:fixed;
+  z-index:40;
 
-    position:fixed;
-    z-index:40;
+  display:none;
 
-    width:330px;
-    max-width:calc(100vw - 20px);
+  width:330px;
+  max-width:calc(100vw - 20px);
 
-    padding:18px;
+  padding:18px;
 
-    border-radius:14px;
+  border-radius:14px;
 
-    background:#fff;
-    color:#111;
+  background:#fff;
+  color:#111;
 
-    box-shadow:0 10px 40px rgba(0,0,0,.45);
+  box-shadow:0 12px 45px rgba(0,0,0,.48);
 }
 
 #popupClose{
-    position:absolute;
-    right:8px;
-    top:8px;
+  position:absolute;
 
-    width:30px;
-    height:30px;
+  right:8px;
+  top:8px;
 
-    padding:0;
+  width:30px;
+  height:30px;
+  min-height:0;
 
-    border-radius:50%;
+  padding:0;
 
-    background:#ddd;
-    color:#111;
+  border-radius:50%;
 
-    font-size:20px;
+  background:#e5e5e5;
+  color:#111;
+
+  font-size:21px;
 }
 
 #reader,
 #editor{
-    display:none;
+  display:none;
 }
 
-#reader h2{
-    margin:0 35px 10px 0;
+#readerTitle{
+  margin:0 38px 10px 0;
 }
 
 #readerDescription{
-    white-space:pre-wrap;
-    line-height:1.45;
-    margin-bottom:14px;
+  margin-bottom:15px;
+
+  white-space:pre-wrap;
+  line-height:1.45;
 }
 
 #editBtn{
-    width:100%;
-    background:#2563eb;
+  width:100%;
+  background:#2563eb;
 }
 
-label{
-    display:block;
-    margin:8px 0 4px;
-    font-weight:bold;
-    font-size:13px;
+.fieldLabel{
+  display:block;
+
+  margin:9px 0 4px;
+
+  font-size:13px;
+  font-weight:700;
 }
 
-input,
-textarea{
-    width:100%;
+#titleInput,
+#descriptionInput{
+  width:100%;
 
-    padding:10px;
+  padding:10px;
 
-    border:1px solid #aaa;
-    border-radius:8px;
+  border:1px solid #aaa;
+  border-radius:8px;
 
-    font:inherit;
+  font:inherit;
 }
 
-textarea{
-    min-height:110px;
-    resize:vertical;
+#descriptionInput{
+  min-height:110px;
+  resize:vertical;
 }
 
 .editorButtons{
-    display:flex;
-    gap:6px;
-    margin-top:10px;
+  display:flex;
+  gap:6px;
+
+  margin-top:10px;
 }
 
 .editorButtons button{
-    flex:1;
+  flex:1;
 }
 
-#saveBtn{background:#16a34a}
-#cancelBtn{background:#777}
-#deleteBtn{background:#dc2626}
-
-/* =========================
-   START MODAL
-========================= */
-
-#startModal{
-    display:none;
-
-    position:fixed;
-    inset:0;
-    z-index:100;
-
-    align-items:center;
-    justify-content:center;
-
-    padding:20px;
-
-    background:rgba(0,0,0,.94);
+#saveBtn{
+  background:#16a34a;
 }
 
-#startBox{
-    width:390px;
-    max-width:100%;
-
-    padding:24px;
-
-    border-radius:16px;
-
-    background:#fff;
-    color:#111;
-
-    text-align:center;
+#cancelBtn{
+  background:#666;
 }
 
-#startBox button{
-    width:100%;
-    margin-top:8px;
+#deleteBtn{
+  background:#dc2626;
 }
 
-#startVR{
-    background:#7c3aed;
+/* =========================================================
+   CARDBOARD START
+========================================================= */
+
+#vrStart{
+  position:fixed;
+  inset:0;
+  z-index:100;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+
+  background:rgba(0,0,0,.94);
 }
 
-#cancelVR{
-    background:#777;
+#vrStartBox{
+  width:390px;
+  max-width:100%;
+
+  padding:24px;
+
+  border-radius:16px;
+
+  background:#fff;
+  color:#111;
+
+  text-align:center;
 }
 
-/* =========================
-   VR UI
-========================= */
+#vrStartBox h2{
+  margin-top:0;
+}
+
+#vrStartBox button{
+  width:100%;
+  margin-top:8px;
+}
+
+#startVRBtn{
+  background:#7c3aed;
+}
+
+#cancelVRBtn{
+  background:#666;
+}
+
+/* =========================================================
+   VR HTML UI
+========================================================= */
 
 #vrUI{
-    display:none;
+  position:fixed;
+  inset:0;
+  z-index:80;
 
-    position:fixed;
-    inset:0;
+  display:none;
 
-    z-index:80;
-
-    pointer-events:none;
+  pointer-events:none;
 }
+
+/*
+   Optična centra sta postavljena dinamično iz JS.
+*/
 
 .reticle{
-    position:absolute;
+  position:absolute;
 
-    top:50%;
+  width:22px;
+  height:22px;
 
-    width:22px;
-    height:22px;
+  transform:translate(-50%,-50%);
 
-    transform:translate(-50%,-50%);
+  border:2px solid #fff;
+  border-radius:50%;
 
-    border:2px solid white;
-    border-radius:50%;
-
-    box-shadow:
-        0 0 3px #000,
-        0 0 7px #000;
+  box-shadow:
+    0 0 3px #000,
+    0 0 7px #000;
 }
 
-.reticle:after{
-    content:"";
+.reticle::after{
+  content:"";
 
-    position:absolute;
+  position:absolute;
 
-    left:50%;
-    top:50%;
+  left:50%;
+  top:50%;
 
-    width:4px;
-    height:4px;
+  width:4px;
+  height:4px;
 
-    transform:translate(-50%,-50%);
+  transform:translate(-50%,-50%);
 
-    border-radius:50%;
+  border-radius:50%;
 
-    background:#fff;
-}
-
-#reticleL{
-    left:25%;
-}
-
-#reticleR{
-    left:75%;
+  background:#fff;
 }
 
 .reticle.active{
-    animation:gaze 1.2s linear forwards;
+  animation:gazeProgress 1.2s linear forwards;
 }
 
-@keyframes gaze{
-    from{
-        transform:
-            translate(-50%,-50%)
-            scale(1);
-    }
+@keyframes gazeProgress{
+  from{
+    transform:
+      translate(-50%,-50%)
+      scale(1);
+  }
 
-    to{
-        transform:
-            translate(-50%,-50%)
-            scale(1.7);
-    }
+  to{
+    transform:
+      translate(-50%,-50%)
+      scale(1.65);
+  }
 }
 
 #exitVR{
-    position:absolute;
+  position:absolute;
 
-    top:10px;
-    right:10px;
+  top:max(8px,env(safe-area-inset-top));
+  right:max(8px,env(safe-area-inset-right));
 
-    width:45px;
-    height:45px;
+  width:46px;
+  height:46px;
+  min-height:0;
 
-    padding:0;
+  padding:0;
 
-    border-radius:50%;
+  border-radius:50%;
 
-    background:rgba(0,0,0,.72);
+  background:rgba(0,0,0,.75);
 
-    font-size:26px;
+  font-size:27px;
 
-    pointer-events:auto;
+  pointer-events:auto;
 }
 
-/* portrait warning */
-
 #rotateWarning{
-    display:none;
+  position:fixed;
+  inset:0;
+  z-index:200;
 
-    position:fixed;
-    inset:0;
+  display:none;
 
-    z-index:200;
+  align-items:center;
+  justify-content:center;
 
-    align-items:center;
-    justify-content:center;
+  padding:30px;
 
-    padding:30px;
+  background:#000;
+  color:#fff;
 
-    background:#000;
-    color:#fff;
+  text-align:center;
 
-    text-align:center;
-
-    font-size:22px;
-    font-weight:bold;
+  font-size:22px;
+  font-weight:700;
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="canvas"></canvas>
+<canvas id="c"></canvas>
 
 <div id="toolbar">
 
-    <button id="addBtn">
-        + Dodaj hotspot
-    </button>
+  <button id="addBtn">
+    + Dodaj hotspot
+  </button>
 
-    <button id="zoomIn">
-        +
-    </button>
+  <button id="zoomInBtn">
+    +
+  </button>
 
-    <button id="zoomOut">
-        −
-    </button>
+  <button id="zoomOutBtn">
+    −
+  </button>
 
-    <button id="fullscreenBtn">
-        ⛶
-    </button>
+  <button id="fullscreenBtn">
+    ⛶
+  </button>
 
-    <button id="cardboardBtn">
-        🥽 CARDBOARD
-    </button>
+  <button id="cardboardBtn">
+    🥽 CARDBOARD
+  </button>
 
 </div>
 
 <div id="hint">
-    Klikni na mesto v panorami
+  Klikni na mesto v panorami
 </div>
 
 <div id="popup">
 
-    <button id="popupClose">
-        ×
+  <button id="popupClose">
+    ×
+  </button>
+
+  <div id="reader">
+
+    <h2 id="readerTitle"></h2>
+
+    <div id="readerDescription"></div>
+
+    <button id="editBtn">
+      Uredi
     </button>
 
-    <div id="reader">
+  </div>
 
-        <h2 id="readerTitle"></h2>
+  <div id="editor">
 
-        <div id="readerDescription"></div>
+    <label class="fieldLabel">
+      Naslov
+    </label>
 
-        <button id="editBtn">
-            Uredi
-        </button>
+    <input
+      id="titleInput"
+      type="text">
 
-    </div>
+    <label class="fieldLabel">
+      Opis
+    </label>
 
-    <div id="editor">
+    <textarea id="descriptionInput"></textarea>
 
-        <label>Naslov</label>
+    <div class="editorButtons">
 
-        <input
-            id="titleInput"
-            type="text">
+      <button id="saveBtn">
+        Shrani
+      </button>
 
-        <label>Opis</label>
+      <button id="cancelBtn">
+        Prekliči
+      </button>
 
-        <textarea
-            id="descriptionInput">
-        </textarea>
-
-        <div class="editorButtons">
-
-            <button id="saveBtn">
-                Shrani
-            </button>
-
-            <button id="cancelBtn">
-                Prekliči
-            </button>
-
-            <button id="deleteBtn">
-                Izbriši
-            </button>
-
-        </div>
+      <button id="deleteBtn">
+        Izbriši
+      </button>
 
     </div>
+
+  </div>
 
 </div>
 
-<div id="startModal">
+<div id="vrStart">
 
-    <div id="startBox">
+  <div id="vrStartBox">
 
-        <h2>🥽 Cardboard stereo</h2>
+    <h2>Samsung Galaxy A36</h2>
 
-        <p>
-            Obrni Samsung Galaxy A36 vodoravno.
-            Vsako oko bo dobilo svoj stereo pogled.
-        </p>
+    <p>
+      Obrni telefon vodoravno in vstavi ga v Cardboard očala.
+    </p>
 
-        <button id="startVR">
-            ZAŽENI CARDBOARD
-        </button>
+    <button id="startVRBtn">
+      ZAŽENI STEREO
+    </button>
 
-        <button id="cancelVR">
-            Prekliči
-        </button>
+    <button id="cancelVRBtn">
+      Prekliči
+    </button>
 
-    </div>
+  </div>
 
 </div>
 
 <div id="vrUI">
 
-    <div
-        id="reticleL"
-        class="reticle">
-    </div>
+  <div
+    id="reticleL"
+    class="reticle">
+  </div>
 
-    <div
-        id="reticleR"
-        class="reticle">
-    </div>
+  <div
+    id="reticleR"
+    class="reticle">
+  </div>
 
-    <button id="exitVR">
-        ×
-    </button>
+  <button id="exitVR">
+    ×
+  </button>
 
 </div>
 
 <div id="rotateWarning">
-    Obrni telefon vodoravno
+  Obrni Samsung Galaxy A36 vodoravno
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
@@ -496,207 +527,306 @@ textarea{
 ========================================================= */
 
 const $ =
-    id => document.getElementById(id);
+  id => document.getElementById(id);
 
 const canvas =
-    $("canvas");
+  $("c");
 
 const toolbar =
-    $("toolbar");
+  $("toolbar");
 
 const addBtn =
-    $("addBtn");
+  $("addBtn");
 
-const zoomIn =
-    $("zoomIn");
+const zoomInBtn =
+  $("zoomInBtn");
 
-const zoomOut =
-    $("zoomOut");
+const zoomOutBtn =
+  $("zoomOutBtn");
 
 const fullscreenBtn =
-    $("fullscreenBtn");
+  $("fullscreenBtn");
 
 const cardboardBtn =
-    $("cardboardBtn");
+  $("cardboardBtn");
 
 const hint =
-    $("hint");
+  $("hint");
 
 const popup =
-    $("popup");
+  $("popup");
 
 const popupClose =
-    $("popupClose");
+  $("popupClose");
 
 const reader =
-    $("reader");
+  $("reader");
 
 const editor =
-    $("editor");
+  $("editor");
 
 const readerTitle =
-    $("readerTitle");
+  $("readerTitle");
 
 const readerDescription =
-    $("readerDescription");
+  $("readerDescription");
 
 const editBtn =
-    $("editBtn");
+  $("editBtn");
 
 const titleInput =
-    $("titleInput");
+  $("titleInput");
 
 const descriptionInput =
-    $("descriptionInput");
+  $("descriptionInput");
 
 const saveBtn =
-    $("saveBtn");
+  $("saveBtn");
 
 const cancelBtn =
-    $("cancelBtn");
+  $("cancelBtn");
 
 const deleteBtn =
-    $("deleteBtn");
+  $("deleteBtn");
 
-const startModal =
-    $("startModal");
+const vrStart =
+  $("vrStart");
 
-const startVR =
-    $("startVR");
+const startVRBtn =
+  $("startVRBtn");
 
-const cancelVR =
-    $("cancelVR");
+const cancelVRBtn =
+  $("cancelVRBtn");
 
 const vrUI =
-    $("vrUI");
+  $("vrUI");
 
 const reticleL =
-    $("reticleL");
+  $("reticleL");
 
 const reticleR =
-    $("reticleR");
+  $("reticleR");
 
 const exitVR =
-    $("exitVR");
+  $("exitVR");
 
 const rotateWarning =
-    $("rotateWarning");
+  $("rotateWarning");
+
+/* =========================================================
+   SAMSUNG GALAXY A36 PROFILE
+========================================================= */
+
+/*
+   Samsung Galaxy A36 5G:
+   physical panel = 1080 x 2340 portrait
+
+   Landscape physical aspect:
+   2340 / 1080 = 2.166666...
+
+   IMPORTANT:
+
+   Browser CSS pixels are NOT assumed to be 2340 x 1080.
+
+   We use the actual browser drawing buffer, but all optical
+   proportions below are defined for the A36 landscape panel.
+*/
+
+const A36 = {
+
+  PHYSICAL_W:2340,
+  PHYSICAL_H:1080,
+
+  PANEL_ASPECT:
+    2340 / 1080,
+
+  /*
+     Stereo eye separation used by Three StereoCamera.
+     Scene units are treated as metres for near 3D objects.
+  */
+
+  EYE_SEP:0.064,
+
+  /*
+     Perspective FOV before lens warp.
+  */
+
+  EYE_FOV:92,
+
+  /*
+     Lens distortion.
+
+     These are deliberately kept together here so they can
+     later be replaced by the exact viewer profile.
+
+     This is NOT claiming that these are Esperanza's factory
+     optical coefficients.
+  */
+
+  K1:0.20,
+  K2:0.07,
+
+  /*
+     Eye image on the A36 display.
+
+     Each eye occupies its own region.
+     These are fractions of the FULL landscape screen.
+
+     There is intentionally black space:
+       - at outer sides
+       - at top/bottom
+       - between the two eyes
+  */
+
+  EYE_W:0.371,
+  EYE_H:0.800,
+
+  LEFT_CX:0.3045,
+  RIGHT_CX:0.6955,
+
+  /*
+     Optical vertical center.
+
+     0.549 means 54.9% from top.
+  */
+
+  CY:0.549,
+
+  /*
+     Pre-scale before radial warp.
+     Prevents excessive clipping.
+  */
+
+  WARP_SCALE:0.76
+};
 
 /* =========================================================
    RENDERER
 ========================================================= */
 
 const renderer =
-    new THREE.WebGLRenderer({
+  new THREE.WebGLRenderer({
 
-        canvas,
+    canvas:canvas,
 
-        antialias:true,
+    antialias:true,
 
-        alpha:false,
+    alpha:false,
 
-        powerPreference:"high-performance"
-    });
-
-renderer.setPixelRatio(
-
-    Math.min(
-        window.devicePixelRatio || 1,
-        2
-    )
-);
+    powerPreference:
+      "high-performance"
+  });
 
 renderer.setClearColor(
-    0x000000,
-    1
+  0x000000,
+  1
 );
 
 renderer.autoClear =
-    false;
+  false;
+
+renderer.setPixelRatio(
+
+  Math.min(
+    window.devicePixelRatio || 1,
+    2
+  )
+);
 
 /* =========================================================
-   SCENE
+   MAIN 3D SCENE
 ========================================================= */
 
 const scene =
-    new THREE.Scene();
+  new THREE.Scene();
 
 const camera =
-    new THREE.PerspectiveCamera(
+  new THREE.PerspectiveCamera(
 
-        75,
+    75,
 
-        innerWidth /
-        innerHeight,
+    innerWidth /
+    innerHeight,
 
-        0.01,
+    0.01,
 
-        200
-    );
+    200
+  );
+
+camera.position.set(
+  0,
+  0,
+  0
+);
 
 camera.rotation.order =
-    "YXZ";
+  "YXZ";
 
 /* =========================================================
    PANORAMA
 ========================================================= */
 
 const sphereGeometry =
-    new THREE.SphereGeometry(
-        50,
-        64,
-        40
-    );
+  new THREE.SphereGeometry(
+    50,
+    72,
+    48
+  );
 
 sphereGeometry.scale(
-    -1,
-    1,
-    1
+  -1,
+  1,
+  1
 );
 
 const sphereMaterial =
-    new THREE.MeshBasicMaterial();
+  new THREE.MeshBasicMaterial({
+    color:0xffffff
+  });
 
-const sphere =
-    new THREE.Mesh(
-        sphereGeometry,
-        sphereMaterial
-    );
+const panorama =
+  new THREE.Mesh(
+    sphereGeometry,
+    sphereMaterial
+  );
 
 scene.add(
-    sphere
+  panorama
 );
 
 new THREE.TextureLoader().load(
 
-    "360.jpg",
+  "360.jpg",
 
-    texture => {
+  texture => {
 
-        texture.colorSpace =
-            THREE.SRGBColorSpace;
+    texture.colorSpace =
+      THREE.SRGBColorSpace;
 
-        texture.minFilter =
-            THREE.LinearFilter;
+    texture.minFilter =
+      THREE.LinearFilter;
 
-        texture.magFilter =
-            THREE.LinearFilter;
+    texture.magFilter =
+      THREE.LinearFilter;
 
-        sphereMaterial.map =
-            texture;
+    texture.generateMipmaps =
+      true;
 
-        sphereMaterial.needsUpdate =
-            true;
-    },
+    sphereMaterial.map =
+      texture;
 
-    undefined,
+    sphereMaterial.needsUpdate =
+      true;
+  },
 
-    () => {
+  undefined,
 
-        alert(
-            "360.jpg mora biti poleg index.html"
-        );
-    }
+  () => {
+
+    alert(
+      "360.jpg se ni naložil. Datoteka mora biti poleg index.html."
+    );
+  }
 );
 
 /* =========================================================
@@ -704,21 +834,24 @@ new THREE.TextureLoader().load(
 ========================================================= */
 
 let yaw =
-    0;
+  0;
 
 let pitch =
-    0;
+  0;
 
 let normalFov =
-    75;
+  75;
 
 function updateNormalCamera(){
 
-    camera.rotation.set(
-        pitch,
-        yaw,
-        0
-    );
+  camera.rotation.order =
+    "YXZ";
+
+  camera.rotation.set(
+    pitch,
+    yaw,
+    0
+  );
 }
 
 updateNormalCamera();
@@ -728,404 +861,423 @@ updateNormalCamera();
 ========================================================= */
 
 const STORAGE_KEY =
-    "stable-360-hotspots-v5";
+  "stable-360-hotspots-v5";
 
 let hotspots = [];
 
 try{
 
-    hotspots =
-        JSON.parse(
-            localStorage.getItem(
-                STORAGE_KEY
-            )
-        ) || [];
+  hotspots =
+    JSON.parse(
+      localStorage.getItem(
+        STORAGE_KEY
+      )
+    ) || [];
 }
 catch(e){
 
-    hotspots = [];
+  hotspots = [];
 }
 
 function saveHotspots(){
 
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(
-            hotspots
-        )
-    );
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(
+      hotspots
+    )
+  );
 }
 
-const hotspotGroup =
-    new THREE.Group();
+function getHotspot(id){
 
-scene.add(
-    hotspotGroup
-);
-
-let hotspotMeshes =
-    [];
+  return hotspots.find(
+    h => h.id === id
+  );
+}
 
 function sphericalToVector(
-    y,
-    p,
-    radius = 47
+  y,
+  p,
+  radius = 47
 ){
 
-    return new THREE.Vector3(
+  return new THREE.Vector3(
 
-        radius *
-        Math.cos(p) *
-        Math.sin(y),
+    radius *
+    Math.cos(p) *
+    Math.sin(y),
 
-        radius *
-        Math.sin(p),
+    radius *
+    Math.sin(p),
 
-        -radius *
-        Math.cos(p) *
-        Math.cos(y)
-    );
+    -radius *
+    Math.cos(p) *
+    Math.cos(y)
+  );
 }
 
 function directionToSpherical(
-    d
+  d
 ){
 
-    return {
+  return {
 
-        yaw:
-            Math.atan2(
-                d.x,
-                -d.z
-            ),
+    yaw:
+      Math.atan2(
+        d.x,
+        -d.z
+      ),
 
-        pitch:
-            Math.asin(
-                THREE.MathUtils.clamp(
-                    d.y,
-                    -1,
-                    1
-                )
-            )
-    };
+    pitch:
+      Math.asin(
+        THREE.MathUtils.clamp(
+          d.y,
+          -1,
+          1
+        )
+      )
+  };
 }
 
-function makeHotspotTexture(
-    number
+const hotspotGroup =
+  new THREE.Group();
+
+scene.add(
+  hotspotGroup
+);
+
+let hotspotMeshes =
+  [];
+
+function createHotspotTexture(
+  number
 ){
 
-    const c =
-        document.createElement(
-            "canvas"
-        );
-
-    c.width =
-        256;
-
-    c.height =
-        256;
-
-    const ctx =
-        c.getContext("2d");
-
-    ctx.beginPath();
-
-    ctx.arc(
-        128,
-        128,
-        112,
-        0,
-        Math.PI * 2
+  const c =
+    document.createElement(
+      "canvas"
     );
 
-    ctx.fillStyle =
-        "#fff";
+  c.width =
+    256;
 
-    ctx.fill();
+  c.height =
+    256;
 
-    ctx.beginPath();
-
-    ctx.arc(
-        128,
-        128,
-        91,
-        0,
-        Math.PI * 2
+  const ctx =
+    c.getContext(
+      "2d"
     );
 
-    ctx.fillStyle =
-        "#ef3333";
+  ctx.clearRect(
+    0,
+    0,
+    256,
+    256
+  );
 
-    ctx.fill();
+  ctx.beginPath();
 
-    ctx.fillStyle =
-        "#fff";
+  ctx.arc(
+    128,
+    128,
+    114,
+    0,
+    Math.PI * 2
+  );
 
-    ctx.font =
-        "bold 100px Arial";
+  ctx.fillStyle =
+    "#ffffff";
 
-    ctx.textAlign =
-        "center";
+  ctx.fill();
 
-    ctx.textBaseline =
-        "middle";
+  ctx.beginPath();
 
-    ctx.fillText(
-        number,
-        128,
-        136
-    );
+  ctx.arc(
+    128,
+    128,
+    92,
+    0,
+    Math.PI * 2
+  );
 
-    const texture =
-        new THREE.CanvasTexture(c);
+  ctx.fillStyle =
+    "#ef3333";
 
-    texture.colorSpace =
-        THREE.SRGBColorSpace;
+  ctx.fill();
 
-    return texture;
+  ctx.fillStyle =
+    "#ffffff";
+
+  ctx.font =
+    "bold 100px Arial";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "middle";
+
+  ctx.fillText(
+    String(number),
+    128,
+    136
+  );
+
+  const texture =
+    new THREE.CanvasTexture(c);
+
+  texture.colorSpace =
+    THREE.SRGBColorSpace;
+
+  return texture;
 }
 
 function renderHotspots(){
 
-    for(
-        const sprite of
-        hotspotMeshes
-    ){
+  for(const sprite of hotspotMeshes){
 
-        hotspotGroup.remove(
-            sprite
-        );
+    hotspotGroup.remove(
+      sprite
+    );
 
-        if(sprite.material.map){
+    if(sprite.material.map){
 
-            sprite.material.map.dispose();
-        }
-
-        sprite.material.dispose();
+      sprite.material.map.dispose();
     }
 
-    hotspotMeshes =
-        [];
+    sprite.material.dispose();
+  }
 
-    hotspots.forEach(
-        (hotspot,index) => {
+  hotspotMeshes =
+    [];
 
-            const material =
-                new THREE.SpriteMaterial({
+  hotspots.forEach(
+    (h,index) => {
 
-                    map:
-                        makeHotspotTexture(
-                            index + 1
-                        ),
+      const material =
+        new THREE.SpriteMaterial({
 
-                    transparent:true,
+          map:
+            createHotspotTexture(
+              index + 1
+            ),
 
-                    depthTest:false,
+          transparent:true,
 
-                    depthWrite:false
-                });
+          depthTest:false,
 
-            const sprite =
-                new THREE.Sprite(
-                    material
-                );
+          depthWrite:false
+        });
 
-            sprite.position.copy(
+      const sprite =
+        new THREE.Sprite(
+          material
+        );
 
-                sphericalToVector(
-                    hotspot.yaw,
-                    hotspot.pitch
-                )
-            );
+      sprite.position.copy(
 
-            sprite.scale.set(
-                2.3,
-                2.3,
-                1
-            );
+        sphericalToVector(
+          h.yaw,
+          h.pitch
+        )
+      );
 
-            sprite.userData.hotspotId =
-                hotspot.id;
+      sprite.scale.set(
+        2.35,
+        2.35,
+        1
+      );
 
-            hotspotGroup.add(
-                sprite
-            );
+      sprite.userData.hotspotId =
+        h.id;
 
-            hotspotMeshes.push(
-                sprite
-            );
-        }
-    );
+      hotspotGroup.add(
+        sprite
+      );
+
+      hotspotMeshes.push(
+        sprite
+      );
+    }
+  );
 }
 
 renderHotspots();
-
-function getHotspot(id){
-
-    return hotspots.find(
-        h => h.id === id
-    );
-}
 
 /* =========================================================
    POPUP
 ========================================================= */
 
-let selectedId =
-    null;
+let selectedHotspotId =
+  null;
 
 function closePopup(){
 
-    popup.style.display =
-        "none";
+  popup.style.display =
+    "none";
 
-    selectedId =
-        null;
+  popup.style.visibility =
+    "visible";
+
+  selectedHotspotId =
+    null;
 }
 
 function openReader(id){
 
-    const h =
-        getHotspot(id);
+  const h =
+    getHotspot(id);
 
-    if(!h)
-        return;
+  if(!h){
+    return;
+  }
 
-    selectedId =
-        id;
+  selectedHotspotId =
+    id;
 
-    readerTitle.textContent =
-        h.title ||
-        "Brez naslova";
+  readerTitle.textContent =
+    h.title ||
+    "Brez naslova";
 
-    readerDescription.textContent =
-        h.description ||
-        "Ni opisa.";
+  readerDescription.textContent =
+    h.description ||
+    "Ni opisa.";
 
-    editor.style.display =
-        "none";
+  editor.style.display =
+    "none";
 
-    reader.style.display =
-        "block";
+  reader.style.display =
+    "block";
 
-    popup.style.display =
-        "block";
+  popup.style.display =
+    "block";
 
-    positionPopup();
+  popup.style.visibility =
+    "visible";
+
+  positionPopup();
 }
 
 function openEditor(id){
 
-    const h =
-        getHotspot(id);
+  const h =
+    getHotspot(id);
 
-    if(!h)
-        return;
+  if(!h){
+    return;
+  }
 
-    selectedId =
-        id;
+  selectedHotspotId =
+    id;
 
-    titleInput.value =
-        h.title || "";
+  titleInput.value =
+    h.title || "";
 
-    descriptionInput.value =
-        h.description || "";
+  descriptionInput.value =
+    h.description || "";
 
-    reader.style.display =
-        "none";
+  reader.style.display =
+    "none";
 
-    editor.style.display =
-        "block";
+  editor.style.display =
+    "block";
 
-    popup.style.display =
-        "block";
+  popup.style.display =
+    "block";
 
-    positionPopup();
+  popup.style.visibility =
+    "visible";
+
+  positionPopup();
 }
 
 popupClose.onclick =
-    closePopup;
+  closePopup;
 
 editBtn.onclick =
-    () => {
+  () => {
 
-        if(selectedId){
+    if(selectedHotspotId){
 
-            openEditor(
-                selectedId
-            );
-        }
-    };
+      openEditor(
+        selectedHotspotId
+      );
+    }
+  };
 
 saveBtn.onclick =
-    () => {
+  () => {
 
-        const h =
-            getHotspot(
-                selectedId
-            );
+    const h =
+      getHotspot(
+        selectedHotspotId
+      );
 
-        if(!h)
-            return;
+    if(!h){
+      return;
+    }
 
-        h.title =
-            titleInput.value.trim();
+    h.title =
+      titleInput.value.trim();
 
-        h.description =
-            descriptionInput.value.trim();
+    h.description =
+      descriptionInput.value.trim();
 
-        saveHotspots();
+    saveHotspots();
 
-        openReader(
-            h.id
-        );
-    };
+    openReader(
+      h.id
+    );
+  };
 
 cancelBtn.onclick =
-    () => {
+  () => {
 
-        const h =
-            getHotspot(
-                selectedId
-            );
+    const h =
+      getHotspot(
+        selectedHotspotId
+      );
 
-        if(
-            h &&
-            (
-                h.title ||
-                h.description
-            )
-        ){
+    if(
+      h &&
+      (
+        h.title ||
+        h.description
+      )
+    ){
 
-            openReader(
-                h.id
-            );
-        }
-        else{
+      openReader(
+        h.id
+      );
+    }
+    else{
 
-            closePopup();
-        }
-    };
+      closePopup();
+    }
+  };
 
 deleteBtn.onclick =
-    () => {
+  () => {
 
-        if(!selectedId)
-            return;
+    if(!selectedHotspotId){
+      return;
+    }
 
-        hotspots =
-            hotspots.filter(
-                h =>
-                    h.id !==
-                    selectedId
-            );
+    hotspots =
+      hotspots.filter(
+        h =>
+          h.id !==
+          selectedHotspotId
+      );
 
-        saveHotspots();
+    saveHotspots();
 
-        closePopup();
+    closePopup();
 
-        renderHotspots();
-    };
+    renderHotspots();
+  };
 
 /* =========================================================
    POPUP POSITION
@@ -1133,661 +1285,687 @@ deleteBtn.onclick =
 
 function positionPopup(){
 
-    if(
-        vrMode ||
-        !selectedId ||
-        popup.style.display ===
-            "none"
-    ){
-        return;
-    }
+  if(
+    vrMode ||
+    !selectedHotspotId ||
+    popup.style.display === "none"
+  ){
+    return;
+  }
 
-    const h =
-        getHotspot(
-            selectedId
-        );
-
-    if(!h)
-        return;
-
-    const world =
-        sphericalToVector(
-            h.yaw,
-            h.pitch
-        );
-
-    const forward =
-        new THREE.Vector3();
-
-    camera.getWorldDirection(
-        forward
+  const h =
+    getHotspot(
+      selectedHotspotId
     );
 
-    if(
-        forward.dot(
-            world.clone().normalize()
-        ) <= 0
-    ){
+  if(!h){
+    return;
+  }
 
-        popup.style.visibility =
-            "hidden";
+  const world =
+    sphericalToVector(
+      h.yaw,
+      h.pitch
+    );
 
-        return;
-    }
+  const forward =
+    new THREE.Vector3();
+
+  camera.getWorldDirection(
+    forward
+  );
+
+  if(
+    forward.dot(
+      world.clone().normalize()
+    ) <= 0
+  ){
 
     popup.style.visibility =
-        "visible";
+      "hidden";
 
-    const p =
-        world.clone();
+    return;
+  }
 
-    p.project(
-        camera
+  popup.style.visibility =
+    "visible";
+
+  const projected =
+    world.clone();
+
+  projected.project(
+    camera
+  );
+
+  const x =
+    (
+      projected.x + 1
+    ) *
+    innerWidth *
+    0.5;
+
+  const y =
+    (
+      -projected.y + 1
+    ) *
+    innerHeight *
+    0.5;
+
+  const pw =
+    popup.offsetWidth;
+
+  const ph =
+    popup.offsetHeight;
+
+  let left =
+    x < innerWidth / 2
+      ? x + 28
+      : x - pw - 28;
+
+  let top =
+    y - ph / 2;
+
+  left =
+    THREE.MathUtils.clamp(
+      left,
+      8,
+      innerWidth - pw - 8
     );
 
-    const x =
-        (
-            p.x + 1
-        ) *
-        innerWidth *
-        .5;
+  top =
+    THREE.MathUtils.clamp(
+      top,
+      8,
+      innerHeight - ph - 8
+    );
 
-    const y =
-        (
-            -p.y + 1
-        ) *
-        innerHeight *
-        .5;
+  popup.style.left =
+    left + "px";
 
-    const pw =
-        popup.offsetWidth;
-
-    const ph =
-        popup.offsetHeight;
-
-    let left =
-        x <
-        innerWidth / 2
-
-        ? x + 28
-
-        : x -
-          pw -
-          28;
-
-    let top =
-        y -
-        ph / 2;
-
-    left =
-        THREE.MathUtils.clamp(
-            left,
-            8,
-            innerWidth -
-                pw -
-                8
-        );
-
-    top =
-        THREE.MathUtils.clamp(
-            top,
-            8,
-            innerHeight -
-                ph -
-                8
-        );
-
-    popup.style.left =
-        left + "px";
-
-    popup.style.top =
-        top + "px";
+  popup.style.top =
+    top + "px";
 }
 
 /* =========================================================
-   ADD MODE
+   ADD HOTSPOT
 ========================================================= */
 
 let addMode =
+  false;
+
+function stopAddMode(){
+
+  addMode =
     false;
 
-function stopAdd(){
+  addBtn.classList.remove(
+    "active"
+  );
 
-    addMode =
-        false;
+  addBtn.textContent =
+    "+ Dodaj hotspot";
 
-    addBtn.classList.remove(
-        "active"
-    );
-
-    addBtn.textContent =
-        "+ Dodaj hotspot";
-
-    hint.style.display =
-        "none";
+  hint.style.display =
+    "none";
 }
 
 addBtn.onclick =
-    () => {
+  () => {
 
-        if(vrMode)
-            return;
+    if(vrMode){
+      return;
+    }
 
-        closePopup();
+    closePopup();
 
-        addMode =
-            !addMode;
+    addMode =
+      !addMode;
 
-        if(addMode){
+    if(addMode){
 
-            addBtn.classList.add(
-                "active"
-            );
+      addBtn.classList.add(
+        "active"
+      );
 
-            addBtn.textContent =
-                "Klikni v panoramo";
+      addBtn.textContent =
+        "Klikni v panoramo";
 
-            hint.style.display =
-                "block";
-        }
-        else{
+      hint.style.display =
+        "block";
+    }
+    else{
 
-            stopAdd();
-        }
-    };
+      stopAddMode();
+    }
+  };
 
 /* =========================================================
-   POINTER
+   NORMAL POINTER
 ========================================================= */
 
-let down =
-    false;
+let pointerDown =
+  false;
 
-let moved =
-    false;
+let pointerMoved =
+  false;
 
-let sx =
-    0;
+let startX =
+  0;
 
-let sy =
-    0;
+let startY =
+  0;
 
-let lx =
-    0;
+let lastX =
+  0;
 
-let ly =
-    0;
+let lastY =
+  0;
 
 canvas.addEventListener(
-    "pointerdown",
-    e => {
+  "pointerdown",
+  event => {
 
-        if(vrMode)
-            return;
-
-        down =
-            true;
-
-        moved =
-            false;
-
-        sx =
-        lx =
-            e.clientX;
-
-        sy =
-        ly =
-            e.clientY;
+    if(vrMode){
+      return;
     }
+
+    pointerDown =
+      true;
+
+    pointerMoved =
+      false;
+
+    startX =
+      lastX =
+      event.clientX;
+
+    startY =
+      lastY =
+      event.clientY;
+
+    try{
+
+      canvas.setPointerCapture(
+        event.pointerId
+      );
+    }
+    catch(e){}
+  }
 );
 
 canvas.addEventListener(
-    "pointermove",
-    e => {
+  "pointermove",
+  event => {
 
-        if(
-            !down ||
-            vrMode
-        ){
-            return;
-        }
-
-        const dx =
-            e.clientX -
-            lx;
-
-        const dy =
-            e.clientY -
-            ly;
-
-        if(
-            Math.hypot(
-                e.clientX - sx,
-                e.clientY - sy
-            ) > 6
-        ){
-
-            moved =
-                true;
-        }
-
-        if(!addMode){
-
-            yaw -=
-                dx * .004;
-
-            pitch -=
-                dy * .004;
-
-            pitch =
-                THREE.MathUtils.clamp(
-                    pitch,
-                    -1.52,
-                    1.52
-                );
-
-            updateNormalCamera();
-        }
-
-        lx =
-            e.clientX;
-
-        ly =
-            e.clientY;
+    if(
+      !pointerDown ||
+      vrMode
+    ){
+      return;
     }
+
+    const dx =
+      event.clientX -
+      lastX;
+
+    const dy =
+      event.clientY -
+      lastY;
+
+    if(
+      Math.hypot(
+        event.clientX - startX,
+        event.clientY - startY
+      ) > 6
+    ){
+
+      pointerMoved =
+        true;
+    }
+
+    if(!addMode){
+
+      yaw -=
+        dx * 0.004;
+
+      pitch -=
+        dy * 0.004;
+
+      pitch =
+        THREE.MathUtils.clamp(
+          pitch,
+          -1.52,
+          1.52
+        );
+
+      updateNormalCamera();
+    }
+
+    lastX =
+      event.clientX;
+
+    lastY =
+      event.clientY;
+  }
 );
 
 canvas.addEventListener(
-    "pointerup",
-    e => {
+  "pointerup",
+  event => {
 
-        if(vrMode)
-            return;
-
-        down =
-            false;
-
-        if(moved)
-            return;
-
-        const rect =
-            canvas.getBoundingClientRect();
-
-        const mouse =
-            new THREE.Vector2(
-
-                (
-                    (
-                        e.clientX -
-                        rect.left
-                    ) /
-                    rect.width
-                ) *
-                2 -
-                1,
-
-                -(
-                    (
-                        e.clientY -
-                        rect.top
-                    ) /
-                    rect.height
-                ) *
-                2 +
-                1
-            );
-
-        const ray =
-            new THREE.Raycaster();
-
-        ray.setFromCamera(
-            mouse,
-            camera
-        );
-
-        if(!addMode){
-
-            const hits =
-                ray.intersectObjects(
-                    hotspotMeshes,
-                    false
-                );
-
-            if(hits.length){
-
-                openReader(
-                    hits[0]
-                    .object
-                    .userData
-                    .hotspotId
-                );
-
-                return;
-            }
-        }
-
-        if(!addMode)
-            return;
-
-        const spherical =
-            directionToSpherical(
-
-                ray.ray
-                    .direction
-                    .clone()
-                    .normalize()
-            );
-
-        const h = {
-
-            id:
-                "hs-" +
-                Date.now() +
-                "-" +
-                Math.random()
-                .toString(36)
-                .slice(2,7),
-
-            yaw:
-                spherical.yaw,
-
-            pitch:
-                spherical.pitch,
-
-            title:"",
-
-            description:""
-        };
-
-        hotspots.push(h);
-
-        saveHotspots();
-
-        renderHotspots();
-
-        stopAdd();
-
-        openEditor(
-            h.id
-        );
+    if(vrMode){
+      return;
     }
+
+    pointerDown =
+      false;
+
+    if(pointerMoved){
+      return;
+    }
+
+    const rect =
+      canvas.getBoundingClientRect();
+
+    const pointer =
+      new THREE.Vector2(
+
+        (
+          (
+            event.clientX -
+            rect.left
+          ) /
+          rect.width
+        ) *
+        2 -
+        1,
+
+        -(
+          (
+            event.clientY -
+            rect.top
+          ) /
+          rect.height
+        ) *
+        2 +
+        1
+      );
+
+    const raycaster =
+      new THREE.Raycaster();
+
+    raycaster.setFromCamera(
+      pointer,
+      camera
+    );
+
+    if(!addMode){
+
+      const hits =
+        raycaster.intersectObjects(
+          hotspotMeshes,
+          false
+        );
+
+      if(hits.length){
+
+        openReader(
+          hits[0]
+            .object
+            .userData
+            .hotspotId
+        );
+
+        return;
+      }
+    }
+
+    if(!addMode){
+      return;
+    }
+
+    const direction =
+      raycaster
+        .ray
+        .direction
+        .clone()
+        .normalize();
+
+    const spherical =
+      directionToSpherical(
+        direction
+      );
+
+    const hotspot = {
+
+      id:
+        "hs-" +
+        Date.now() +
+        "-" +
+        Math.random()
+          .toString(36)
+          .slice(2,7),
+
+      yaw:
+        spherical.yaw,
+
+      pitch:
+        spherical.pitch,
+
+      title:"",
+
+      description:""
+    };
+
+    hotspots.push(
+      hotspot
+    );
+
+    saveHotspots();
+
+    renderHotspots();
+
+    stopAddMode();
+
+    openEditor(
+      hotspot.id
+    );
+  }
 );
 
 /* =========================================================
    ZOOM
 ========================================================= */
 
-function zoom(delta){
+function changeZoom(delta){
 
-    if(vrMode)
-        return;
+  if(vrMode){
+    return;
+  }
 
-    normalFov =
-        THREE.MathUtils.clamp(
-            normalFov +
-            delta,
-            30,
-            100
-        );
+  normalFov =
+    THREE.MathUtils.clamp(
+      normalFov + delta,
+      30,
+      100
+    );
 
-    camera.fov =
-        normalFov;
+  camera.fov =
+    normalFov;
 
-    camera.updateProjectionMatrix();
+  camera.updateProjectionMatrix();
 }
 
-zoomIn.onclick =
-    () => zoom(-8);
+zoomInBtn.onclick =
+  () => changeZoom(-8);
 
-zoomOut.onclick =
-    () => zoom(8);
+zoomOutBtn.onclick =
+  () => changeZoom(8);
 
 canvas.addEventListener(
-    "wheel",
-    e => {
+  "wheel",
+  event => {
 
-        if(vrMode)
-            return;
-
-        e.preventDefault();
-
-        zoom(
-            e.deltaY > 0
-            ? 4
-            : -4
-        );
-    },
-    {
-        passive:false
+    if(vrMode){
+      return;
     }
+
+    event.preventDefault();
+
+    changeZoom(
+      event.deltaY > 0
+        ? 4
+        : -4
+    );
+  },
+  {
+    passive:false
+  }
 );
 
 /* =========================================================
-   FULLSCREEN
+   NORMAL FULLSCREEN
 ========================================================= */
 
 fullscreenBtn.onclick =
-    async () => {
+  async () => {
 
-        try{
+    try{
 
-            if(
-                !document.fullscreenElement
-            ){
+      if(!document.fullscreenElement){
 
-                await document
-                    .documentElement
-                    .requestFullscreen();
-            }
-            else{
+        if(
+          document.documentElement
+            .requestFullscreen
+        ){
 
-                await document
-                    .exitFullscreen();
-            }
+          await document
+            .documentElement
+            .requestFullscreen();
         }
-        catch(e){}
-    };
+      }
+      else if(
+        document.exitFullscreen
+      ){
+
+        await document
+          .exitFullscreen();
+      }
+    }
+    catch(e){}
+  };
 
 /* =========================================================
    DEVICE ORIENTATION
 ========================================================= */
 
 let sensorAlpha =
-    0;
+  0;
 
 let sensorBeta =
-    0;
+  0;
 
 let sensorGamma =
-    0;
+  0;
 
 let sensorReady =
-    false;
+  false;
 
-function orientationEvent(e){
+function onDeviceOrientation(event){
 
-    if(e.alpha == null)
-        return;
+  if(event.alpha == null){
+    return;
+  }
 
-    sensorAlpha =
-        e.alpha || 0;
+  sensorAlpha =
+    event.alpha || 0;
 
-    sensorBeta =
-        e.beta || 0;
+  sensorBeta =
+    event.beta || 0;
 
-    sensorGamma =
-        e.gamma || 0;
+  sensorGamma =
+    event.gamma || 0;
 
-    sensorReady =
-        true;
+  sensorReady =
+    true;
 }
 
-const orientEuler =
-    new THREE.Euler();
+const deviceEuler =
+  new THREE.Euler();
 
-const orientQuat =
-    new THREE.Quaternion();
+const deviceQuaternion =
+  new THREE.Quaternion();
 
-const screenQuat =
-    new THREE.Quaternion();
+const screenQuaternion =
+  new THREE.Quaternion();
 
 const zee =
-    new THREE.Vector3(
-        0,
-        0,
-        1
-    );
+  new THREE.Vector3(
+    0,
+    0,
+    1
+  );
 
 const q1 =
-    new THREE.Quaternion(
-        -Math.sqrt(.5),
-        0,
-        0,
-        Math.sqrt(.5)
+  new THREE.Quaternion(
+    -Math.sqrt(0.5),
+    0,
+    0,
+    Math.sqrt(0.5)
+  );
+
+function updateDeviceCamera(){
+
+  if(!sensorReady){
+    return;
+  }
+
+  const alpha =
+    THREE.MathUtils.degToRad(
+      sensorAlpha
     );
 
-function updateOrientation(){
-
-    if(!sensorReady)
-        return;
-
-    const alpha =
-        THREE.MathUtils.degToRad(
-            sensorAlpha
-        );
-
-    const beta =
-        THREE.MathUtils.degToRad(
-            sensorBeta
-        );
-
-    const gamma =
-        THREE.MathUtils.degToRad(
-            sensorGamma
-        );
-
-    let orient =
-        0;
-
-    if(
-        screen.orientation &&
-        typeof screen.orientation.angle ===
-            "number"
-    ){
-
-        orient =
-            THREE.MathUtils.degToRad(
-                screen.orientation.angle
-            );
-    }
-
-    orientEuler.set(
-        beta,
-        alpha,
-        -gamma,
-        "YXZ"
+  const beta =
+    THREE.MathUtils.degToRad(
+      sensorBeta
     );
 
-    orientQuat.setFromEuler(
-        orientEuler
+  const gamma =
+    THREE.MathUtils.degToRad(
+      sensorGamma
     );
 
-    orientQuat.multiply(
-        q1
-    );
+  let screenAngle =
+    0;
 
-    screenQuat.setFromAxisAngle(
-        zee,
-        -orient
-    );
+  if(
+    screen.orientation &&
+    typeof screen.orientation.angle ===
+      "number"
+  ){
 
-    orientQuat.multiply(
-        screenQuat
-    );
+    screenAngle =
+      THREE.MathUtils.degToRad(
+        screen.orientation.angle
+      );
+  }
+  else if(
+    typeof window.orientation ===
+      "number"
+  ){
 
-    camera.quaternion.copy(
-        orientQuat
-    );
+    screenAngle =
+      THREE.MathUtils.degToRad(
+        window.orientation
+      );
+  }
+
+  deviceEuler.set(
+    beta,
+    alpha,
+    -gamma,
+    "YXZ"
+  );
+
+  deviceQuaternion.setFromEuler(
+    deviceEuler
+  );
+
+  deviceQuaternion.multiply(
+    q1
+  );
+
+  screenQuaternion.setFromAxisAngle(
+    zee,
+    -screenAngle
+  );
+
+  deviceQuaternion.multiply(
+    screenQuaternion
+  );
+
+  camera.quaternion.copy(
+    deviceQuaternion
+  );
 }
 
 /* =========================================================
-   TRUE STEREO
+   TRUE STEREO CAMERA
 ========================================================= */
 
-const stereo =
-    new THREE.StereoCamera();
+const stereoCamera =
+  new THREE.StereoCamera();
 
-/*
-    64 mm eye separation.
-*/
-
-stereo.eyeSep =
-    0.064;
-
-/*
-    StereoCamera uporablja
-    cameraL in cameraR.
-*/
-
-const EYE_FOV =
-    90;
+stereoCamera.eyeSep =
+  A36.EYE_SEP;
 
 /* =========================================================
-   TWO INDEPENDENT EYE TARGETS
+   LEFT / RIGHT RENDER TARGET
 ========================================================= */
 
 let leftTarget =
-    null;
+  null;
 
 let rightTarget =
-    null;
+  null;
 
 /* =========================================================
-   FINAL DISTORTION SCENE
+   POST PROCESSING SCENE
+
+   IMPORTANT:
+
+   This scene NEVER contains the panorama directly.
+   It only contains:
+      LEFT eye texture
+      RIGHT eye texture
 ========================================================= */
 
-const distortionScene =
-    new THREE.Scene();
+const postScene =
+  new THREE.Scene();
 
-const distortionCamera =
-    new THREE.OrthographicCamera(
-        -1,
-        1,
-        1,
-        -1,
-        0,
-        1
-    );
+const postCamera =
+  new THREE.OrthographicCamera(
+    -1,
+    1,
+    1,
+    -1,
+    0,
+    1
+  );
 
-let leftEye =
-    null;
+let leftPostMesh =
+  null;
 
-let rightEye =
-    null;
+let rightPostMesh =
+  null;
 
 /* =========================================================
    DISTORTION SHADER
+
+   Each eye has its OWN material and OWN texture.
 ========================================================= */
 
-const eyeVertex = `
+const distortionVertexShader = `
+
+precision highp float;
 
 varying vec2 vUv;
 
 void main(){
 
-    vUv = uv;
+  vUv = uv;
 
-    gl_Position =
-        vec4(
-            position.xy,
-            0.0,
-            1.0
-        );
+  gl_Position =
+    vec4(
+      position.xy,
+      0.0,
+      1.0
+    );
 }
 
 `;
 
-const eyeFragment = `
+const distortionFragmentShader = `
 
 precision highp float;
 
@@ -1795,866 +1973,986 @@ uniform sampler2D eyeTexture;
 
 uniform float k1;
 uniform float k2;
+uniform float warpScale;
 
 varying vec2 vUv;
 
 void main(){
 
-    /*
-        Local eye coordinates:
-        -1 .. +1
-    */
+  /*
+     Eye-local coordinate:
+     center = 0,0
+     edges = -1/+1
+  */
 
-    vec2 p =
-        vUv * 2.0 - 1.0;
+  vec2 p =
+    vUv * 2.0 - 1.0;
 
-    /*
-        Slightly wider lens coordinate.
-    */
+  /*
+     --------------------------------------------------------
+     YOUTUBE/CARDBOARD-LIKE VIEWING WINDOW
+     --------------------------------------------------------
 
-    vec2 lens =
-        p;
+     Not a circle.
 
-    lens.x *=
-        1.03;
+     Top/bottom remain comparatively flat.
+     Corners bend in.
+     Outer/inner sides bend in.
+  */
 
-    float r2 =
-        dot(
-            lens,
-            lens
-        );
+  float ax =
+    abs(p.x);
 
-    /*
-        Cardboard-style radial warp.
-    */
+  float ay =
+    abs(p.y);
 
-    float factor =
-        1.0 +
-        k1 * r2 +
-        k2 * r2 * r2;
+  float sideLimit =
+    1.0 -
+    0.080 *
+    pow(
+      ay,
+      2.25
+    );
 
-    vec2 warped =
-        lens * factor;
+  float topLimit =
+    1.0 -
+    0.050 *
+    pow(
+      ax,
+      2.30
+    );
 
-    warped.x /=
-        1.03;
+  float corner =
+    pow(
+      ax * ay,
+      4.0
+    );
 
-    /*
-        Scale compensates for
-        distortion crop.
-    */
+  sideLimit -=
+    0.025 *
+    corner;
 
-    warped *=
-        0.73;
+  topLimit -=
+    0.020 *
+    corner;
 
-    vec2 uv =
-        warped * 0.5 +
-        0.5;
-
-    /*
-        Curved viewing window.
-    */
-
-    float ax =
-        abs(p.x);
-
-    float ay =
-        abs(p.y);
-
-    float horizontal =
-        1.0 -
-        0.11 *
-        pow(
-            ay,
-            2.4
-        );
-
-    float vertical =
-        1.0 -
-        0.065 *
-        pow(
-            ax,
-            2.4
-        );
-
-    if(
-        ax > horizontal ||
-        ay > vertical
-    ){
-
-        gl_FragColor =
-            vec4(
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            );
-
-        return;
-    }
-
-    if(
-        uv.x < 0.0 ||
-        uv.x > 1.0 ||
-        uv.y < 0.0 ||
-        uv.y > 1.0
-    ){
-
-        gl_FragColor =
-            vec4(
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            );
-
-        return;
-    }
+  if(
+    ax > sideLimit ||
+    ay > topLimit
+  ){
 
     gl_FragColor =
-        texture2D(
-            eyeTexture,
-            uv
-        );
+      vec4(
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      );
+
+    return;
+  }
+
+  /*
+     --------------------------------------------------------
+     RADIAL LENS PRE-DISTORTION
+     --------------------------------------------------------
+  */
+
+  vec2 lens =
+    p;
+
+  /*
+     Slight lens-coordinate aspect correction.
+  */
+
+  lens.x *=
+    1.04;
+
+  float r2 =
+    dot(
+      lens,
+      lens
+    );
+
+  float radial =
+    1.0 +
+    k1 * r2 +
+    k2 * r2 * r2;
+
+  vec2 warped =
+    lens * radial;
+
+  warped.x /=
+    1.04;
+
+  warped *=
+    warpScale;
+
+  vec2 uv =
+    warped * 0.5 +
+    0.5;
+
+  if(
+    uv.x < 0.0 ||
+    uv.x > 1.0 ||
+    uv.y < 0.0 ||
+    uv.y > 1.0
+  ){
+
+    gl_FragColor =
+      vec4(
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      );
+
+    return;
+  }
+
+  gl_FragColor =
+    texture2D(
+      eyeTexture,
+      uv
+    );
 }
 
 `;
 
 /* =========================================================
-   CREATE EYE QUAD
+   CREATE ABSOLUTE SCREEN GEOMETRY
 
-   IMPORTANT:
+   Geometry is made directly in clip-space.
 
-   Geometry itself occupies exactly
-   one half of clip space.
-
-   LEFT:
-   -1 ... 0
-
-   RIGHT:
-    0 ... +1
-
-   Therefore the two eye images
-   physically cannot become one
-   full-screen quad.
+   It therefore CANNOT accidentally become full screen.
 ========================================================= */
 
-function makeEyeGeometry(
-    left,
-    right,
-    bottom,
-    top
+function createScreenQuad(
+  centerX,
+  centerY,
+  width,
+  height
 ){
 
-    const geometry =
-        new THREE.BufferGeometry();
+  /*
+     Convert normalized browser screen:
+       x: 0..1
+       y: 0..1 from top
 
-    const vertices =
-        new Float32Array([
+     to WebGL:
+       x: -1..1
+       y: -1..1 from bottom
+  */
 
-            left,bottom,0,
-            right,bottom,0,
-            right,top,0,
+  const left =
+    (
+      centerX -
+      width / 2
+    ) *
+    2 -
+    1;
 
-            left,bottom,0,
-            right,top,0,
-            left,top,0
-        ]);
+  const right =
+    (
+      centerX +
+      width / 2
+    ) *
+    2 -
+    1;
 
-    const uv =
-        new Float32Array([
+  const top =
+    1 -
+    (
+      centerY -
+      height / 2
+    ) *
+    2;
 
-            0,0,
-            1,0,
-            1,1,
+  const bottom =
+    1 -
+    (
+      centerY +
+      height / 2
+    ) *
+    2;
 
-            0,0,
-            1,1,
-            0,1
-        ]);
+  const geometry =
+    new THREE.BufferGeometry();
 
-    geometry.setAttribute(
-        "position",
-        new THREE.BufferAttribute(
-            vertices,
-            3
-        )
-    );
+  geometry.setAttribute(
 
-    geometry.setAttribute(
-        "uv",
-        new THREE.BufferAttribute(
-            uv,
-            2
-        )
-    );
+    "position",
 
-    return geometry;
+    new THREE.BufferAttribute(
+
+      new Float32Array([
+
+        left,bottom,0,
+        right,bottom,0,
+        right,top,0,
+
+        left,bottom,0,
+        right,top,0,
+        left,top,0
+      ]),
+
+      3
+    )
+  );
+
+  geometry.setAttribute(
+
+    "uv",
+
+    new THREE.BufferAttribute(
+
+      new Float32Array([
+
+        0,0,
+        1,0,
+        1,1,
+
+        0,0,
+        1,1,
+        0,1
+      ]),
+
+      2
+    )
+  );
+
+  return geometry;
 }
 
 /* =========================================================
-   BUILD STEREO DISPLAY
+   CLEAN VR BUFFERS
 ========================================================= */
 
-function destroyStereoDisplay(){
+function destroyVRBuffers(){
 
-    if(leftEye){
+  if(leftPostMesh){
 
-        distortionScene.remove(
-            leftEye
-        );
+    postScene.remove(
+      leftPostMesh
+    );
 
-        leftEye.geometry.dispose();
+    leftPostMesh.geometry.dispose();
 
-        leftEye.material.dispose();
+    leftPostMesh.material.dispose();
 
-        leftEye =
-            null;
-    }
+    leftPostMesh =
+      null;
+  }
 
-    if(rightEye){
+  if(rightPostMesh){
 
-        distortionScene.remove(
-            rightEye
-        );
+    postScene.remove(
+      rightPostMesh
+    );
 
-        rightEye.geometry.dispose();
+    rightPostMesh.geometry.dispose();
 
-        rightEye.material.dispose();
+    rightPostMesh.material.dispose();
 
-        rightEye =
-            null;
-    }
+    rightPostMesh =
+      null;
+  }
 
-    if(leftTarget){
+  if(leftTarget){
 
-        leftTarget.dispose();
-
-        leftTarget =
-            null;
-    }
-
-    if(rightTarget){
-
-        rightTarget.dispose();
-
-        rightTarget =
-            null;
-    }
-}
-
-function buildStereoDisplay(){
-
-    destroyStereoDisplay();
-
-    const dpr =
-        Math.min(
-            devicePixelRatio || 1,
-            2
-        );
-
-    /*
-        Actual phone viewport.
-    */
-
-    const W =
-        Math.max(
-            innerWidth,
-            1
-        );
-
-    const H =
-        Math.max(
-            innerHeight,
-            1
-        );
-
-    /*
-        One eye = half phone screen.
-    */
-
-    const eyeW =
-        Math.max(
-            1,
-            W / 2
-        );
-
-    const eyeH =
-        H;
-
-    /*
-        Render target is independent
-        for each eye.
-    */
-
-    const rtW =
-        Math.max(
-            512,
-            Math.round(
-                eyeW *
-                dpr
-            )
-        );
-
-    const rtH =
-        Math.max(
-            512,
-            Math.round(
-                eyeH *
-                dpr
-            )
-        );
+    leftTarget.dispose();
 
     leftTarget =
-        new THREE.WebGLRenderTarget(
-            rtW,
-            rtH,
-            {
-                minFilter:
-                    THREE.LinearFilter,
+      null;
+  }
 
-                magFilter:
-                    THREE.LinearFilter,
+  if(rightTarget){
 
-                depthBuffer:true,
-
-                stencilBuffer:false
-            }
-        );
+    rightTarget.dispose();
 
     rightTarget =
-        new THREE.WebGLRenderTarget(
-            rtW,
-            rtH,
-            {
-                minFilter:
-                    THREE.LinearFilter,
+      null;
+  }
+}
 
-                magFilter:
-                    THREE.LinearFilter,
+/* =========================================================
+   BUILD A36 STEREO BUFFERS
+========================================================= */
 
-                depthBuffer:true,
+function buildA36VR(){
 
-                stencilBuffer:false
-            }
-        );
+  destroyVRBuffers();
 
-    /*
-        Black margins around each
-        curved YT-like image.
+  /*
+     Current REAL drawing buffer.
 
-        These values are relative
-        to each half of the PHONE.
-    */
+     On A36 this may not literally report 2340x1080 because
+     Android/Chrome can expose a DPR-scaled CSS viewport.
 
-    const horizontalMargin =
-        0.065;
+     That is fine.
 
-    const verticalMargin =
-        0.12;
+     A36 optical proportions remain fixed; framebuffer scales.
+  */
 
-    /*
-        Clip-space coordinates.
+  const drawSize =
+    new THREE.Vector2();
 
-        Left half:
-        -1 ... 0
+  renderer.getDrawingBufferSize(
+    drawSize
+  );
 
-        Right half:
-         0 ... 1
-    */
-
-    const leftGeometry =
-        makeEyeGeometry(
-
-            -1 +
-            horizontalMargin,
-
-            0 -
-            horizontalMargin,
-
-            -1 +
-            verticalMargin,
-
-            1 -
-            verticalMargin
-        );
-
-    const rightGeometry =
-        makeEyeGeometry(
-
-            0 +
-            horizontalMargin,
-
-            1 -
-            horizontalMargin,
-
-            -1 +
-            verticalMargin,
-
-            1 -
-            verticalMargin
-        );
-
-    const makeMaterial =
-        texture =>
-
-        new THREE.ShaderMaterial({
-
-            uniforms:{
-
-                eyeTexture:{
-                    value:texture
-                },
-
-                /*
-                    Radial distortion.
-                */
-
-                k1:{
-                    value:.20
-                },
-
-                k2:{
-                    value:.07
-                }
-            },
-
-            vertexShader:
-                eyeVertex,
-
-            fragmentShader:
-                eyeFragment,
-
-            depthTest:false,
-
-            depthWrite:false,
-
-            transparent:false
-        });
-
-    leftEye =
-        new THREE.Mesh(
-
-            leftGeometry,
-
-            makeMaterial(
-                leftTarget.texture
-            )
-        );
-
-    rightEye =
-        new THREE.Mesh(
-
-            rightGeometry,
-
-            makeMaterial(
-                rightTarget.texture
-            )
-        );
-
-    leftEye.frustumCulled =
-        false;
-
-    rightEye.frustumCulled =
-        false;
-
-    distortionScene.add(
-        leftEye
+  const screenW =
+    Math.max(
+      1,
+      Math.floor(
+        drawSize.x
+      )
     );
 
-    distortionScene.add(
-        rightEye
+  const screenH =
+    Math.max(
+      1,
+      Math.floor(
+        drawSize.y
+      )
     );
 
-    /*
-        Reticles are at the optical
-        center of each phone half.
-    */
+  /*
+     Eye texture aspect MUST match the eye display window.
 
-    reticleL.style.left =
-        "25%";
+     This fixes the previous stretched-image problem.
+  */
 
-    reticleR.style.left =
-        "75%";
+  const displayedEyePixelW =
+    screenW *
+    A36.EYE_W;
 
-    reticleL.style.top =
-        "50%";
+  const displayedEyePixelH =
+    screenH *
+    A36.EYE_H;
 
-    reticleR.style.top =
-        "50%";
+  const eyeAspect =
+    displayedEyePixelW /
+    displayedEyePixelH;
+
+  /*
+     Use enough resolution for A36,
+     but avoid wasting huge amounts of GPU memory.
+
+     Eye texture height follows physical display density.
+  */
+
+  let rtH =
+    Math.round(
+      displayedEyePixelH
+    );
+
+  rtH =
+    Math.max(
+      720,
+      rtH
+    );
+
+  let rtW =
+    Math.round(
+      rtH *
+      eyeAspect
+    );
+
+  rtW =
+    Math.max(
+      720,
+      rtW
+    );
+
+  leftTarget =
+    new THREE.WebGLRenderTarget(
+      rtW,
+      rtH,
+      {
+        minFilter:
+          THREE.LinearFilter,
+
+        magFilter:
+          THREE.LinearFilter,
+
+        depthBuffer:true,
+
+        stencilBuffer:false
+      }
+    );
+
+  rightTarget =
+    new THREE.WebGLRenderTarget(
+      rtW,
+      rtH,
+      {
+        minFilter:
+          THREE.LinearFilter,
+
+        magFilter:
+          THREE.LinearFilter,
+
+        depthBuffer:true,
+
+        stencilBuffer:false
+      }
+    );
+
+  leftTarget.texture.generateMipmaps =
+    false;
+
+  rightTarget.texture.generateMipmaps =
+    false;
+
+  /*
+     Two physically separate screen meshes.
+  */
+
+  const leftGeometry =
+    createScreenQuad(
+
+      A36.LEFT_CX,
+
+      A36.CY,
+
+      A36.EYE_W,
+
+      A36.EYE_H
+    );
+
+  const rightGeometry =
+    createScreenQuad(
+
+      A36.RIGHT_CX,
+
+      A36.CY,
+
+      A36.EYE_W,
+
+      A36.EYE_H
+    );
+
+  function createDistortionMaterial(
+    texture
+  ){
+
+    return new THREE.ShaderMaterial({
+
+      uniforms:{
+
+        eyeTexture:{
+          value:texture
+        },
+
+        k1:{
+          value:A36.K1
+        },
+
+        k2:{
+          value:A36.K2
+        },
+
+        warpScale:{
+          value:A36.WARP_SCALE
+        }
+      },
+
+      vertexShader:
+        distortionVertexShader,
+
+      fragmentShader:
+        distortionFragmentShader,
+
+      depthTest:false,
+
+      depthWrite:false,
+
+      transparent:false,
+
+      side:
+        THREE.DoubleSide
+    });
+  }
+
+  leftPostMesh =
+    new THREE.Mesh(
+
+      leftGeometry,
+
+      createDistortionMaterial(
+        leftTarget.texture
+      )
+    );
+
+  rightPostMesh =
+    new THREE.Mesh(
+
+      rightGeometry,
+
+      createDistortionMaterial(
+        rightTarget.texture
+      )
+    );
+
+  leftPostMesh.frustumCulled =
+    false;
+
+  rightPostMesh.frustumCulled =
+    false;
+
+  postScene.add(
+    leftPostMesh
+  );
+
+  postScene.add(
+    rightPostMesh
+  );
+
+  /*
+     HTML reticles must coincide with optical centers.
+  */
+
+  reticleL.style.left =
+    (
+      A36.LEFT_CX *
+      100
+    ) +
+    "%";
+
+  reticleR.style.left =
+    (
+      A36.RIGHT_CX *
+      100
+    ) +
+    "%";
+
+  reticleL.style.top =
+    (
+      A36.CY *
+      100
+    ) +
+    "%";
+
+  reticleR.style.top =
+    (
+      A36.CY *
+      100
+    ) +
+    "%";
 }
 
 /* =========================================================
    VR INFO CARD
 ========================================================= */
 
-let vrCard =
+let vrInfoCard =
+  null;
+
+function removeVRInfoCard(){
+
+  if(!vrInfoCard){
+    return;
+  }
+
+  scene.remove(
+    vrInfoCard
+  );
+
+  vrInfoCard.traverse(
+    object => {
+
+      if(object.geometry){
+
+        object.geometry.dispose();
+      }
+
+      if(object.material){
+
+        if(object.material.map){
+
+          object.material.map.dispose();
+        }
+
+        object.material.dispose();
+      }
+    }
+  );
+
+  vrInfoCard =
     null;
+}
 
-function removeVRCard(){
+function wrapCanvasText(
+  ctx,
+  text,
+  x,
+  y,
+  maxWidth,
+  lineHeight,
+  maxLines
+){
 
-    if(!vrCard)
+  const words =
+    String(text)
+      .split(/\s+/);
+
+  let line =
+    "";
+
+  let lineNumber =
+    0;
+
+  for(const word of words){
+
+    const test =
+      line +
+      word +
+      " ";
+
+    if(
+      ctx.measureText(test).width >
+        maxWidth &&
+      line
+    ){
+
+      ctx.fillText(
+        line,
+        x,
+        y +
+        lineNumber *
+        lineHeight
+      );
+
+      lineNumber++;
+
+      if(
+        lineNumber >=
+        maxLines
+      ){
+
         return;
+      }
 
-    scene.remove(
-        vrCard
-    );
+      line =
+        word +
+        " ";
+    }
+    else{
 
-    vrCard.traverse(
-        obj => {
+      line =
+        test;
+    }
+  }
 
-            if(obj.geometry){
-
-                obj.geometry.dispose();
-            }
-
-            if(obj.material){
-
-                if(obj.material.map){
-
-                    obj.material.map.dispose();
-                }
-
-                obj.material.dispose();
-            }
-        }
-    );
-
-    vrCard =
-        null;
-}
-
-function drawWrapped(
-    ctx,
-    text,
-    x,
-    y,
-    width,
-    lineHeight,
+  if(
+    lineNumber <
     maxLines
-){
+  ){
 
-    const words =
-        String(text)
-        .split(/\s+/);
-
-    let line =
-        "";
-
-    let n =
-        0;
-
-    for(const word of words){
-
-        const test =
-            line +
-            word +
-            " ";
-
-        if(
-            ctx.measureText(test).width >
-                width &&
-            line
-        ){
-
-            ctx.fillText(
-                line,
-                x,
-                y +
-                n *
-                lineHeight
-            );
-
-            n++;
-
-            if(
-                n >=
-                maxLines
-            ){
-                return;
-            }
-
-            line =
-                word +
-                " ";
-        }
-        else{
-
-            line =
-                test;
-        }
-    }
-
-    if(n < maxLines){
-
-        ctx.fillText(
-            line,
-            x,
-            y +
-            n *
-            lineHeight
-        );
-    }
+    ctx.fillText(
+      line,
+      x,
+      y +
+      lineNumber *
+      lineHeight
+    );
+  }
 }
 
-function showVRCard(
-    hotspot
+function showVRInfoCard(
+  hotspot
 ){
 
-    removeVRCard();
+  removeVRInfoCard();
 
-    const c =
-        document.createElement(
-            "canvas"
-        );
-
-    c.width =
-        1024;
-
-    c.height =
-        512;
-
-    const ctx =
-        c.getContext("2d");
-
-    ctx.fillStyle =
-        "#fff";
-
-    ctx.fillRect(
-        0,
-        0,
-        1024,
-        512
+  const c =
+    document.createElement(
+      "canvas"
     );
 
-    ctx.fillStyle =
-        "#111";
+  c.width =
+    1024;
 
-    ctx.font =
-        "bold 58px Arial";
+  c.height =
+    512;
 
-    drawWrapped(
-        ctx,
-        hotspot.title ||
-            "Brez naslova",
-        60,
-        95,
-        900,
-        65,
-        2
+  const ctx =
+    c.getContext(
+      "2d"
     );
 
-    ctx.fillStyle =
-        "#333";
+  /*
+     Rounded white card.
+  */
 
-    ctx.font =
-        "34px Arial";
+  ctx.clearRect(
+    0,
+    0,
+    1024,
+    512
+  );
 
-    drawWrapped(
-        ctx,
-        hotspot.description ||
-            "Ni opisa.",
-        60,
-        240,
-        900,
-        48,
-        5
+  ctx.fillStyle =
+    "rgba(255,255,255,0.97)";
+
+  ctx.beginPath();
+
+  ctx.roundRect(
+    10,
+    10,
+    1004,
+    492,
+    32
+  );
+
+  ctx.fill();
+
+  ctx.fillStyle =
+    "#111";
+
+  ctx.font =
+    "bold 58px Arial";
+
+  wrapCanvasText(
+    ctx,
+    hotspot.title ||
+      "Brez naslova",
+    60,
+    100,
+    900,
+    65,
+    2
+  );
+
+  ctx.fillStyle =
+    "#333";
+
+  ctx.font =
+    "34px Arial";
+
+  wrapCanvasText(
+    ctx,
+    hotspot.description ||
+      "Ni opisa.",
+    60,
+    250,
+    900,
+    48,
+    5
+  );
+
+  const texture =
+    new THREE.CanvasTexture(c);
+
+  texture.colorSpace =
+    THREE.SRGBColorSpace;
+
+  const material =
+    new THREE.MeshBasicMaterial({
+
+      map:texture,
+
+      transparent:true,
+
+      side:
+        THREE.DoubleSide
+    });
+
+  /*
+     Real 3D object.
+
+     Therefore cameraL and cameraR see it from different
+     positions and it has actual stereo depth.
+  */
+
+  const card =
+    new THREE.Mesh(
+
+      new THREE.PlaneGeometry(
+        2.8,
+        1.4
+      ),
+
+      material
     );
 
-    const texture =
-        new THREE.CanvasTexture(c);
+  const forward =
+    new THREE.Vector3();
 
-    texture.colorSpace =
-        THREE.SRGBColorSpace;
+  camera.getWorldDirection(
+    forward
+  );
 
-    const material =
-        new THREE.MeshBasicMaterial({
+  card.position.copy(
 
-            map:texture,
+    camera.position
+      .clone()
+      .add(
 
-            side:
-                THREE.DoubleSide
-        });
-
-    /*
-        Card is genuinely 3D,
-        so left/right cameras see
-        different projections.
-    */
-
-    const mesh =
-        new THREE.Mesh(
-
-            new THREE.PlaneGeometry(
-                2.8,
-                1.4
-            ),
-
-            material
-        );
-
-    const forward =
-        new THREE.Vector3();
-
-    camera.getWorldDirection(
         forward
-    );
+          .clone()
+          .multiplyScalar(
+            3.0
+          )
+      )
+  );
 
-    mesh.position.copy(
+  card.lookAt(
+    camera.position
+  );
 
-        camera.position
-        .clone()
-        .add(
+  scene.add(
+    card
+  );
 
-            forward
-            .clone()
-            .multiplyScalar(
-                3.2
-            )
-        )
-    );
-
-    mesh.lookAt(
-        camera.position
-    );
-
-    scene.add(
-        mesh
-    );
-
-    vrCard =
-        mesh;
+  vrInfoCard =
+    card;
 }
 
 /* =========================================================
-   GAZE
+   GAZE / DWELL
 ========================================================= */
 
-const gazeRay =
-    new THREE.Raycaster();
+const gazeRaycaster =
+  new THREE.Raycaster();
 
-let gazeId =
-    null;
+let gazeHotspotId =
+  null;
 
-let gazeStarted =
-    0;
+let gazeStartTime =
+  0;
 
-let gazeActivated =
-    false;
+let gazeTriggered =
+  false;
+
+const GAZE_DURATION =
+  1200;
 
 function resetGaze(){
 
-    gazeId =
-        null;
+  gazeHotspotId =
+    null;
 
-    gazeStarted =
-        0;
+  gazeStartTime =
+    0;
 
-    gazeActivated =
-        false;
+  gazeTriggered =
+    false;
 
-    reticleL.classList.remove(
-        "active"
-    );
+  reticleL.classList.remove(
+    "active"
+  );
 
-    reticleR.classList.remove(
-        "active"
-    );
+  reticleR.classList.remove(
+    "active"
+  );
 }
 
 function updateGaze(){
 
-    const direction =
-        new THREE.Vector3(
-            0,
-            0,
-            -1
-        );
-
-    direction.applyQuaternion(
-        camera.quaternion
+  const direction =
+    new THREE.Vector3(
+      0,
+      0,
+      -1
     );
 
-    direction.normalize();
+  direction.applyQuaternion(
+    camera.quaternion
+  );
 
-    gazeRay.set(
-        camera.position,
-        direction
+  direction.normalize();
+
+  gazeRaycaster.set(
+    camera.position,
+    direction
+  );
+
+  const hits =
+    gazeRaycaster.intersectObjects(
+      hotspotMeshes,
+      false
     );
 
-    const hits =
-        gazeRay.intersectObjects(
-            hotspotMeshes,
-            false
-        );
-
-    const id =
-        hits.length
-
-        ? hits[0]
+  const id =
+    hits.length
+      ?
+        hits[0]
           .object
           .userData
           .hotspotId
+      :
+        null;
 
-        : null;
+  if(!id){
 
-    if(!id){
+    resetGaze();
 
-        resetGaze();
+    return;
+  }
 
-        return;
+  if(
+    id !==
+    gazeHotspotId
+  ){
+
+    gazeHotspotId =
+      id;
+
+    gazeStartTime =
+      performance.now();
+
+    gazeTriggered =
+      false;
+
+    reticleL.classList.remove(
+      "active"
+    );
+
+    reticleR.classList.remove(
+      "active"
+    );
+
+    /*
+       Force animation restart.
+    */
+
+    void reticleL.offsetWidth;
+
+    reticleL.classList.add(
+      "active"
+    );
+
+    reticleR.classList.add(
+      "active"
+    );
+
+    return;
+  }
+
+  if(
+    !gazeTriggered &&
+    performance.now() -
+      gazeStartTime >=
+      GAZE_DURATION
+  ){
+
+    gazeTriggered =
+      true;
+
+    const hotspot =
+      getHotspot(
+        id
+      );
+
+    if(hotspot){
+
+      showVRInfoCard(
+        hotspot
+      );
     }
-
-    if(id !== gazeId){
-
-        gazeId =
-            id;
-
-        gazeStarted =
-            performance.now();
-
-        gazeActivated =
-            false;
-
-        reticleL.classList.remove(
-            "active"
-        );
-
-        reticleR.classList.remove(
-            "active"
-        );
-
-        void reticleL.offsetWidth;
-
-        reticleL.classList.add(
-            "active"
-        );
-
-        reticleR.classList.add(
-            "active"
-        );
-
-        return;
-    }
-
-    if(
-        !gazeActivated &&
-        performance.now() -
-            gazeStarted >=
-            1200
-    ){
-
-        gazeActivated =
-            true;
-
-        const h =
-            getHotspot(id);
-
-        if(h){
-
-            showVRCard(h);
-        }
-    }
+  }
 }
 
 /* =========================================================
@@ -2662,192 +2960,267 @@ function updateGaze(){
 ========================================================= */
 
 let wakeLock =
-    null;
+  null;
 
-async function getWakeLock(){
+async function acquireWakeLock(){
+
+  if(
+    !("wakeLock" in navigator)
+  ){
+    return;
+  }
+
+  try{
 
     if(
-        !("wakeLock" in navigator)
+      wakeLock &&
+      !wakeLock.released
     ){
-        return;
+      return;
     }
 
-    try{
+    wakeLock =
+      await navigator
+        .wakeLock
+        .request(
+          "screen"
+        );
+
+    wakeLock.addEventListener(
+      "release",
+      () => {
 
         wakeLock =
-            await navigator
-            .wakeLock
-            .request("screen");
-    }
-    catch(e){}
+          null;
+      }
+    );
+  }
+  catch(e){}
 }
 
 async function releaseWakeLock(){
 
-    if(!wakeLock)
-        return;
+  if(!wakeLock){
+    return;
+  }
 
-    try{
+  try{
 
-        await wakeLock.release();
-    }
-    catch(e){}
+    await wakeLock.release();
+  }
+  catch(e){}
 
-    wakeLock =
-        null;
+  wakeLock =
+    null;
 }
 
+document.addEventListener(
+  "visibilitychange",
+  () => {
+
+    if(
+      vrMode &&
+      document.visibilityState ===
+        "visible"
+    ){
+
+      acquireWakeLock();
+    }
+  }
+);
+
+window.addEventListener(
+  "focus",
+  () => {
+
+    if(vrMode){
+
+      acquireWakeLock();
+    }
+  }
+);
+
 /* =========================================================
-   START VR
+   VR START
 ========================================================= */
 
 let vrMode =
-    false;
+  false;
 
 cardboardBtn.onclick =
-    () => {
+  () => {
 
-        stopAdd();
+    stopAddMode();
 
-        closePopup();
+    closePopup();
 
-        startModal.style.display =
-            "flex";
-    };
+    vrStart.style.display =
+      "flex";
+  };
 
-cancelVR.onclick =
-    () => {
+cancelVRBtn.onclick =
+  () => {
 
-        startModal.style.display =
-            "none";
-    };
+    vrStart.style.display =
+      "none";
+  };
 
-startVR.onclick =
-    async () => {
+startVRBtn.onclick =
+  async () => {
 
-        /*
-            iOS permission.
-            Samsung/Android normally
-            does not use this dialog.
-        */
+    /*
+       iOS requires explicit permission.
+
+       Galaxy A36 / Android normally does not.
+    */
+
+    if(
+      typeof DeviceOrientationEvent !==
+        "undefined" &&
+      typeof DeviceOrientationEvent
+        .requestPermission ===
+        "function"
+    ){
+
+      try{
+
+        const permission =
+          await DeviceOrientationEvent
+            .requestPermission();
 
         if(
-            typeof DeviceOrientationEvent !==
-                "undefined" &&
-            typeof DeviceOrientationEvent
-                .requestPermission ===
-                "function"
+          permission !==
+          "granted"
         ){
 
-            try{
+          alert(
+            "Senzor gibanja ni dovoljen."
+          );
 
-                const result =
-                    await DeviceOrientationEvent
-                    .requestPermission();
-
-                if(
-                    result !==
-                    "granted"
-                ){
-
-                    alert(
-                        "Senzor gibanja ni dovoljen."
-                    );
-
-                    return;
-                }
-            }
-            catch(e){
-
-                return;
-            }
+          return;
         }
+      }
+      catch(e){
 
-        startModal.style.display =
-            "none";
+        alert(
+          "Senzorja ni bilo mogoče zagnati."
+        );
 
-        await enterVR();
-    };
+        return;
+      }
+    }
+
+    vrStart.style.display =
+      "none";
+
+    await enterVR();
+  };
+
+/* =========================================================
+   ENTER A36 CARDBOARD
+========================================================= */
 
 async function enterVR(){
 
-    if(vrMode)
-        return;
+  if(vrMode){
+    return;
+  }
 
-    vrMode =
-        true;
+  vrMode =
+    true;
 
-    toolbar.style.display =
-        "none";
+  toolbar.style.display =
+    "none";
 
-    popup.style.display =
-        "none";
+  popup.style.display =
+    "none";
 
-    vrUI.style.display =
-        "block";
+  hint.style.display =
+    "none";
 
-    sensorReady =
-        false;
+  vrUI.style.display =
+    "block";
 
-    window.addEventListener(
-        "deviceorientation",
-        orientationEvent,
-        true
-    );
+  sensorReady =
+    false;
 
-    /*
-        Fullscreen.
-    */
+  window.addEventListener(
+    "deviceorientation",
+    onDeviceOrientation,
+    true
+  );
 
-    try{
+  /*
+     Fullscreen first.
+  */
 
-        if(
-            !document.fullscreenElement &&
-            document.documentElement
-                .requestFullscreen
-        ){
+  try{
 
-            await document
-            .documentElement
-            .requestFullscreen();
-        }
+    if(
+      !document.fullscreenElement &&
+      document.documentElement
+        .requestFullscreen
+    ){
+
+      await document
+        .documentElement
+        .requestFullscreen();
     }
-    catch(e){}
+  }
+  catch(e){}
 
-    /*
-        Galaxy landscape.
-    */
+  /*
+     Force A36 landscape where browser allows it.
+  */
 
-    try{
+  try{
 
-        if(
-            screen.orientation &&
-            screen.orientation.lock
-        ){
+    if(
+      screen.orientation &&
+      screen.orientation.lock
+    ){
 
-            await screen.orientation.lock(
-                "landscape"
-            );
-        }
+      await screen.orientation.lock(
+        "landscape"
+      );
     }
-    catch(e){}
+  }
+  catch(e){}
 
-    await getWakeLock();
+  await acquireWakeLock();
 
-    /*
-        Android changes viewport
-        after fullscreen/rotation.
-    */
+  /*
+     Samsung/Chrome can change viewport several times while
+     entering fullscreen and landscape.
 
-    setTimeout(
-        rebuildVR,
-        250
-    );
+     Do NOT build eye targets from the old portrait viewport.
+  */
 
-    setTimeout(
-        rebuildVR,
-        700
-    );
+  setTimeout(
+    () => {
+
+      if(vrMode){
+
+        resizeRenderer();
+
+        buildA36VR();
+      }
+    },
+    250
+  );
+
+  setTimeout(
+    () => {
+
+      if(vrMode){
+
+        resizeRenderer();
+
+        buildA36VR();
+      }
+    },
+    700
+  );
 }
 
 /* =========================================================
@@ -2855,309 +3228,346 @@ async function enterVR(){
 ========================================================= */
 
 exitVR.onclick =
-    leaveVR;
+  leaveVR;
 
 async function leaveVR(){
 
-    if(!vrMode)
-        return;
+  if(!vrMode){
+    return;
+  }
 
-    vrMode =
-        false;
+  vrMode =
+    false;
 
-    window.removeEventListener(
-        "deviceorientation",
-        orientationEvent,
-        true
-    );
+  window.removeEventListener(
+    "deviceorientation",
+    onDeviceOrientation,
+    true
+  );
 
-    await releaseWakeLock();
+  await releaseWakeLock();
 
-    removeVRCard();
+  removeVRInfoCard();
 
-    resetGaze();
+  resetGaze();
 
-    destroyStereoDisplay();
+  destroyVRBuffers();
 
-    vrUI.style.display =
-        "none";
+  vrUI.style.display =
+    "none";
 
-    rotateWarning.style.display =
-        "none";
+  rotateWarning.style.display =
+    "none";
 
-    toolbar.style.display =
-        "flex";
+  toolbar.style.display =
+    "flex";
 
-    camera.quaternion.identity();
+  camera.quaternion.identity();
 
-    camera.rotation.set(
-        0,
-        0,
-        0
-    );
+  camera.rotation.order =
+    "YXZ";
 
-    camera.fov =
-        normalFov;
+  camera.rotation.set(
+    pitch,
+    yaw,
+    0
+  );
 
-    updateNormalCamera();
+  camera.fov =
+    normalFov;
 
-    try{
+  try{
 
-        if(
-            screen.orientation &&
-            screen.orientation.unlock
-        ){
+    if(
+      screen.orientation &&
+      screen.orientation.unlock
+    ){
 
-            screen.orientation.unlock();
-        }
+      screen.orientation.unlock();
     }
-    catch(e){}
+  }
+  catch(e){}
 
-    try{
+  try{
 
-        if(
-            document.fullscreenElement
-        ){
+    if(
+      document.fullscreenElement &&
+      document.exitFullscreen
+    ){
 
-            await document
-            .exitFullscreen();
-        }
+      await document
+        .exitFullscreen();
     }
-    catch(e){}
+  }
+  catch(e){}
 
-    setTimeout(
-        resizeRenderer,
-        100
-    );
+  setTimeout(
+    resizeRenderer,
+    150
+  );
 }
 
 /* =========================================================
-   RENDER NORMAL
+   NORMAL RENDER
 ========================================================= */
 
 function renderNormal(){
 
-    renderer.setRenderTarget(
-        null
-    );
+  renderer.setRenderTarget(
+    null
+  );
 
-    renderer.setScissorTest(
-        false
-    );
+  renderer.setScissorTest(
+    false
+  );
 
-    renderer.setViewport(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+  const size =
+    new THREE.Vector2();
 
-    renderer.setClearColor(
-        0x000000,
-        1
-    );
+  renderer.getDrawingBufferSize(
+    size
+  );
 
-    renderer.clear(
-        true,
-        true,
-        true
-    );
+  renderer.setViewport(
+    0,
+    0,
+    size.x,
+    size.y
+  );
 
-    renderer.render(
-        scene,
-        camera
-    );
+  renderer.setClearColor(
+    0x000000,
+    1
+  );
+
+  renderer.clear(
+    true,
+    true,
+    true
+  );
+
+  renderer.render(
+    scene,
+    camera
+  );
 }
 
 /* =========================================================
-   RENDER TRUE STEREO
-
-   PIPELINE:
-
-   scene
-     |
-     +-- cameraL --> leftTarget
-     |
-     +-- cameraR --> rightTarget
-
-   leftTarget  --> distortion --> LEFT HALF
-   rightTarget --> distortion --> RIGHT HALF
+   A36 TRUE STEREO RENDER
 ========================================================= */
 
-function renderStereo(){
+function renderA36Stereo(){
 
-    if(
-        !leftTarget ||
-        !rightTarget ||
-        !leftEye ||
-        !rightEye
-    ){
-        return;
-    }
+  if(
+    !leftTarget ||
+    !rightTarget ||
+    !leftPostMesh ||
+    !rightPostMesh
+  ){
+    return;
+  }
 
-    if(
-        innerHeight >
-        innerWidth
-    ){
+  /*
+     Cardboard is landscape only.
+  */
 
-        rotateWarning.style.display =
-            "flex";
-
-        return;
-    }
+  if(
+    innerHeight >
+    innerWidth
+  ){
 
     rotateWarning.style.display =
-        "none";
+      "flex";
 
-    updateOrientation();
+    return;
+  }
 
-    /*
-        Each eye sees half the phone.
-    */
+  rotateWarning.style.display =
+    "none";
 
-    const eyeAspect =
-        (
-            innerWidth *
-            .5
-        ) /
-        innerHeight;
+  updateDeviceCamera();
 
-    camera.aspect =
-        eyeAspect;
+  /*
+     CRITICAL FIX:
 
-    camera.fov =
-        EYE_FOV;
+     Camera aspect is NOT:
+       whole screen
+     and NOT:
+       blindly half screen.
 
-    camera.updateProjectionMatrix();
+     It matches the ACTUAL displayed eye rectangle.
 
-    camera.updateMatrixWorld(
-        true
-    );
+     This prevents the panorama inside each eye from being
+     horizontally/vertically stretched.
+  */
 
-    /*
-        This calculates genuinely
-        separate left/right cameras.
-    */
+  const screenAspect =
+    innerWidth /
+    innerHeight;
 
-    stereo.eyeSep =
-        0.064;
+  const eyeAspect =
+    (
+      A36.EYE_W *
+      screenAspect
+    ) /
+    A36.EYE_H;
 
-    stereo.update(
-        camera
-    );
+  camera.aspect =
+    eyeAspect;
 
-    /*
-        LEFT EYE
-    */
+  camera.fov =
+    A36.EYE_FOV;
 
-    renderer.setRenderTarget(
-        leftTarget
-    );
+  camera.updateProjectionMatrix();
 
-    renderer.setScissorTest(
-        false
-    );
+  camera.updateMatrixWorld(
+    true
+  );
 
-    renderer.setViewport(
-        0,
-        0,
-        leftTarget.width,
-        leftTarget.height
-    );
+  /*
+     Produce two genuinely separate eye cameras.
+  */
 
-    renderer.setClearColor(
-        0x000000,
-        1
-    );
+  stereoCamera.eyeSep =
+    A36.EYE_SEP;
 
-    renderer.clear(
-        true,
-        true,
-        true
-    );
+  stereoCamera.update(
+    camera
+  );
 
-    renderer.render(
-        scene,
-        stereo.cameraL
-    );
+  /*
+     ========================================================
+     LEFT EYE TEXTURE
+     ========================================================
+  */
 
-    /*
-        RIGHT EYE
-    */
+  renderer.setRenderTarget(
+    leftTarget
+  );
 
-    renderer.setRenderTarget(
-        rightTarget
-    );
+  renderer.setScissorTest(
+    false
+  );
 
-    renderer.setViewport(
-        0,
-        0,
-        rightTarget.width,
-        rightTarget.height
-    );
+  renderer.setViewport(
+    0,
+    0,
+    leftTarget.width,
+    leftTarget.height
+  );
 
-    renderer.setClearColor(
-        0x000000,
-        1
-    );
+  renderer.setClearColor(
+    0x000000,
+    1
+  );
 
-    renderer.clear(
-        true,
-        true,
-        true
-    );
+  renderer.clear(
+    true,
+    true,
+    true
+  );
 
-    renderer.render(
-        scene,
-        stereo.cameraR
-    );
+  renderer.render(
+    scene,
+    stereoCamera.cameraL
+  );
 
-    /*
-        FINAL PHONE FRAMEBUFFER
-    */
+  /*
+     ========================================================
+     RIGHT EYE TEXTURE
+     ========================================================
+  */
 
-    renderer.setRenderTarget(
-        null
-    );
+  renderer.setRenderTarget(
+    rightTarget
+  );
 
-    renderer.setScissorTest(
-        false
-    );
+  renderer.setViewport(
+    0,
+    0,
+    rightTarget.width,
+    rightTarget.height
+  );
 
-    renderer.setViewport(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+  renderer.setClearColor(
+    0x000000,
+    1
+  );
 
-    /*
-        Entire phone becomes BLACK
-        before eye quads are drawn.
-    */
+  renderer.clear(
+    true,
+    true,
+    true
+  );
 
-    renderer.setClearColor(
-        0x000000,
-        1
-    );
+  renderer.render(
+    scene,
+    stereoCamera.cameraR
+  );
 
-    renderer.clear(
-        true,
-        true,
-        true
-    );
+  /*
+     ========================================================
+     FINAL GALAXY A36 DISPLAY
+     ========================================================
 
-    /*
-        distortionScene contains ONLY
-        two independent eye surfaces.
-    */
+     The original panorama scene is NOT rendered here.
 
-    renderer.render(
-        distortionScene,
-        distortionCamera
-    );
+     Only:
+       leftTarget
+       rightTarget
 
-    updateGaze();
+     are drawn.
+
+     Therefore we get two independent eye images.
+  */
+
+  renderer.setRenderTarget(
+    null
+  );
+
+  renderer.setScissorTest(
+    false
+  );
+
+  const size =
+    new THREE.Vector2();
+
+  renderer.getDrawingBufferSize(
+    size
+  );
+
+  renderer.setViewport(
+    0,
+    0,
+    size.x,
+    size.y
+  );
+
+  /*
+     Whole A36 framebuffer black first.
+  */
+
+  renderer.setClearColor(
+    0x000000,
+    1
+  );
+
+  renderer.clear(
+    true,
+    true,
+    true
+  );
+
+  /*
+     Then ONLY the two distorted eyes.
+  */
+
+  renderer.render(
+    postScene,
+    postCamera
+  );
+
+  updateGaze();
 }
 
 /* =========================================================
@@ -3166,137 +3576,151 @@ function renderStereo(){
 
 function resizeRenderer(){
 
-    renderer.setPixelRatio(
+  renderer.setPixelRatio(
 
-        Math.min(
-            devicePixelRatio || 1,
-            2
-        )
-    );
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    )
+  );
 
-    renderer.setSize(
-        innerWidth,
-        innerHeight,
-        false
-    );
+  renderer.setSize(
+    innerWidth,
+    innerHeight,
+    false
+  );
 
-    if(!vrMode){
+  if(!vrMode){
 
-        camera.aspect =
-            innerWidth /
-            innerHeight;
+    camera.aspect =
+      innerWidth /
+      innerHeight;
 
-        camera.fov =
-            normalFov;
+    camera.fov =
+      normalFov;
 
-        camera.updateProjectionMatrix();
-    }
+    camera.updateProjectionMatrix();
+  }
 }
 
 let rebuildTimer =
-    null;
+  null;
 
-function rebuildVR(){
+function scheduleVRRebuild(){
 
-    if(!vrMode)
-        return;
+  resizeRenderer();
 
-    resizeRenderer();
+  if(!vrMode){
+    return;
+  }
 
-    buildStereoDisplay();
-}
+  clearTimeout(
+    rebuildTimer
+  );
 
-function onResize(){
+  rebuildTimer =
+    setTimeout(
+      () => {
 
-    resizeRenderer();
+        if(vrMode){
 
-    if(vrMode){
-
-        clearTimeout(
-            rebuildTimer
-        );
-
-        rebuildTimer =
-            setTimeout(
-                rebuildVR,
-                250
-            );
-    }
-}
-
-window.addEventListener(
-    "resize",
-    onResize
-);
-
-window.addEventListener(
-    "orientationchange",
-    () => {
-
-        setTimeout(
-            onResize,
-            300
-        );
-
-        setTimeout(
-            onResize,
-            700
-        );
-    }
-);
-
-document.addEventListener(
-    "fullscreenchange",
-    () => {
-
-        setTimeout(
-            onResize,
-            150
-        );
-
-        setTimeout(
-            onResize,
-            500
-        );
-    }
-);
-
-document.addEventListener(
-    "visibilitychange",
-    () => {
-
-        if(
-            vrMode &&
-            document.visibilityState ===
-                "visible"
-        ){
-
-            getWakeLock();
+          buildA36VR();
         }
-    }
+      },
+      300
+    );
+}
+
+window.addEventListener(
+  "resize",
+  scheduleVRRebuild
+);
+
+window.addEventListener(
+  "orientationchange",
+  () => {
+
+    setTimeout(
+      scheduleVRRebuild,
+      300
+    );
+
+    setTimeout(
+      scheduleVRRebuild,
+      700
+    );
+  }
+);
+
+document.addEventListener(
+  "fullscreenchange",
+  () => {
+
+    setTimeout(
+      scheduleVRRebuild,
+      150
+    );
+
+    setTimeout(
+      scheduleVRRebuild,
+      500
+    );
+  }
 );
 
 /* =========================================================
-   LOOP
+   ESCAPE
+========================================================= */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.key !==
+      "Escape"
+    ){
+      return;
+    }
+
+    if(vrMode){
+
+      leaveVR();
+    }
+    else{
+
+      stopAddMode();
+
+      closePopup();
+    }
+  }
+);
+
+/* =========================================================
+   ANIMATION LOOP
 ========================================================= */
 
 function animate(){
 
-    requestAnimationFrame(
-        animate
-    );
+  requestAnimationFrame(
+    animate
+  );
 
-    if(vrMode){
+  if(vrMode){
 
-        renderStereo();
-    }
-    else{
+    renderA36Stereo();
+  }
+  else{
 
-        renderNormal();
+    renderNormal();
 
-        positionPopup();
-    }
+    positionPopup();
+  }
 }
+
+/* =========================================================
+   START
+========================================================= */
 
 resizeRenderer();
 
