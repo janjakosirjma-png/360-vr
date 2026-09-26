@@ -38,18 +38,22 @@ a-scene{
 }
 
 /* =========================================================
-   TOOLBAR
+   NORMAL UI
 ========================================================= */
 
 #toolbar{
   position:fixed;
   z-index:10000;
+
   top:max(10px,env(safe-area-inset-top));
   left:max(10px,env(safe-area-inset-left));
+
   display:flex;
   gap:7px;
   flex-wrap:wrap;
+
   padding:8px;
+
   border-radius:14px;
   background:rgba(0,0,0,.82);
 }
@@ -57,22 +61,25 @@ a-scene{
 button{
   min-height:42px;
   padding:0 13px;
+
   border:0;
   border-radius:9px;
+
   background:#333;
   color:#fff;
+
   font-size:14px;
   font-weight:700;
+
   cursor:pointer;
   touch-action:manipulation;
 }
 
 button:focus-visible,
 input:focus-visible,
-textarea:focus-visible,
-#popup:focus-visible{
+textarea:focus-visible{
   outline:3px solid #facc15;
-  outline-offset:3px;
+  outline-offset:2px;
 }
 
 #addBtn{
@@ -90,34 +97,43 @@ textarea:focus-visible,
 #hint{
   position:fixed;
   z-index:10001;
+
   display:none;
+
   left:50%;
   bottom:max(22px,env(safe-area-inset-bottom));
+
   transform:translateX(-50%);
+
   width:max-content;
   max-width:calc(100vw - 30px);
+
   padding:11px 18px;
+
   border-radius:30px;
+
   background:rgba(0,0,0,.88);
   color:#fff;
+
   text-align:center;
+
   pointer-events:none;
 }
 
 /* =========================================================
-   HOTSPOT POPUP
+   POPUP
 ========================================================= */
 
 #popup{
   position:fixed;
   z-index:10002;
+
   display:none;
 
-  width:360px;
+  width:350px;
   max-width:calc(100vw - 20px);
 
-  padding:20px;
-  padding-top:22px;
+  padding:18px;
 
   border-radius:14px;
 
@@ -127,22 +143,16 @@ textarea:focus-visible,
   box-shadow:0 12px 45px rgba(0,0,0,.5);
 }
 
-/* =========================================================
-   KRIŽEC V DESNEM ZGORNJEM KOTU POPUPA
-========================================================= */
-
 #popupClose{
   position:absolute;
 
-  top:8px;
   right:8px;
+  top:8px;
 
-  z-index:20;
-
-  width:36px;
-  height:36px;
-  min-width:36px;
-  min-height:36px;
+  width:34px;
+  height:34px;
+  min-width:34px;
+  min-height:34px;
 
   padding:0;
 
@@ -150,26 +160,17 @@ textarea:focus-visible,
   align-items:center;
   justify-content:center;
 
-  border:0;
   border-radius:50%;
 
   background:#222;
   color:#fff;
 
-  font-family:Arial,Helvetica,sans-serif;
-  font-size:25px;
-  font-weight:400;
+  font-size:23px;
   line-height:1;
-
-  cursor:pointer;
 }
 
 #popupClose:hover{
   background:#dc2626;
-}
-
-#popupClose:active{
-  transform:scale(.94);
 }
 
 #reader,
@@ -178,16 +179,14 @@ textarea:focus-visible,
 }
 
 #readerTitle{
-  margin:0 45px 10px 0;
-  line-height:1.2;
+  margin:0 42px 10px 0;
 }
 
 #readerDescription{
-  margin:0 0 15px 0;
-  padding-right:5px;
+  margin-bottom:15px;
 
   white-space:pre-wrap;
-  line-height:1.5;
+  line-height:1.45;
 }
 
 .readerButtons{
@@ -213,7 +212,9 @@ textarea:focus-visible,
 
 .fieldLabel{
   display:block;
-  margin:10px 0 5px;
+
+  margin:9px 0 4px;
+
   font-size:13px;
   font-weight:700;
 }
@@ -233,23 +234,31 @@ textarea:focus-visible,
 #titleInput,
 #descriptionInput{
   width:100%;
+
   padding:11px;
+
   border:1px solid #aaa;
   border-radius:8px;
+
   font:inherit;
 }
 
 #descriptionInput{
-  min-height:115px;
+  min-height:110px;
   resize:vertical;
 }
 
 .dictateBtn{
-  flex:0 0 auto;
+  flex:0 0 52px;
+
+  width:52px;
   min-width:52px;
-  padding:0 10px;
+
+  padding:0;
+
   background:#7c3aed;
-  font-size:19px;
+
+  font-size:20px;
 }
 
 .dictateBtn.listening{
@@ -257,11 +266,14 @@ textarea:focus-visible,
 }
 
 #dictationStatus{
-  min-height:22px;
-  margin-top:8px;
+  min-height:20px;
+
+  margin-top:7px;
+
+  color:#555;
+
   font-size:13px;
   font-weight:700;
-  color:#444;
 }
 
 #dictationStatus.listening{
@@ -271,6 +283,7 @@ textarea:focus-visible,
 .editorButtons{
   display:flex;
   gap:6px;
+
   margin-top:10px;
 }
 
@@ -296,14 +309,20 @@ textarea:focus-visible,
 
 .sr-only{
   position:absolute !important;
+
   width:1px !important;
   height:1px !important;
+
   padding:0 !important;
   margin:-1px !important;
+
   overflow:hidden !important;
+
   clip:rect(0,0,0,0) !important;
   clip-path:inset(50%) !important;
+
   white-space:nowrap !important;
+
   border:0 !important;
 }
 
@@ -315,20 +334,28 @@ textarea:focus-visible,
   position:fixed;
   inset:0;
   z-index:20000;
+
   display:none;
+
   align-items:center;
   justify-content:center;
+
   padding:20px;
+
   background:rgba(0,0,0,.94);
 }
 
 #vrStartBox{
   width:390px;
   max-width:100%;
+
   padding:24px;
+
   border-radius:16px;
+
   background:#fff;
   color:#111;
+
   text-align:center;
 }
 
@@ -357,24 +384,27 @@ textarea:focus-visible,
   position:fixed;
   inset:0;
   z-index:30000;
+
   display:none;
+
   align-items:center;
   justify-content:center;
+
   padding:30px;
+
   background:#000;
   color:#fff;
+
   text-align:center;
+
   font-size:22px;
   font-weight:bold;
 }
 
+/* uporabljamo svoj Cardboard gumb */
 .a-enter-vr{
   display:none !important;
 }
-
-/* =========================================================
-   MOBILE
-========================================================= */
 
 @media(max-width:600px){
 
@@ -382,13 +412,9 @@ textarea:focus-visible,
     width:calc(100vw - 20px);
   }
 
-  .editorButtons,
-  .readerButtons{
+  .readerButtons,
+  .editorButtons{
     flex-wrap:wrap;
-  }
-
-  .dictateBtn{
-    min-width:58px;
   }
 }
 </style>
@@ -397,21 +423,28 @@ textarea:focus-visible,
 <body>
 
 <!-- =======================================================
-     A-FRAME
+     A-FRAME SCENE
 ======================================================== -->
 
 <a-scene
   id="scene"
+
   embedded
-  vr-mode-ui="enabled:true"
-  device-orientation-permission-ui="enabled:true"
+
+  vr-mode-ui="enabled: true"
+
+  device-orientation-permission-ui="enabled: true"
+
   renderer="
-    antialias:true;
-    colorManagement:true;
-    highRefreshRate:true;
-    physicallyCorrectLights:false;
+    antialias: true;
+    colorManagement: true;
+    highRefreshRate: true;
+    physicallyCorrectLights: false;
   "
+
   background="color:#000000">
+
+  <!-- ASSETS -->
 
   <a-assets timeout="20000">
 
@@ -422,77 +455,110 @@ textarea:focus-visible,
 
   </a-assets>
 
+  <!-- PANORAMA -->
+
   <a-sky
     id="sky"
     src="#panoramaImage"
     rotation="0 0 0">
   </a-sky>
 
+  <!-- HOTSPOTS -->
+
   <a-entity id="hotspotContainer"></a-entity>
 
   <!-- =====================================================
        VR INFO CARD
+
+       SPREMEMBA:
+       ozadje je modrikasto, da se beli reticle ne izgubi.
   ====================================================== -->
 
   <a-entity
     id="vrInfo"
-    visible="false"
-    vr-card-face-camera>
+    visible="false">
 
     <a-plane
       width="3.4"
       height="1.9"
-      color="#ffffff"
+
+      color="#b9ddff"
+
       material="
         shader:flat;
-        opacity:0.97;
+        opacity:0.96;
         transparent:true;
       ">
     </a-plane>
 
     <a-text
       id="vrInfoTitle"
+
       value=""
-      color="#111111"
+
+      color="#10243e"
+
       width="3"
+
       align="center"
       anchor="center"
+
       wrap-count="30"
-      position="0 0.47 0.02">
+
+      position="0 0.46 0.015">
     </a-text>
 
     <a-text
       id="vrInfoDescription"
+
       value=""
-      color="#333333"
+
+      color="#17324f"
+
       width="2.8"
+
       align="center"
       anchor="center"
+
       wrap-count="42"
-      position="0 -0.15 0.02">
+
+      position="0 -0.15 0.015">
     </a-text>
 
-    <!-- VR X -->
+    <!-- ===================================================
+         VR KRIŽEC
+
+         Tudi ta uporablja isti 1.2 s gaze sistem.
+    ==================================================== -->
 
     <a-circle
       id="vrCloseButton"
-      class="vr-close"
-      radius="0.18"
-      color="#222222"
+
+      class="vr-close gaze-target"
+
+      radius="0.19"
+
+      color="#1e3a5f"
+
       material="
         shader:flat;
-        opacity:0.95;
+        opacity:0.98;
         transparent:true;
       "
-      position="1.42 0.70 0.04">
+
+      position="1.40 0.72 0.035">
 
       <a-text
-        value="X"
+        value="×"
+
         color="#ffffff"
-        width="0.65"
+
+        width="0.75"
+
         align="center"
         anchor="center"
-        position="0 -0.01 0.01">
+
+        position="0 0 0.01">
       </a-text>
 
     </a-circle>
@@ -509,8 +575,11 @@ textarea:focus-visible,
 
     <a-camera
       id="camera"
+
       position="0 0 0"
+
       wasd-controls="enabled:false"
+
       look-controls="
         enabled:true;
         magicWindowTrackingEnabled:true;
@@ -519,23 +588,30 @@ textarea:focus-visible,
         pointerLockEnabled:false;
       ">
 
+      <!-- VR gaze reticle -->
+
       <a-entity
         id="reticle"
+
         position="0 0 -1"
+
         cursor="
           fuse:true;
           fuseTimeout:1200;
         "
+
         raycaster="
-          objects:.hotspot, .vr-close;
+          objects:.gaze-target;
           far:100;
           interval:50;
         "
+
         geometry="
           primitive:ring;
           radiusInner:0.012;
           radiusOuter:0.019;
         "
+
         material="
           color:#ffffff;
           shader:flat;
@@ -553,69 +629,47 @@ textarea:focus-visible,
      TOOLBAR
 ======================================================== -->
 
-<div
-  id="toolbar"
-  role="toolbar"
-  aria-label="Orodja za 360 stopinjski ogled">
+<div id="toolbar">
 
-  <button
-    id="addBtn"
-    type="button"
-    aria-pressed="false">
+  <button id="addBtn">
     + Dodaj hotspot
   </button>
 
-  <button
-    id="zoomInBtn"
-    type="button"
-    aria-label="Povečaj pogled">
+  <button id="zoomInBtn">
     +
   </button>
 
-  <button
-    id="zoomOutBtn"
-    type="button"
-    aria-label="Pomanjšaj pogled">
+  <button id="zoomOutBtn">
     −
   </button>
 
-  <button
-    id="fullscreenBtn"
-    type="button"
-    aria-label="Celozaslonski način">
+  <button id="fullscreenBtn">
     ⛶
   </button>
 
-  <button
-    id="vrBtn"
-    type="button">
+  <button id="vrBtn">
     🥽 CARDBOARD
   </button>
 
 </div>
 
-<div
-  id="hint"
-  role="status"
-  aria-live="polite">
+<div id="hint">
   Tapni točno mesto v panorami
 </div>
 
 <!-- =======================================================
-     HOTSPOT POPUP
+     NORMALNI POPUP
 ======================================================== -->
 
 <div
   id="popup"
+
   role="dialog"
   aria-modal="true"
   aria-labelledby="readerTitle"
-  aria-describedby="readerDescription"
-  tabindex="-1">
+  aria-describedby="readerDescription">
 
-  <!--
-    KRIŽEC ZA ZAPIRANJE POPUPA
-  -->
+  <!-- KRIŽEC DESNO ZGORAJ -->
 
   <button
     id="popupClose"
@@ -625,7 +679,7 @@ textarea:focus-visible,
     ×
   </button>
 
-  <!-- READER -->
+  <!-- BRANJE -->
 
   <div id="reader">
 
@@ -641,7 +695,7 @@ textarea:focus-visible,
       <button
         id="speakBtn"
         type="button"
-        aria-label="Glasno preberi naslov in opis hotspota">
+        aria-label="Glasno preberi hotspot">
         🔊 Preberi
       </button>
 
@@ -655,7 +709,7 @@ textarea:focus-visible,
 
   </div>
 
-  <!-- EDITOR -->
+  <!-- UREJANJE -->
 
   <div id="editor">
 
@@ -677,7 +731,7 @@ textarea:focus-visible,
         id="dictateTitleBtn"
         class="dictateBtn"
         type="button"
-        aria-label="Začni slovenski narek naslova"
+        aria-label="Narek naslova"
         title="Narek naslova">
         🎤
       </button>
@@ -700,7 +754,7 @@ textarea:focus-visible,
         id="dictateDescriptionBtn"
         class="dictateBtn"
         type="button"
-        aria-label="Začni slovenski narek opisa"
+        aria-label="Narek opisa"
         title="Narek opisa">
         🎤
       </button>
@@ -716,21 +770,15 @@ textarea:focus-visible,
 
     <div class="editorButtons">
 
-      <button
-        id="saveBtn"
-        type="button">
+      <button id="saveBtn">
         Shrani
       </button>
 
-      <button
-        id="cancelBtn"
-        type="button">
+      <button id="cancelBtn">
         Prekliči
       </button>
 
-      <button
-        id="deleteBtn"
-        type="button">
+      <button id="deleteBtn">
         Izbriši
       </button>
 
@@ -740,7 +788,7 @@ textarea:focus-visible,
 
 </div>
 
-<!-- SCREEN READER -->
+<!-- SCREEN READER LIVE REGION -->
 
 <div
   id="screenReaderAnnouncement"
@@ -757,21 +805,19 @@ textarea:focus-visible,
 
   <div id="vrStartBox">
 
-    <h2>Samsung Galaxy A36</h2>
+    <h2>
+      Samsung Galaxy A36
+    </h2>
 
     <p>
       Obrni telefon vodoravno in ga vstavi v Cardboard očala.
     </p>
 
-    <button
-      id="startVRBtn"
-      type="button">
+    <button id="startVRBtn">
       ZAŽENI CARDBOARD
     </button>
 
-    <button
-      id="cancelVRBtn"
-      type="button">
+    <button id="cancelVRBtn">
       Prekliči
     </button>
 
@@ -789,6 +835,10 @@ textarea:focus-visible,
 /* =========================================================
    A-FRAME COMPONENTS
 ========================================================= */
+
+/*
+  Hotspot marker je vedno obrnjen proti centru panorame.
+*/
 
 AFRAME.registerComponent(
   "look-at-center",
@@ -811,6 +861,10 @@ AFRAME.registerComponent(
   }
 );
 
+
+/*
+  VR kartica je vedno obrnjena proti kameri.
+*/
 
 AFRAME.registerComponent(
   "vr-card-face-camera",
@@ -972,15 +1026,24 @@ const rotateWarning =
   $("rotateWarning");
 
 
+vrInfo.setAttribute(
+  "vr-card-face-camera",
+  ""
+);
+
+
 /* =========================================================
    STORAGE
+
+   ISTI KLJUČ KOT PREJ
 ========================================================= */
 
 const STORAGE_KEY =
   "stable-360-hotspots-v5";
 
 
-let hotspots = [];
+let hotspots =
+  [];
 
 
 try{
@@ -995,7 +1058,8 @@ try{
 }
 catch(e){
 
-  hotspots = [];
+  hotspots =
+    [];
 
 }
 
@@ -1023,7 +1087,7 @@ function getHotspot(id){
 
 
 /* =========================================================
-   SPHERICAL
+   SPHERICAL COORDINATES
 ========================================================= */
 
 function sphericalToVector(
@@ -1032,7 +1096,7 @@ function sphericalToVector(
   radius=8
 ){
 
-  return{
+  return {
 
     x:
       radius *
@@ -1117,8 +1181,11 @@ function makeHotspotCanvas(number){
     );
 
 
-  c.width = 256;
-  c.height = 256;
+  c.width =
+    256;
+
+  c.height =
+    256;
 
 
   const ctx =
@@ -1134,6 +1201,8 @@ function makeHotspotCanvas(number){
     256
   );
 
+
+  /* White border */
 
   ctx.beginPath();
 
@@ -1151,6 +1220,8 @@ function makeHotspotCanvas(number){
   ctx.fill();
 
 
+  /* Red center */
+
   ctx.beginPath();
 
   ctx.arc(
@@ -1167,6 +1238,8 @@ function makeHotspotCanvas(number){
   ctx.fill();
 
 
+  /* Number */
+
   ctx.fillStyle =
     "#ffffff";
 
@@ -1178,7 +1251,6 @@ function makeHotspotCanvas(number){
 
   ctx.textBaseline =
     "middle";
-
 
   ctx.fillText(
     String(number),
@@ -1193,7 +1265,7 @@ function makeHotspotCanvas(number){
 
 
 /* =========================================================
-   HOTSPOTS
+   RENDER HOTSPOTS
 ========================================================= */
 
 function renderHotspots(){
@@ -1266,8 +1338,17 @@ function renderHotspots(){
       );
 
 
+      /*
+        .hotspot = obstoječa logika
+        .gaze-target = VR raycaster
+      */
+
       marker.classList.add(
         "hotspot"
+      );
+
+      marker.classList.add(
+        "gaze-target"
       );
 
 
@@ -1275,17 +1356,9 @@ function renderHotspots(){
         hotspot.id;
 
 
-      marker.setAttribute(
-        "aria-label",
-        hotspot.title
-          ? "Hotspot: "+hotspot.title
-          : "Hotspot "+(index+1)
-      );
-
-
       marker.addEventListener(
         "click",
-        ()=>{
+        event=>{
 
           if(addMode){
             return;
@@ -1342,7 +1415,7 @@ function announceToScreenReader(text){
         text;
 
     },
-    40
+    50
   );
 
 }
@@ -1356,79 +1429,24 @@ let selectedHotspotId =
   null;
 
 
-let focusBeforePopup =
-  null;
-
-
 function closePopup(){
 
   stopDictation();
+
   stopSpeaking();
-
-
-  const previousFocus =
-    focusBeforePopup;
 
 
   popup.style.display =
     "none";
 
-
   popup.style.visibility =
     "visible";
-
 
   selectedHotspotId =
     null;
 
-
-  focusBeforePopup =
-    null;
-
-
-  announceToScreenReader(
-    "Vsebina hotspota je zaprta."
-  );
-
-
-  if(
-    previousFocus &&
-    typeof previousFocus.focus ===
-      "function"
-  ){
-
-    try{
-
-      previousFocus.focus();
-
-    }
-    catch(e){}
-
-  }
-
 }
 
-
-/* =========================================================
-   KRIŽEC POPUPA
-========================================================= */
-
-popupClose.addEventListener(
-  "click",
-  event=>{
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    closePopup();
-
-  }
-);
-
-
-/* =========================================================
-   READER
-========================================================= */
 
 function openReader(id){
 
@@ -1442,17 +1460,6 @@ function openReader(id){
 
 
   stopDictation();
-
-
-  if(
-    popup.style.display ===
-      "none"
-  ){
-
-    focusBeforePopup =
-      document.activeElement;
-
-  }
 
 
   selectedHotspotId =
@@ -1477,23 +1484,6 @@ function openReader(id){
     description;
 
 
-  popup.removeAttribute(
-    "aria-label"
-  );
-
-
-  popup.setAttribute(
-    "aria-labelledby",
-    "readerTitle"
-  );
-
-
-  popup.setAttribute(
-    "aria-describedby",
-    "readerDescription"
-  );
-
-
   editor.style.display =
     "none";
 
@@ -1513,27 +1503,32 @@ function openReader(id){
   positionPopup();
 
 
+  /*
+    Bralnik zaslona dobi naslov in opis.
+  */
+
+  announceToScreenReader(
+    title + ". " + description
+  );
+
+
   requestAnimationFrame(
     ()=>{
 
-      readerTitle.focus({
-        preventScroll:true
-      });
+      try{
+
+        readerTitle.focus({
+          preventScroll:true
+        });
+
+      }
+      catch(e){}
 
     }
   );
 
-
-  announceToScreenReader(
-    title+". "+description
-  );
-
 }
 
-
-/* =========================================================
-   EDITOR
-========================================================= */
 
 function openEditor(id){
 
@@ -1561,22 +1556,6 @@ function openEditor(id){
     hotspot.description || "";
 
 
-  popup.removeAttribute(
-    "aria-labelledby"
-  );
-
-
-  popup.removeAttribute(
-    "aria-describedby"
-  );
-
-
-  popup.setAttribute(
-    "aria-label",
-    "Urejanje hotspota"
-  );
-
-
   reader.style.display =
     "none";
 
@@ -1593,42 +1572,43 @@ function openEditor(id){
     "visible";
 
 
-  dictationStatus.textContent =
-    speechRecognitionSupported
-      ? "Narek je pripravljen."
-      : "Ta brskalnik ne podpira nareka.";
+  if(speechRecognitionSupported){
+
+    dictationStatus.textContent =
+      "Narek je pripravljen.";
+
+  }
+  else{
+
+    dictationStatus.textContent =
+      "Ta brskalnik ne podpira nareka.";
+
+  }
 
 
   positionPopup();
 
 
-  const isTouchDevice =
-    navigator.maxTouchPoints > 0;
-
-
-  if(!isTouchDevice){
-
-    requestAnimationFrame(
-      ()=>{
-
-        titleInput.focus({
-          preventScroll:true
-        });
-
-      }
-    );
-
-  }
+  /*
+    Na telefonu ne odpiramo tipkovnice avtomatsko.
+  */
 
 }
 
 
 /* =========================================================
-   EDIT / SAVE / CANCEL / DELETE
+   NORMALNI POPUP KRIŽEC
 ========================================================= */
 
-editBtn.addEventListener(
-  "click",
+popupClose.onclick =
+  closePopup;
+
+
+/* =========================================================
+   EDIT
+========================================================= */
+
+editBtn.onclick =
   ()=>{
 
     if(selectedHotspotId){
@@ -1639,12 +1619,14 @@ editBtn.addEventListener(
 
     }
 
-  }
-);
+  };
 
 
-saveBtn.addEventListener(
-  "click",
+/* =========================================================
+   SAVE
+========================================================= */
+
+saveBtn.onclick =
   ()=>{
 
     stopDictation();
@@ -1675,21 +1657,18 @@ saveBtn.addEventListener(
     renderHotspots();
 
 
-    popup.removeAttribute(
-      "aria-label"
-    );
-
-
     openReader(
       hotspot.id
     );
 
-  }
-);
+  };
 
 
-cancelBtn.addEventListener(
-  "click",
+/* =========================================================
+   CANCEL
+========================================================= */
+
+cancelBtn.onclick =
   ()=>{
 
     stopDictation();
@@ -1699,11 +1678,6 @@ cancelBtn.addEventListener(
       getHotspot(
         selectedHotspotId
       );
-
-
-    popup.removeAttribute(
-      "aria-label"
-    );
 
 
     if(
@@ -1725,15 +1699,18 @@ cancelBtn.addEventListener(
 
     }
 
-  }
-);
+  };
 
 
-deleteBtn.addEventListener(
-  "click",
+/* =========================================================
+   DELETE
+========================================================= */
+
+deleteBtn.onclick =
   ()=>{
 
     stopDictation();
+
     stopSpeaking();
 
 
@@ -1753,23 +1730,12 @@ deleteBtn.addEventListener(
     saveHotspots();
 
 
-    popup.removeAttribute(
-      "aria-label"
-    );
-
-
     closePopup();
 
 
     renderHotspots();
 
-
-    announceToScreenReader(
-      "Hotspot je izbrisan."
-    );
-
-  }
-);
+  };
 
 
 /* =========================================================
@@ -1788,27 +1754,77 @@ const speechRecognitionSupported =
 let recognition =
   null;
 
+let dictationRunning =
+  false;
 
 let dictationTarget =
   null;
-
 
 let dictationButton =
   null;
 
 
-let dictationRunning =
-  false;
-
+/*
+  Če browser nareka ne podpira, gumba skrijemo.
+*/
 
 if(!speechRecognitionSupported){
 
   dictateTitleBtn.style.display =
     "none";
 
-
   dictateDescriptionBtn.style.display =
     "none";
+
+}
+
+
+/* =========================================================
+   STOP DICTATION
+========================================================= */
+
+function stopDictation(){
+
+  if(recognition){
+
+    try{
+
+      recognition.stop();
+
+    }
+    catch(e){}
+
+  }
+
+
+  dictationRunning =
+    false;
+
+
+  dictateTitleBtn.classList.remove(
+    "listening"
+  );
+
+  dictateDescriptionBtn.classList.remove(
+    "listening"
+  );
+
+
+  dictateTitleBtn.textContent =
+    "🎤";
+
+  dictateDescriptionBtn.textContent =
+    "🎤";
+
+
+  recognition =
+    null;
+
+  dictationTarget =
+    null;
+
+  dictationButton =
+    null;
 
 }
 
@@ -1822,12 +1838,20 @@ function startDictation(
   button
 ){
 
+  /*
+    Če isti mikrofon že posluša,
+    klik ga ustavi.
+  */
+
   if(
     dictationRunning &&
     dictationTarget === target
   ){
 
     stopDictation();
+
+    dictationStatus.textContent =
+      "Narek je ustavljen.";
 
     return;
 
@@ -1846,12 +1870,6 @@ function startDictation(
     dictationStatus.textContent =
       "Narek v tem brskalniku ni podprt.";
 
-
-    announceToScreenReader(
-      "Narek v tem brskalniku ni podprt."
-    );
-
-
     return;
 
   }
@@ -1860,6 +1878,10 @@ function startDictation(
   recognition =
     new SpeechRecognitionClass();
 
+
+  /*
+    SLOVENŠČINA
+  */
 
   recognition.lang =
     "sl-SI";
@@ -1885,7 +1907,7 @@ function startDictation(
     button;
 
 
-  let originalText =
+  const originalText =
     target.value;
 
 
@@ -1907,12 +1929,6 @@ function startDictation(
 
       button.textContent =
         "■";
-
-
-      button.setAttribute(
-        "aria-label",
-        "Ustavi slovenski narek"
-      );
 
 
       dictationStatus.classList.add(
@@ -1954,7 +1970,7 @@ function startDictation(
         ){
 
           finalTranscript +=
-            transcript+" ";
+            transcript + " ";
 
         }
         else{
@@ -1985,7 +2001,6 @@ function startDictation(
         target.selectionStart =
           target.value.length;
 
-
         target.selectionEnd =
           target.value.length;
 
@@ -2008,7 +2023,7 @@ function startDictation(
       ){
 
         message =
-          "Mikrofon ni dovoljen. Brskalniku dovoli uporabo mikrofona.";
+          "Mikrofon ni dovoljen. Dovoli uporabo mikrofona.";
 
       }
       else if(
@@ -2035,7 +2050,7 @@ function startDictation(
       ){
 
         message =
-          "Narek trenutno nima povezave s storitvijo za prepoznavanje govora.";
+          "Narek trenutno nima povezave.";
 
       }
 
@@ -2068,27 +2083,6 @@ function startDictation(
         dictationButton.textContent =
           "🎤";
 
-
-        if(
-          dictationButton ===
-          dictateTitleBtn
-        ){
-
-          dictationButton.setAttribute(
-            "aria-label",
-            "Začni slovenski narek naslova"
-          );
-
-        }
-        else{
-
-          dictationButton.setAttribute(
-            "aria-label",
-            "Začni slovenski narek opisa"
-          );
-
-        }
-
       }
 
 
@@ -2109,15 +2103,13 @@ function startDictation(
       }
 
 
+      recognition =
+        null;
+
       dictationTarget =
         null;
 
-
       dictationButton =
-        null;
-
-
-      recognition =
         null;
 
     };
@@ -2138,71 +2130,7 @@ function startDictation(
 }
 
 
-/* =========================================================
-   STOP DICTATION
-========================================================= */
-
-function stopDictation(){
-
-  if(recognition){
-
-    try{
-
-      recognition.stop();
-
-    }
-    catch(e){}
-
-  }
-
-
-  dictationRunning =
-    false;
-
-
-  dictateTitleBtn.classList.remove(
-    "listening"
-  );
-
-
-  dictateDescriptionBtn.classList.remove(
-    "listening"
-  );
-
-
-  dictateTitleBtn.textContent =
-    "🎤";
-
-
-  dictateDescriptionBtn.textContent =
-    "🎤";
-
-
-  dictateTitleBtn.setAttribute(
-    "aria-label",
-    "Začni slovenski narek naslova"
-  );
-
-
-  dictateDescriptionBtn.setAttribute(
-    "aria-label",
-    "Začni slovenski narek opisa"
-  );
-
-
-  dictationStatus.classList.remove(
-    "listening"
-  );
-
-}
-
-
-/* =========================================================
-   DICTATION BUTTONS
-========================================================= */
-
-dictateTitleBtn.addEventListener(
-  "click",
+dictateTitleBtn.onclick =
   ()=>{
 
     startDictation(
@@ -2210,12 +2138,10 @@ dictateTitleBtn.addEventListener(
       dictateTitleBtn
     );
 
-  }
-);
+  };
 
 
-dictateDescriptionBtn.addEventListener(
-  "click",
+dictateDescriptionBtn.onclick =
   ()=>{
 
     startDictation(
@@ -2223,19 +2149,18 @@ dictateDescriptionBtn.addEventListener(
       dictateDescriptionBtn
     );
 
-  }
-);
+  };
 
 
 /* =========================================================
-   TEXT TO SPEECH
+   SLOVENSKO GLASNO BRANJE
 ========================================================= */
 
 let speaking =
   false;
 
 
-function findSlovenianVoice(){
+function getSlovenianVoice(){
 
   if(
     !(
@@ -2254,9 +2179,9 @@ function findSlovenianVoice(){
 
   let voice =
     voices.find(
-      item =>
-        item.lang &&
-        item.lang.toLowerCase() ===
+      v =>
+        v.lang &&
+        v.lang.toLowerCase() ===
         "sl-si"
     );
 
@@ -2265,9 +2190,9 @@ function findSlovenianVoice(){
 
     voice =
       voices.find(
-        item =>
-          item.lang &&
-          item.lang
+        v =>
+          v.lang &&
+          v.lang
             .toLowerCase()
             .startsWith(
               "sl"
@@ -2300,21 +2225,10 @@ function stopSpeaking(){
   speakBtn.textContent =
     "🔊 Preberi";
 
-
-  speakBtn.setAttribute(
-    "aria-label",
-    "Glasno preberi naslov in opis hotspota"
-  );
-
 }
 
 
-/* =========================================================
-   SPEAK BUTTON
-========================================================= */
-
-speakBtn.addEventListener(
-  "click",
+speakBtn.onclick =
   ()=>{
 
     if(speaking){
@@ -2333,7 +2247,7 @@ speakBtn.addEventListener(
     ){
 
       announceToScreenReader(
-        "Glasno branje v tem brskalniku ni podprto."
+        "Glasno branje ni podprto."
       );
 
       return;
@@ -2367,7 +2281,7 @@ speakBtn.addEventListener(
 
     const utterance =
       new SpeechSynthesisUtterance(
-        title+". "+description
+        title + ". " + description
       );
 
 
@@ -2375,14 +2289,14 @@ speakBtn.addEventListener(
       "sl-SI";
 
 
-    const slovenianVoice =
-      findSlovenianVoice();
+    const voice =
+      getSlovenianVoice();
 
 
-    if(slovenianVoice){
+    if(voice){
 
       utterance.voice =
-        slovenianVoice;
+        voice;
 
     }
 
@@ -2390,10 +2304,8 @@ speakBtn.addEventListener(
     utterance.rate =
       1;
 
-
     utterance.pitch =
       1;
-
 
     utterance.volume =
       1;
@@ -2409,12 +2321,6 @@ speakBtn.addEventListener(
         speakBtn.textContent =
           "■ Ustavi";
 
-
-        speakBtn.setAttribute(
-          "aria-label",
-          "Ustavi glasno branje"
-        );
-
       };
 
 
@@ -2427,12 +2333,6 @@ speakBtn.addEventListener(
 
         speakBtn.textContent =
           "🔊 Preberi";
-
-
-        speakBtn.setAttribute(
-          "aria-label",
-          "Glasno preberi naslov in opis hotspota"
-        );
 
       };
 
@@ -2447,12 +2347,6 @@ speakBtn.addEventListener(
         speakBtn.textContent =
           "🔊 Preberi";
 
-
-        speakBtn.setAttribute(
-          "aria-label",
-          "Glasno preberi naslov in opis hotspota"
-        );
-
       };
 
 
@@ -2460,8 +2354,7 @@ speakBtn.addEventListener(
       utterance
     );
 
-  }
-);
+  };
 
 
 if(
@@ -2470,105 +2363,23 @@ if(
 
   speechSynthesis.getVoices();
 
-
-  if(
-    "onvoiceschanged" in
-    speechSynthesis
-  ){
-
-    speechSynthesis.onvoiceschanged =
-      ()=>{
-
-        speechSynthesis.getVoices();
-
-      };
-
-  }
-
 }
 
 
 /* =========================================================
-   KEYBOARD ACCESSIBILITY
+   ESC = ZAPRI NORMALNI POPUP
 ========================================================= */
 
 document.addEventListener(
   "keydown",
   event=>{
 
-    /*
-      ESC = zapri popup
-    */
-
     if(
       event.key === "Escape" &&
-      popup.style.display !==
-        "none"
+      popup.style.display !== "none"
     ){
-
-      event.preventDefault();
 
       closePopup();
-
-      return;
-
-    }
-
-
-    if(
-      event.key !== "Tab" ||
-      popup.style.display ===
-        "none"
-    ){
-
-      return;
-
-    }
-
-
-    const focusable =
-      [...popup.querySelectorAll(
-        "button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
-      )]
-      .filter(
-        element =>
-          element.offsetParent !== null
-      );
-
-
-    if(!focusable.length){
-      return;
-    }
-
-
-    const first =
-      focusable[0];
-
-
-    const last =
-      focusable[
-        focusable.length-1
-      ];
-
-
-    if(
-      event.shiftKey &&
-      document.activeElement === first
-    ){
-
-      event.preventDefault();
-
-      last.focus();
-
-    }
-    else if(
-      !event.shiftKey &&
-      document.activeElement === last
-    ){
-
-      event.preventDefault();
-
-      first.focus();
 
     }
 
@@ -2777,23 +2588,12 @@ function startAddMode(){
     "PREKLIČI";
 
 
-  addBtn.setAttribute(
-    "aria-pressed",
-    "true"
-  );
-
-
   hint.textContent =
     "Tapni točno mesto v panorami";
 
 
   hint.style.display =
     "block";
-
-
-  announceToScreenReader(
-    "Dodajanje hotspota. Kliknite ali se dotaknite želenega mesta v panorami."
-  );
 
 }
 
@@ -2811,12 +2611,6 @@ function stopAddMode(){
 
   addBtn.textContent =
     "+ Dodaj hotspot";
-
-
-  addBtn.setAttribute(
-    "aria-pressed",
-    "false"
-  );
 
 
   hint.style.display =
@@ -2848,7 +2642,7 @@ addBtn.addEventListener(
 
 
 /* =========================================================
-   POINTER HOTSPOT PLACEMENT
+   MOBILE + DESKTOP POINTER HOTSPOT PLACEMENT
 ========================================================= */
 
 let sceneCanvas =
@@ -2884,7 +2678,7 @@ const TAP_TIME_LIMIT =
 
 
 /* =========================================================
-   CREATE HOTSPOT
+   CREATE HOTSPOT FROM SCREEN POSITION
 ========================================================= */
 
 function createHotspotAtScreenPoint(
@@ -3021,7 +2815,7 @@ function createHotspotAtScreenPoint(
 
 
 /* =========================================================
-   POINTER EVENTS
+   INSTALL POINTER EVENTS
 ========================================================= */
 
 function installPointerControls(){
@@ -3253,36 +3047,31 @@ function setFov(value){
 }
 
 
-zoomInBtn.addEventListener(
-  "click",
+zoomInBtn.onclick =
   ()=>{
 
     setFov(
       normalFov-8
     );
 
-  }
-);
+  };
 
 
-zoomOutBtn.addEventListener(
-  "click",
+zoomOutBtn.onclick =
   ()=>{
 
     setFov(
       normalFov+8
     );
 
-  }
-);
+  };
 
 
 /* =========================================================
    FULLSCREEN
 ========================================================= */
 
-fullscreenBtn.addEventListener(
-  "click",
+fullscreenBtn.onclick =
   async ()=>{
 
     try{
@@ -3315,8 +3104,7 @@ fullscreenBtn.addEventListener(
     }
     catch(e){}
 
-  }
-);
+  };
 
 
 /* =========================================================
@@ -3331,20 +3119,22 @@ function hideVRInfo(){
   );
 
 
+  /*
+    Po zapiranju vrnemo barvo X gumba.
+  */
+
   vrCloseButton.setAttribute(
     "color",
-    "#222222"
-  );
-
-
-  reticle.setAttribute(
-    "material",
-    "color",
-    "#ffffff"
+    "#1e3a5f"
   );
 
 }
 
+
+/*
+  TO JE ŠE VEDNO ISTA LOGIKA:
+  kartico postavimo 2.6 m pred kamero.
+*/
 
 function showVRInfo(id){
 
@@ -3427,7 +3217,9 @@ function showVRInfo(id){
 
 
 /* =========================================================
-   VR CLOSE
+   VR KRIŽEC
+
+   Pogled nanj 1.2 sekunde = zapri kartico.
 ========================================================= */
 
 vrCloseButton.addEventListener(
@@ -3449,7 +3241,7 @@ vrCloseButton.addEventListener(
 
     vrCloseButton.setAttribute(
       "color",
-      "#222222"
+      "#1e3a5f"
     );
 
   }
@@ -3476,6 +3268,8 @@ vrCloseButton.addEventListener(
 
 /* =========================================================
    GAZE
+
+   ISTI PRINCIP KOT V TVOJI DELUJOČI VERZIJI.
 ========================================================= */
 
 reticle.addEventListener(
@@ -3529,6 +3323,10 @@ reticle.addEventListener(
     }
 
 
+    /*
+      Če gledamo X, zapremo popup.
+    */
+
     if(
       target.classList.contains(
         "vr-close"
@@ -3541,6 +3339,10 @@ reticle.addEventListener(
 
     }
 
+
+    /*
+      Če gledamo hotspot, odpremo vsebino.
+    */
 
     if(
       target.classList.contains(
@@ -3570,7 +3372,8 @@ async function acquireWakeLock(){
 
   if(
     !(
-      "wakeLock" in navigator
+      "wakeLock" in
+      navigator
     )
   ){
     return;
@@ -3634,16 +3437,21 @@ async function releaseWakeLock(){
 
 /* =========================================================
    CARDBOARD
+
+   TA DEL OSTAJA PO ISTEM PRINCIPU KOT TVOJA
+   DELUJOČA VERZIJA.
 ========================================================= */
 
-vrBtn.addEventListener(
-  "click",
+vrBtn.onclick =
   ()=>{
 
-    stopSpeaking();
     stopDictation();
 
+    stopSpeaking();
+
+
     closePopup();
+
 
     stopAddMode();
 
@@ -3651,30 +3459,25 @@ vrBtn.addEventListener(
     vrStart.style.display =
       "flex";
 
-
-    startVRBtn.focus();
-
-  }
-);
+  };
 
 
-cancelVRBtn.addEventListener(
-  "click",
+cancelVRBtn.onclick =
   ()=>{
 
     vrStart.style.display =
       "none";
 
-
-    vrBtn.focus();
-
-  }
-);
+  };
 
 
-startVRBtn.addEventListener(
-  "click",
+startVRBtn.onclick =
   async ()=>{
+
+    /*
+      iOS motion permission.
+      Galaxy A36 / Android tega običajno ne zahteva.
+    */
 
     if(
       typeof DeviceOrientationEvent !==
@@ -3719,6 +3522,10 @@ startVRBtn.addEventListener(
       "none";
 
 
+    /*
+      Landscape.
+    */
+
     try{
 
       if(
@@ -3736,6 +3543,12 @@ startVRBtn.addEventListener(
     catch(e){}
 
 
+    /*
+      A-FRAME PREVZAME VR.
+
+      TEGA NE NADOMEŠČAMO Z LASTNIM RENDERERJEM.
+    */
+
     try{
 
       await scene.enterVR();
@@ -3749,8 +3562,7 @@ startVRBtn.addEventListener(
 
     }
 
-  }
-);
+  };
 
 
 /* =========================================================
@@ -3762,9 +3574,12 @@ scene.addEventListener(
   async ()=>{
 
     stopDictation();
+
     stopSpeaking();
 
+
     stopAddMode();
+
 
     closePopup();
 
@@ -3923,6 +3738,10 @@ scene.addEventListener(
     renderHotspots();
 
 
+    /*
+      Namestimo TOUCH + MOUSE pointer podporo.
+    */
+
     installPointerControls();
 
 
@@ -3930,6 +3749,10 @@ scene.addEventListener(
       normalFov
     );
 
+
+    /*
+      Mouse wheel zoom samo na desktopu.
+    */
 
     if(scene.canvas){
 
