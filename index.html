@@ -679,19 +679,7 @@ textarea:focus-visible{
         ">
       </a-entity>
 
-      <!-- VR: dodajanje hotspota z gaze -->
-      <a-entity id="vrAddPanel" visible="false">
-        <a-plane id="vrAddButton" class="gaze-target vr-add-control"
-          position="0 -0.58 -1.55" width="1.05" height="0.28"
-          color="#2563eb" material="shader:flat; opacity:0.96; transparent:true;">
-        </a-plane>
-        <a-text id="vrAddButtonText" value="+ DODAJ HOTSPOT"
-          position="0 -0.58 -1.535" width="1.65" align="center" anchor="center"
-          color="#ffffff"></a-text>
-        <a-text id="vrAddStatus" value=""
-          position="0 0.42 -1.45" width="1.9" align="center" anchor="center"
-          color="#ffffff" wrap-count="34" visible="false"></a-text>
-      </a-entity>
+
 
     </a-camera>
 
@@ -1013,10 +1001,6 @@ const mouseCursor =
 const reticle =
   $("reticle");
 
-const vrAddPanel = $("vrAddPanel");
-const vrAddButton = $("vrAddButton");
-const vrAddButtonText = $("vrAddButtonText");
-const vrAddStatus = $("vrAddStatus");
 
 
 const vrInfo =
@@ -3624,137 +3608,6 @@ vrCloseButton.addEventListener(
 
 
 /* =========================================================
-   VR DODAJANJE HOTSPOTA Z GAZE
-
-   1. Z gaze izberi + DODAJ HOTSPOT.
-   2. Poglej želeno mesto v panorami.
-   3. Drži pogled približno 2 sekundi pri miru.
-   4. Hotspot se ustvari v smeri sredinskega križca.
-========================================================= */
-
-let vrPlacementMode = false;
-let vrStableSince = 0;
-let vrLastDirection = null;
-let vrPlacementCooldownUntil = 0;
-const VR_STABLE_MS = 2000;
-const VR_STABLE_ANGLE = THREE.MathUtils.degToRad(1.6);
-
-function setVRAddPanelVisible(visible){
-  if(!vrAddPanel) return;
-  vrAddPanel.setAttribute("visible", !!visible);
-}
-
-function resetVRPlacementStability(){
-  vrStableSince = 0;
-  vrLastDirection = null;
-}
-
-function stopVRPlacement(message=""){
-  vrPlacementMode = false;
-  resetVRPlacementStability();
-  if(vrAddButton){
-    vrAddButton.setAttribute("visible", true);
-    vrAddButton.classList.add("gaze-target");
-    vrAddButton.setAttribute("color", "#2563eb");
-  }
-  if(vrAddButtonText){
-    vrAddButtonText.setAttribute("visible", true);
-    vrAddButtonText.setAttribute("value", "+ DODAJ HOTSPOT");
-  }
-  if(vrAddStatus){
-    vrAddStatus.setAttribute("value", message);
-    vrAddStatus.setAttribute("visible", !!message);
-  }
-}
-
-function startVRPlacement(){
-  if(!scene.is("vr-mode")) return;
-  hideVRInfo();
-  vrPlacementMode = true;
-  resetVRPlacementStability();
-  vrPlacementCooldownUntil = performance.now() + 700;
-  if(vrAddButton){
-    vrAddButton.classList.remove("gaze-target");
-    vrAddButton.setAttribute("visible", false);
-  }
-  if(vrAddButtonText) vrAddButtonText.setAttribute("visible", false);
-  if(vrAddStatus){
-    vrAddStatus.setAttribute("value", "POGLEJ MESTO IN DRZI GLAVO PRI MIRU 2 s");
-    vrAddStatus.setAttribute("visible", true);
-  }
-  reticle.setAttribute("material", "color:#38bdf8; shader:flat; opacity:0.95");
-}
-
-function createHotspotFromVRDirection(direction){
-  const spherical = vectorToSpherical(direction);
-  const hotspot = {
-    id:"hs-" + Date.now() + "-" + Math.random().toString(36).slice(2,7),
-    yaw:spherical.yaw,
-    pitch:spherical.pitch,
-    title:"Nova točka",
-    description:"Uredi naslov in opis po izhodu iz VR."
-  };
-  hotspots.push(hotspot);
-  saveHotspots();
-  renderHotspots();
-  stopVRPlacement("HOTSPOT DODAN ✓");
-  reticle.setAttribute("material", "color:#22c55e; shader:flat; opacity:0.95");
-  setTimeout(()=>{
-    if(scene.is("vr-mode") && !vrPlacementMode){
-      if(vrAddStatus) vrAddStatus.setAttribute("visible", false);
-      reticle.setAttribute("material", "color:#ffffff; shader:flat; opacity:0.95");
-    }
-  },1200);
-}
-
-if(vrAddButton){
-  vrAddButton.addEventListener("fusing", ()=>{
-    if(scene.is("vr-mode") && !vrPlacementMode) vrAddButton.setAttribute("color", "#16a34a");
-  });
-  vrAddButton.addEventListener("mouseleave", ()=>{
-    if(!vrPlacementMode) vrAddButton.setAttribute("color", "#2563eb");
-  });
-  vrAddButton.addEventListener("click", ()=>{
-    if(scene.is("vr-mode") && !vrPlacementMode) startVRPlacement();
-  });
-}
-
-function updateVRPlacement(){
-  if(!vrPlacementMode || !scene.is("vr-mode") || !scene.camera) return;
-  const now = performance.now();
-  if(now < vrPlacementCooldownUntil) return;
-
-  const direction = new THREE.Vector3();
-  scene.camera.getWorldDirection(direction);
-  direction.normalize();
-
-  if(!vrLastDirection){
-    vrLastDirection = direction.clone();
-    vrStableSince = now;
-    return;
-  }
-
-  const angle = vrLastDirection.angleTo(direction);
-  if(angle > VR_STABLE_ANGLE){
-    vrLastDirection.copy(direction);
-    vrStableSince = now;
-    if(vrAddStatus) vrAddStatus.setAttribute("value", "POISCI MESTO ... NATO MIRUJ 2 s");
-    reticle.setAttribute("material", "color:#38bdf8; shader:flat; opacity:0.95");
-    return;
-  }
-
-  // Počasno sledenje prepreči, da bi droben naravni tresljaj resetiral čas.
-  vrLastDirection.lerp(direction, 0.12).normalize();
-  const elapsed = now - vrStableSince;
-  const remaining = Math.max(0, (VR_STABLE_MS - elapsed) / 1000);
-  if(vrAddStatus) vrAddStatus.setAttribute("value", "MIRUJ ... " + remaining.toFixed(1) + " s");
-
-  if(elapsed >= VR_STABLE_MS){
-    createHotspotFromVRDirection(direction);
-  }
-}
-
-/* =========================================================
    VR GAZE
 ========================================================= */
 
@@ -3817,15 +3670,6 @@ reticle.addEventListener(
       return;
     }
 
-
-    if(target.classList.contains("vr-add-control")){
-      return;
-    }
-
-
-    if(vrPlacementMode){
-      return;
-    }
 
 
     if(
@@ -4110,9 +3954,6 @@ scene.addEventListener(
     );
 
 
-    setVRAddPanelVisible(true);
-    stopVRPlacement();
-
 
     await acquireWakeLock();
 
@@ -4137,9 +3978,6 @@ scene.addEventListener(
     /*
       Najprej ugasnemo gaze.
     */
-
-    stopVRPlacement();
-    setVRAddPanelVisible(false);
 
 
     setVRGazeEnabled(
@@ -4315,8 +4153,6 @@ scene.addEventListener(
     );
 
 
-    setVRAddPanelVisible(false);
-
 
     /*
       Mouse wheel zoom.
@@ -4375,8 +4211,6 @@ function uiLoop(){
     uiLoop
   );
 
-
-  updateVRPlacement();
 
 
   if(
