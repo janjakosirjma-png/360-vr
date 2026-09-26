@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="sl">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-  />
+  >
 
   <title>360° Hotspot Viewer</title>
 
-  <!-- A-Frame: 360 + WebXR / VR -->
+  <!-- A-Frame = 360 + WebXR -->
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 
   <style>
@@ -27,14 +28,9 @@
       background: #111;
     }
 
-    /* =========================================
-       360 VIEWER
-    ========================================= */
-
     #viewer {
       position: fixed;
       inset: 0;
-      background: #111;
     }
 
     a-scene {
@@ -42,9 +38,9 @@
       height: 100%;
     }
 
-    /* =========================================
-       ZGORNJA ORODNA VRSTICA
-    ========================================= */
+    /* ========================================
+       TOOLBAR
+    ======================================== */
 
     #toolbar {
       position: fixed;
@@ -58,42 +54,35 @@
 
       padding: 8px;
 
-      border-radius: 14px;
-
-      background: rgba(20, 20, 20, 0.82);
+      background: rgba(20,20,20,.84);
       backdrop-filter: blur(10px);
 
-      box-shadow: 0 6px 25px rgba(0,0,0,.28);
+      border-radius: 14px;
+
+      box-shadow:
+        0 6px 25px rgba(0,0,0,.3);
     }
 
     .tool-button {
       height: 42px;
       min-width: 42px;
 
+      padding: 0 14px;
+
       border: 0;
       border-radius: 9px;
 
-      padding: 0 14px;
-
-      background: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.13);
       color: white;
 
       font-size: 14px;
       font-weight: 600;
 
       cursor: pointer;
-
-      transition:
-        background .15s ease,
-        transform .15s ease;
     }
 
     .tool-button:hover {
-      background: rgba(255,255,255,.22);
-    }
-
-    .tool-button:active {
-      transform: scale(.96);
+      background: rgba(255,255,255,.23);
     }
 
     #addHotspotBtn {
@@ -104,147 +93,101 @@
       background: #16a34a;
     }
 
+    #vrBtn {
+      background: #7c3aed;
+    }
+
+    #vrBtn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
     .separator {
       width: 1px;
       height: 26px;
       background: rgba(255,255,255,.22);
-      margin: 0 2px;
     }
 
-    /* =========================================
+    /* ========================================
        NAVODILO
-    ========================================= */
+    ======================================== */
 
     #instruction {
       position: fixed;
+      z-index: 10000;
 
       left: 50%;
       bottom: 24px;
 
       transform: translateX(-50%);
 
-      z-index: 10000;
-
       display: none;
-
-      max-width: calc(100% - 40px);
 
       padding: 11px 18px;
 
+      max-width: calc(100% - 40px);
+
       border-radius: 30px;
 
-      background: rgba(0,0,0,.78);
+      background: rgba(0,0,0,.8);
       color: white;
 
-      font-size: 14px;
       text-align: center;
+      font-size: 14px;
 
       pointer-events: none;
     }
 
-    /* =========================================
-       HOTSPOT HTML OVERLAY
-    ========================================= */
+    /* ========================================
+       HTML POPUP
+       Samo za navaden način.
+    ======================================== */
 
-    #hotspotLayer {
+    #popup {
       position: fixed;
-      inset: 0;
 
-      z-index: 5000;
+      z-index: 20000;
 
-      pointer-events: none;
-    }
+      display: none;
 
-    .hotspot-wrapper {
-      position: absolute;
-
-      width: 0;
-      height: 0;
-
-      pointer-events: none;
-    }
-
-    .hotspot-dot {
-      position: absolute;
-
-      left: 0;
-      top: 0;
-
-      width: 36px;
-      height: 36px;
-
-      transform: translate(-50%, -50%);
-
-      border: 3px solid white;
-      border-radius: 50%;
-
-      background: #ef4444;
-      color: white;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      font-size: 13px;
-      font-weight: bold;
-
-      cursor: pointer;
-      pointer-events: auto;
-
-      box-shadow:
-        0 4px 14px rgba(0,0,0,.45),
-        0 0 0 4px rgba(239,68,68,.25);
-
-      transition:
-        transform .15s ease,
-        background .15s ease;
-    }
-
-    .hotspot-dot:hover {
-      transform:
-        translate(-50%, -50%)
-        scale(1.15);
-
-      background: #dc2626;
-    }
-
-    /* =========================================
-       POPUP
-
-       Popup je del istega wrapperja kot pika,
-       zato je vedno vezan na hotspot.
-    ========================================= */
-
-    .hotspot-popup {
-      position: absolute;
-
-      left: 28px;
-      top: 0;
-
-      transform: translateY(-50%);
-
-      width: 320px;
-      max-width: calc(100vw - 40px);
+      width: 330px;
+      max-width: calc(100vw - 30px);
 
       padding: 18px;
-
-      border-radius: 14px;
 
       background: white;
       color: #222;
 
-      pointer-events: auto;
+      border-radius: 14px;
 
       box-shadow:
-        0 12px 40px rgba(0,0,0,.35);
+        0 12px 40px rgba(0,0,0,.38);
     }
 
-    .hotspot-popup.open-left {
+    #popup::before {
+      content: "";
+
+      position: absolute;
+
+      left: -9px;
+      top: 50%;
+
+      transform: translateY(-50%);
+
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+      border-right: 9px solid white;
+    }
+
+    #popup.open-left::before {
       left: auto;
-      right: 28px;
+      right: -9px;
+
+      border-right: 0;
+      border-left: 9px solid white;
     }
 
-    .popup-close {
+    #popupClose {
       position: absolute;
 
       right: 9px;
@@ -259,27 +202,29 @@
       border-radius: 50%;
 
       background: #f1f3f5;
+
       color: #444;
 
       font-size: 20px;
-      line-height: 30px;
 
       cursor: pointer;
     }
 
-    /* =========================================
-       BRALNI NAČIN
-    ========================================= */
+    /* ========================================
+       READER
+    ======================================== */
 
-    .reader-title {
-      margin: 0 35px 10px 0;
-
-      font-size: 19px;
-      line-height: 1.25;
+    #readerMode {
+      display: none;
     }
 
-    .reader-description {
-      margin: 0 0 16px;
+    #readerTitle {
+      margin: 0 35px 10px 0;
+      font-size: 20px;
+    }
+
+    #readerDescription {
+      margin: 0 0 17px;
 
       color: #444;
 
@@ -289,10 +234,10 @@
       white-space: pre-wrap;
     }
 
-    .edit-button {
+    #editBtn {
       width: 100%;
 
-      padding: 10px 14px;
+      padding: 10px;
 
       border: 0;
       border-radius: 8px;
@@ -300,15 +245,18 @@
       background: #2563eb;
       color: white;
 
-      font-size: 14px;
-      font-weight: 600;
+      font-weight: bold;
 
       cursor: pointer;
     }
 
-    /* =========================================
+    /* ========================================
        EDITOR
-    ========================================= */
+    ======================================== */
+
+    #editorMode {
+      display: none;
+    }
 
     .field-label {
       display: block;
@@ -316,38 +264,37 @@
       margin: 0 0 5px;
 
       font-size: 12px;
-      font-weight: 700;
+      font-weight: bold;
+
       color: #555;
     }
 
-    .title-input,
-    .description-input {
+    #titleInput,
+    #descriptionInput {
       width: 100%;
+
+      padding: 10px;
 
       border: 1px solid #d1d5db;
       border-radius: 8px;
-
-      padding: 10px;
 
       font: inherit;
 
       outline: none;
     }
 
-    .title-input {
+    #titleInput {
       margin-bottom: 12px;
     }
 
-    .description-input {
-      min-height: 115px;
-
+    #descriptionInput {
+      min-height: 120px;
+      margin-bottom: 12px;
       resize: vertical;
-
-      margin-bottom: 12px;
     }
 
-    .title-input:focus,
-    .description-input:focus {
+    #titleInput:focus,
+    #descriptionInput:focus {
       border-color: #2563eb;
     }
 
@@ -362,42 +309,38 @@
 
       padding: 9px 12px;
 
-      font-size: 13px;
-      font-weight: 600;
+      font-weight: bold;
 
       cursor: pointer;
     }
 
-    .save-button {
+    #saveBtn {
       flex: 1;
 
       background: #16a34a;
       color: white;
     }
 
-    .cancel-button {
+    #cancelBtn {
       background: #e5e7eb;
-      color: #222;
     }
 
-    .delete-button {
+    #deleteBtn {
       background: #dc2626;
       color: white;
     }
 
-    /* =========================================
-       MOBILNI PRIKAZ
-    ========================================= */
+    /* ========================================
+       MOBILE
+    ======================================== */
 
     @media (max-width: 650px) {
-
       #toolbar {
         top: 10px;
         left: 10px;
         right: 10px;
 
         justify-content: center;
-
         flex-wrap: wrap;
       }
 
@@ -406,148 +349,332 @@
         padding: 0 11px;
       }
 
-      .hotspot-popup {
-        width: 280px;
+      #popup {
+        width: 290px;
       }
-
     }
   </style>
 </head>
 
 <body>
 
-  <!-- =====================================
-       360 VIEWER
-  ====================================== -->
+<div id="viewer">
 
-  <div id="viewer">
+  <a-scene
+    id="scene"
 
-    <a-scene
-      id="scene"
-      embedded
-      vr-mode-ui="enabled: false"
-      renderer="antialias: true; colorManagement: true"
-      loading-screen="enabled: true"
-    >
+    embedded
 
-      <!--
-        SPREMENI SAMO src, če se tvoja
-        360 slika imenuje drugače.
-      -->
+    vr-mode-ui="enabled: false"
 
-      <a-assets>
-        <img
-          id="panoramaImage"
-          src="360.jpg"
-          crossorigin="anonymous"
-        >
-      </a-assets>
+    renderer="
+      antialias: true;
+      colorManagement: true
+    "
 
+    webxr="
+      referenceSpaceType: local-floor;
+      optionalFeatures: local-floor, bounded-floor
+    "
 
-      <!-- 360° equirectangular panorama -->
+    loading-screen="enabled: true"
 
-      <a-sky
-        id="sky"
-        src="#panoramaImage"
-        rotation="0 -90 0"
-      ></a-sky>
+    cursor="rayOrigin: mouse"
 
+    raycaster="
+      objects: .clickable;
+      far: 100
+    "
+  >
 
-      <!-- Kamera -->
+    <!-- ==================================
+         360° SLIKA
+    =================================== -->
 
-      <a-entity
-        id="cameraRig"
-        position="0 0 0"
+    <a-assets>
+
+      <img
+        id="panoramaImage"
+        src="360.jpg"
+        crossorigin="anonymous"
       >
 
-        <a-camera
-          id="camera"
-          position="0 0 0"
-          look-controls="enabled: true"
-          wasd-controls="enabled: false"
-          zoom-control
-        ></a-camera>
+    </a-assets>
 
-      </a-entity>
 
-    </a-scene>
+    <a-sky
+      id="sky"
+      src="#panoramaImage"
+      rotation="0 -90 0"
+    ></a-sky>
+
+
+    <!-- ==================================
+         3D HOTSPOTI
+    =================================== -->
+
+    <a-entity
+      id="hotspotContainer"
+    ></a-entity>
+
+
+    <!-- ==================================
+         VR INFO KARTICA
+
+         To je prava 3D kartica,
+         zato je vidna v headsetu.
+    =================================== -->
+
+    <a-entity
+      id="vrCard"
+      visible="false"
+    >
+
+      <a-plane
+        width="3.5"
+        height="2"
+        color="#ffffff"
+        opacity="0.96"
+        material="shader: flat"
+      ></a-plane>
+
+      <a-text
+        id="vrCardTitle"
+        value=""
+        position="-1.5 0.62 0.02"
+        width="3"
+        color="#111111"
+        align="left"
+        wrap-count="28"
+      ></a-text>
+
+      <a-text
+        id="vrCardDescription"
+        value=""
+        position="-1.5 0.25 0.02"
+        width="3"
+        color="#333333"
+        align="left"
+        baseline="top"
+        wrap-count="42"
+      ></a-text>
+
+      <a-text
+        value="Poglej stran, da nadaljuješ"
+        position="0 -0.78 0.02"
+        width="2.4"
+        color="#777777"
+        align="center"
+      ></a-text>
+
+    </a-entity>
+
+
+    <!-- ==================================
+         KAMERA
+    =================================== -->
+
+    <a-entity
+      id="cameraRig"
+      position="0 0 0"
+    >
+
+      <a-camera
+        id="camera"
+
+        position="0 1.6 0"
+
+        look-controls="
+          enabled: true
+        "
+
+        wasd-controls="
+          enabled: false
+        "
+      >
+
+        <!--
+          VR GAZE RETICLE
+
+          V normalnem načinu je skrit.
+          V VR ga prikažemo.
+        -->
+
+        <a-entity
+          id="gazeCursor"
+
+          position="0 0 -1"
+
+          visible="false"
+
+          cursor="
+            fuse: true;
+            fuseTimeout: 1200
+          "
+
+          raycaster="
+            objects: .vr-hotspot;
+            far: 100
+          "
+        >
+
+          <!-- osnovna pika -->
+
+          <a-ring
+            id="gazeRing"
+
+            radius-inner="0.012"
+            radius-outer="0.020"
+
+            color="#ffffff"
+
+            material="
+              shader: flat;
+              opacity: 0.9
+            "
+          ></a-ring>
+
+        </a-entity>
+
+      </a-camera>
+
+    </a-entity>
+
+  </a-scene>
+
+</div>
+
+
+<!-- ========================================
+     TOOLBAR
+========================================= -->
+
+<div id="toolbar">
+
+  <button
+    id="addHotspotBtn"
+    class="tool-button"
+  >
+    + Dodaj hotspot
+  </button>
+
+  <div class="separator"></div>
+
+  <button
+    id="zoomInBtn"
+    class="tool-button"
+  >
+    +
+  </button>
+
+  <button
+    id="zoomOutBtn"
+    class="tool-button"
+  >
+    −
+  </button>
+
+  <div class="separator"></div>
+
+  <button
+    id="fullscreenBtn"
+    class="tool-button"
+  >
+    ⛶ Fullscreen
+  </button>
+
+  <button
+    id="vrBtn"
+    class="tool-button"
+  >
+    🥽 VR
+  </button>
+
+</div>
+
+
+<div id="instruction">
+  Klikni na mesto v 360° panorami, kamor želiš dodati hotspot.
+</div>
+
+
+<!-- ========================================
+     NORMALNI POPUP
+========================================= -->
+
+<div id="popup">
+
+  <button id="popupClose">
+    ×
+  </button>
+
+
+  <!-- BRANJE -->
+
+  <div id="readerMode">
+
+    <h2 id="readerTitle"></h2>
+
+    <div id="readerDescription"></div>
+
+    <button id="editBtn">
+      Uredi
+    </button>
 
   </div>
 
 
-  <!-- =====================================
-       HOTSPOT HTML LAYER
-  ====================================== -->
+  <!-- UREJANJE -->
 
-  <div id="hotspotLayer"></div>
+  <div id="editorMode">
 
+    <label class="field-label">
+      Naslov
+    </label>
 
-  <!-- =====================================
-       KONTROLE
-  ====================================== -->
-
-  <div id="toolbar">
-
-    <button
-      id="addHotspotBtn"
-      class="tool-button"
+    <input
+      id="titleInput"
+      type="text"
+      placeholder="Naslov hotspota"
     >
-      + Dodaj hotspot
-    </button>
 
 
-    <div class="separator"></div>
+    <label class="field-label">
+      Opis
+    </label>
+
+    <textarea
+      id="descriptionInput"
+      placeholder="Vpiši opis..."
+    ></textarea>
 
 
-    <button
-      id="zoomInBtn"
-      class="tool-button"
-      title="Približaj"
-    >
-      +
-    </button>
+    <div class="editor-buttons">
 
+      <button id="saveBtn">
+        Shrani
+      </button>
 
-    <button
-      id="zoomOutBtn"
-      class="tool-button"
-      title="Oddalji"
-    >
-      −
-    </button>
+      <button id="cancelBtn">
+        Prekliči
+      </button>
 
+      <button id="deleteBtn">
+        Izbriši
+      </button>
 
-    <div class="separator"></div>
-
-
-    <button
-      id="fullscreenBtn"
-      class="tool-button"
-    >
-      ⛶ Fullscreen
-    </button>
-
-
-    <button
-      id="vrBtn"
-      class="tool-button"
-    >
-      🥽 VR
-    </button>
+    </div>
 
   </div>
 
-
-  <div id="instruction">
-    Obrni pogled na želeno mesto in klikni v panoramo.
-  </div>
+</div>
 
 
 <script>
 
-/* ==========================================================
+/* =========================================================
    ELEMENTI
-========================================================== */
+========================================================= */
 
 const scene =
   document.querySelector("#scene");
@@ -558,8 +685,24 @@ const camera =
 const sky =
   document.querySelector("#sky");
 
-const hotspotLayer =
-  document.querySelector("#hotspotLayer");
+const hotspotContainer =
+  document.querySelector("#hotspotContainer");
+
+const gazeCursor =
+  document.querySelector("#gazeCursor");
+
+const gazeRing =
+  document.querySelector("#gazeRing");
+
+const vrCard =
+  document.querySelector("#vrCard");
+
+const vrCardTitle =
+  document.querySelector("#vrCardTitle");
+
+const vrCardDescription =
+  document.querySelector("#vrCardDescription");
+
 
 const addHotspotBtn =
   document.querySelector("#addHotspotBtn");
@@ -580,12 +723,49 @@ const instruction =
   document.querySelector("#instruction");
 
 
-/* ==========================================================
+const popup =
+  document.querySelector("#popup");
+
+const popupClose =
+  document.querySelector("#popupClose");
+
+const readerMode =
+  document.querySelector("#readerMode");
+
+const editorMode =
+  document.querySelector("#editorMode");
+
+const readerTitle =
+  document.querySelector("#readerTitle");
+
+const readerDescription =
+  document.querySelector("#readerDescription");
+
+const editBtn =
+  document.querySelector("#editBtn");
+
+const titleInput =
+  document.querySelector("#titleInput");
+
+const descriptionInput =
+  document.querySelector("#descriptionInput");
+
+const saveBtn =
+  document.querySelector("#saveBtn");
+
+const cancelBtn =
+  document.querySelector("#cancelBtn");
+
+const deleteBtn =
+  document.querySelector("#deleteBtn");
+
+
+/* =========================================================
    PODATKI
-========================================================== */
+========================================================= */
 
 const STORAGE_KEY =
-  "panorama-360-hotspots-v1";
+  "stable-360-hotspots-v3";
 
 
 let hotspots =
@@ -594,14 +774,22 @@ let hotspots =
   ) || [];
 
 
+let selectedHotspotId = null;
+
 let addMode = false;
 
-let openHotspotId = null;
+let isDragging = false;
+
+let dragStartX = 0;
+
+let dragStartY = 0;
+
+let dragDistance = 0;
 
 
-/* ==========================================================
-   SHRANJEVANJE
-========================================================== */
+/* =========================================================
+   SHRANI
+========================================================= */
 
 function saveHotspots() {
 
@@ -613,56 +801,42 @@ function saveHotspots() {
 }
 
 
-/* ==========================================================
-   ZOOM COMPONENT
-========================================================== */
+/* =========================================================
+   FACE CAMERA
+
+   Hotspot je pravi 3D objekt.
+
+   Obrne se proti kameri.
+
+   Ni več HTML pika, zato pri dnu
+   in vrhu panorame ne trese.
+========================================================= */
 
 AFRAME.registerComponent(
-  "zoom-control",
+  "face-camera",
   {
 
-    init: function () {
+    tick: function () {
 
       const cameraObject =
-        this.el.getObject3D("camera");
+        camera.object3D;
 
 
-      window.addEventListener(
-        "wheel",
-        event => {
-
-          if (
-            event.target.closest &&
-            (
-              event.target.closest(".hotspot-popup") ||
-              event.target.closest("#toolbar")
-            )
-          ) {
-            return;
-          }
+      if (!cameraObject)
+        return;
 
 
-          event.preventDefault();
+      const cameraPosition =
+        new THREE.Vector3();
 
 
-          cameraObject.fov +=
-            event.deltaY * 0.03;
+      cameraObject.getWorldPosition(
+        cameraPosition
+      );
 
 
-          cameraObject.fov =
-            THREE.MathUtils.clamp(
-              cameraObject.fov,
-              30,
-              100
-            );
-
-
-          cameraObject.updateProjectionMatrix();
-
-        },
-        {
-          passive: false
-        }
+      this.el.object3D.lookAt(
+        cameraPosition
       );
 
     }
@@ -671,144 +845,437 @@ AFRAME.registerComponent(
 );
 
 
-/* ==========================================================
-   ZOOM GUMBA
-========================================================== */
+/* =========================================================
+   YAW / PITCH -> 3D
+========================================================= */
 
-function changeZoom(amount) {
+function sphericalToVector(
+  yaw,
+  pitch,
+  radius = 8
+) {
+
+  const x =
+    radius *
+    Math.cos(pitch) *
+    Math.sin(yaw);
+
+
+  const y =
+    radius *
+    Math.sin(pitch);
+
+
+  const z =
+    -radius *
+    Math.cos(pitch) *
+    Math.cos(yaw);
+
+
+  return new THREE.Vector3(
+    x,
+    y,
+    z
+  );
+
+}
+
+
+/* =========================================================
+   3D SMER -> YAW / PITCH
+========================================================= */
+
+function directionToSpherical(
+  direction
+) {
+
+  return {
+
+    yaw:
+      Math.atan2(
+        direction.x,
+        -direction.z
+      ),
+
+    pitch:
+      Math.asin(
+        THREE.MathUtils.clamp(
+          direction.y,
+          -1,
+          1
+        )
+      )
+
+  };
+
+}
+
+
+/* =========================================================
+   SCREEN CLICK -> 3D SMER
+========================================================= */
+
+function screenToDirection(
+  clientX,
+  clientY
+) {
 
   const cameraObject =
     camera.getObject3D("camera");
 
 
   if (!cameraObject)
-    return;
+    return null;
 
 
-  cameraObject.fov += amount;
+  const rect =
+    scene.canvas.getBoundingClientRect();
 
 
-  cameraObject.fov =
-    THREE.MathUtils.clamp(
-      cameraObject.fov,
-      30,
-      100
+  const x =
+    (
+      (clientX - rect.left)
+      / rect.width
+    ) * 2 - 1;
+
+
+  const y =
+    -(
+      (
+        (clientY - rect.top)
+        / rect.height
+      ) * 2 - 1
     );
 
 
-  cameraObject.updateProjectionMatrix();
+  const vector =
+    new THREE.Vector3(
+      x,
+      y,
+      0.5
+    );
+
+
+  vector.unproject(
+    cameraObject
+  );
+
+
+  const cameraPosition =
+    new THREE.Vector3();
+
+
+  cameraObject.getWorldPosition(
+    cameraPosition
+  );
+
+
+  vector
+    .sub(cameraPosition)
+    .normalize();
+
+
+  return vector;
 
 }
 
 
-zoomInBtn.addEventListener(
-  "click",
-  () => changeZoom(-10)
-);
+/* =========================================================
+   NAREDI 3D HOTSPOT
+========================================================= */
+
+function createHotspotEntity(
+  hotspot,
+  number
+) {
+
+  const root =
+    document.createElement(
+      "a-entity"
+    );
 
 
-zoomOutBtn.addEventListener(
-  "click",
-  () => changeZoom(10)
-);
+  root.dataset.id =
+    hotspot.id;
 
 
-/* ==========================================================
-   FULLSCREEN
-========================================================== */
-
-fullscreenBtn.addEventListener(
-  "click",
-  async () => {
-
-    try {
-
-      if (!document.fullscreenElement) {
-
-        await document.documentElement
-          .requestFullscreen();
-
-      }
-
-      else {
-
-        await document.exitFullscreen();
-
-      }
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "Fullscreen ni na voljo:",
-        error
-      );
-
-    }
-
-  }
-);
+  root.classList.add(
+    "clickable"
+  );
 
 
-/* ==========================================================
-   VR / WEBXR
-========================================================== */
+  root.classList.add(
+    "vr-hotspot"
+  );
 
-vrBtn.addEventListener(
-  "click",
-  async () => {
 
-    /*
-      A-Frame uporablja WebXR.
+  root.setAttribute(
+    "face-camera",
+    ""
+  );
 
-      VR bo deloval samo:
-      - v podprtem brskalniku,
-      - prek HTTPS,
-      - na WebXR napravi.
-    */
 
-    try {
+  const position =
+    sphericalToVector(
+      hotspot.yaw,
+      hotspot.pitch
+    );
+
+
+  root.setAttribute(
+    "position",
+    `${position.x} ${position.y} ${position.z}`
+  );
+
+
+  /* -------------------------------
+     BEL ROB
+  -------------------------------- */
+
+  const border =
+    document.createElement(
+      "a-circle"
+    );
+
+
+  border.setAttribute(
+    "radius",
+    "0.26"
+  );
+
+
+  border.setAttribute(
+    "color",
+    "#ffffff"
+  );
+
+
+  border.setAttribute(
+    "material",
+    "shader: flat; side: double"
+  );
+
+
+  /* -------------------------------
+     RDEČA PIKA
+  -------------------------------- */
+
+  const dot =
+    document.createElement(
+      "a-circle"
+    );
+
+
+  dot.setAttribute(
+    "radius",
+    "0.20"
+  );
+
+
+  dot.setAttribute(
+    "position",
+    "0 0 0.01"
+  );
+
+
+  dot.setAttribute(
+    "color",
+    "#ef4444"
+  );
+
+
+  dot.setAttribute(
+    "material",
+    "shader: flat; side: double"
+  );
+
+
+  /* -------------------------------
+     ŠTEVILKA
+  -------------------------------- */
+
+  const text =
+    document.createElement(
+      "a-text"
+    );
+
+
+  text.setAttribute(
+    "value",
+    String(number)
+  );
+
+
+  text.setAttribute(
+    "align",
+    "center"
+  );
+
+
+  text.setAttribute(
+    "anchor",
+    "center"
+  );
+
+
+  text.setAttribute(
+    "baseline",
+    "center"
+  );
+
+
+  text.setAttribute(
+    "color",
+    "#ffffff"
+  );
+
+
+  text.setAttribute(
+    "width",
+    "1"
+  );
+
+
+  text.setAttribute(
+    "position",
+    "0 0 0.025"
+  );
+
+
+  root.appendChild(border);
+  root.appendChild(dot);
+  root.appendChild(text);
+
+
+  /* =====================================================
+     NORMALEN KLIK NA HOTSPOT
+
+     Odpre samo reader.
+  ===================================================== */
+
+  root.addEventListener(
+    "click",
+    event => {
+
+      event.stopPropagation();
+
+
+      /*
+        Če smo v VR:
+        click prihaja iz gaze fuse.
+
+        Zato pokažemo VR kartico.
+      */
 
       if (scene.is("vr-mode")) {
 
-        scene.exitVR();
+        showVRCard(
+          hotspot
+        );
 
         return;
 
       }
 
 
-      await scene.enterVR();
+      stopAddMode();
 
-    }
 
-    catch (error) {
-
-      alert(
-        "VR na tej napravi ali v tem brskalniku ni na voljo."
+      openReader(
+        hotspot.id
       );
 
-      console.error(error);
+    }
+  );
+
+
+  /* =====================================================
+     GAZE ZAČETEK
+
+     Cursor je začel gledati hotspot.
+  ===================================================== */
+
+  root.addEventListener(
+    "mouseenter",
+    () => {
+
+      if (!scene.is("vr-mode"))
+        return;
+
+
+      startGazeAnimation(
+        root
+      );
 
     }
-
-  }
-);
+  );
 
 
-/* ==========================================================
-   NAČIN DODAJANJA
-========================================================== */
+  /* =====================================================
+     GAZE PREKINITEV
+  ===================================================== */
+
+  root.addEventListener(
+    "mouseleave",
+    () => {
+
+      if (!scene.is("vr-mode"))
+        return;
+
+
+      cancelGazeAnimation(
+        root
+      );
+
+    }
+  );
+
+
+  hotspotContainer.appendChild(
+    root
+  );
+
+}
+
+
+/* =========================================================
+   RENDER VSEH HOTSPOTOV
+========================================================= */
+
+function renderHotspots() {
+
+  hotspotContainer.innerHTML =
+    "";
+
+
+  hotspots.forEach(
+    (hotspot, index) => {
+
+      createHotspotEntity(
+        hotspot,
+        index + 1
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   DODAJ HOTSPOT
+========================================================= */
 
 addHotspotBtn.addEventListener(
   "click",
-  event => {
+  () => {
 
-    event.stopPropagation();
+    if (scene.is("vr-mode"))
+      return;
 
 
-    addMode = !addMode;
+    addMode =
+      !addMode;
 
 
     closePopup();
@@ -820,8 +1287,10 @@ addHotspotBtn.addEventListener(
         "active"
       );
 
+
       addHotspotBtn.textContent =
         "Klikni v panoramo";
+
 
       instruction.style.display =
         "block";
@@ -858,12 +1327,137 @@ function stopAddMode() {
 }
 
 
-/* ==========================================================
-   KLIK V PANORAMO
+/* =========================================================
+   DRAG DETEKCIJA
 
-   Ta klik ustvari hotspot SAMO,
-   če je aktiven "Dodaj hotspot".
-========================================================== */
+   Če uporabnik vrti panoramo,
+   ne želimo ustvariti hotspota.
+========================================================= */
+
+scene.addEventListener(
+  "mousedown",
+  event => {
+
+    isDragging = true;
+
+    dragStartX =
+      event.clientX;
+
+    dragStartY =
+      event.clientY;
+
+    dragDistance = 0;
+
+  }
+);
+
+
+scene.addEventListener(
+  "mousemove",
+  event => {
+
+    if (!isDragging)
+      return;
+
+
+    const dx =
+      event.clientX -
+      dragStartX;
+
+
+    const dy =
+      event.clientY -
+      dragStartY;
+
+
+    dragDistance =
+      Math.sqrt(
+        dx * dx +
+        dy * dy
+      );
+
+  }
+);
+
+
+window.addEventListener(
+  "mouseup",
+  () => {
+
+    isDragging = false;
+
+  }
+);
+
+
+/* TOUCH */
+
+scene.addEventListener(
+  "touchstart",
+  event => {
+
+    if (
+      event.touches.length !== 1
+    )
+      return;
+
+
+    dragStartX =
+      event.touches[0].clientX;
+
+
+    dragStartY =
+      event.touches[0].clientY;
+
+
+    dragDistance = 0;
+
+  },
+  {
+    passive: true
+  }
+);
+
+
+scene.addEventListener(
+  "touchmove",
+  event => {
+
+    if (
+      event.touches.length !== 1
+    )
+      return;
+
+
+    const dx =
+      event.touches[0].clientX -
+      dragStartX;
+
+
+    const dy =
+      event.touches[0].clientY -
+      dragStartY;
+
+
+    dragDistance =
+      Math.sqrt(
+        dx * dx +
+        dy * dy
+      );
+
+  },
+  {
+    passive: true
+  }
+);
+
+
+/* =========================================================
+   KLIK NA PANORAMO
+
+   SAMO kadar je vklopljen
+   "+ Dodaj hotspot".
+========================================================= */
 
 scene.addEventListener(
   "click",
@@ -874,52 +1468,33 @@ scene.addEventListener(
 
 
     /*
-      Če klik prihaja iz HTML UI,
-      ga ignoriramo.
+      Če smo premikali panoramo,
+      ni klik.
     */
 
-    if (
-      event.target.closest &&
-      (
-        event.target.closest("#toolbar") ||
-        event.target.closest(".hotspot-popup") ||
-        event.target.closest(".hotspot-dot")
-      )
-    ) {
+    if (dragDistance > 8)
       return;
-    }
 
 
     /*
-      Uporabimo trenutno smer pogleda.
-
-      Hotspot nastane v centru pogleda,
-      oziroma zelo blizu mesta,
-      kamor uporabnik gleda.
-
-      Za natančen klik spodaj dodatno
-      upoštevamo položaj miške.
+      Če smo kliknili obstoječ
+      3D hotspot, ne dodajaj novega.
     */
 
-    const mouseX =
-      event.clientX;
-
-    const mouseY =
-      event.clientY;
-
-
     if (
-      typeof mouseX !== "number" ||
-      typeof mouseY !== "number"
-    ) {
+      event.target &&
+      event.target.closest &&
+      event.target.closest(
+        ".vr-hotspot"
+      )
+    )
       return;
-    }
 
 
     const direction =
-      screenPointToDirection(
-        mouseX,
-        mouseY
+      screenToDirection(
+        event.clientX,
+        event.clientY
       );
 
 
@@ -936,11 +1511,12 @@ scene.addEventListener(
     const hotspot = {
 
       id:
+        "hs-" +
         Date.now() +
         "-" +
         Math.random()
           .toString(36)
-          .slice(2),
+          .slice(2,7),
 
       yaw:
         spherical.yaw,
@@ -955,7 +1531,9 @@ scene.addEventListener(
     };
 
 
-    hotspots.push(hotspot);
+    hotspots.push(
+      hotspot
+    );
 
 
     saveHotspots();
@@ -964,18 +1542,12 @@ scene.addEventListener(
     stopAddMode();
 
 
-    /*
-      Nariši novo piko.
-    */
-
     renderHotspots();
 
 
     /*
-      KLJUČNI FLOW:
-
-      ob ustvarjanju se editor
-      takoj odpre ob novi piki.
+      Takoj odpri editor
+      ob novi piki.
     */
 
     openEditor(
@@ -986,141 +1558,16 @@ scene.addEventListener(
 );
 
 
-/* ==========================================================
-   PRETVORBA SCREEN KLIKA V 3D SMER
-========================================================== */
+/* =========================================================
+   3D HOTSPOT -> SCREEN
 
-function screenPointToDirection(
-  clientX,
-  clientY
-) {
+   To uporabljamo SAMO za popup.
 
-  const cameraObject =
-    camera.getObject3D("camera");
+   Pika sama se NE premika s to
+   funkcijo, zato ni tresenja.
+========================================================= */
 
-
-  if (!cameraObject)
-    return null;
-
-
-  const rect =
-    scene.getBoundingClientRect();
-
-
-  const x =
-    ((clientX - rect.left)
-      / rect.width) * 2 - 1;
-
-
-  const y =
-    -(
-      ((clientY - rect.top)
-        / rect.height) * 2 - 1
-    );
-
-
-  const vector =
-    new THREE.Vector3(
-      x,
-      y,
-      0.5
-    );
-
-
-  vector.unproject(
-    cameraObject
-  );
-
-
-  vector
-    .sub(
-      cameraObject
-        .getWorldPosition(
-          new THREE.Vector3()
-        )
-    )
-    .normalize();
-
-
-  return vector;
-
-}
-
-
-/* ==========================================================
-   3D SMER -> YAW / PITCH
-========================================================== */
-
-function directionToSpherical(
-  direction
-) {
-
-  const yaw =
-    Math.atan2(
-      direction.x,
-      -direction.z
-    );
-
-
-  const pitch =
-    Math.asin(
-      THREE.MathUtils.clamp(
-        direction.y,
-        -1,
-        1
-      )
-    );
-
-
-  return {
-    yaw,
-    pitch
-  };
-
-}
-
-
-/* ==========================================================
-   YAW / PITCH -> 3D TOČKA
-========================================================== */
-
-function sphericalToVector(
-  yaw,
-  pitch,
-  radius = 10
-) {
-
-  const x =
-    radius *
-    Math.cos(pitch) *
-    Math.sin(yaw);
-
-
-  const y =
-    radius *
-    Math.sin(pitch);
-
-
-  const z =
-    -radius *
-    Math.cos(pitch) *
-    Math.cos(yaw);
-
-
-  return new THREE.Vector3(
-    x,
-    y,
-    z
-  );
-
-}
-
-
-/* ==========================================================
-   3D HOTSPOT -> POZICIJA NA ZASLONU
-========================================================== */
-
-function hotspotToScreen(
+function getHotspotScreenPosition(
   hotspot
 ) {
 
@@ -1132,16 +1579,23 @@ function hotspotToScreen(
     return null;
 
 
-  const worldPosition =
+  const position =
     sphericalToVector(
       hotspot.yaw,
       hotspot.pitch
     );
 
 
+  const projected =
+    position
+      .clone()
+      .project(
+        cameraObject
+      );
+
+
   /*
-    Preverimo, ali je hotspot
-    pred ali za kamero.
+    Za kamero.
   */
 
   const cameraPosition =
@@ -1162,315 +1616,208 @@ function hotspotToScreen(
   );
 
 
-  const toPoint =
-    worldPosition
+  const direction =
+    position
       .clone()
       .sub(cameraPosition)
       .normalize();
 
 
-  const dot =
+  if (
     cameraDirection.dot(
-      toPoint
-    );
+      direction
+    ) <= 0
+  ) {
 
-
-  if (dot <= 0)
     return null;
 
-
-  const projected =
-    worldPosition
-      .clone()
-      .project(cameraObject);
-
-
-  const width =
-    window.innerWidth;
-
-
-  const height =
-    window.innerHeight;
-
-
-  const x =
-    (projected.x + 1)
-    / 2
-    * width;
-
-
-  const y =
-    (-projected.y + 1)
-    / 2
-    * height;
+  }
 
 
   return {
-    x,
-    y
+
+    x:
+      (
+        projected.x + 1
+      ) / 2 *
+      window.innerWidth,
+
+    y:
+      (
+        -projected.y + 1
+      ) / 2 *
+      window.innerHeight
+
   };
 
 }
 
 
-/* ==========================================================
-   RENDER HOTSPOTOV
-========================================================== */
+/* =========================================================
+   POSTAVI HTML POPUP OB HOTSPOT
+========================================================= */
 
-function renderHotspots() {
+function positionPopup() {
 
-  hotspotLayer.innerHTML = "";
-
-
-  hotspots.forEach(
-    (hotspot, index) => {
-
-      const wrapper =
-        document.createElement("div");
+  if (
+    !selectedHotspotId ||
+    popup.style.display === "none"
+  )
+    return;
 
 
-      wrapper.className =
-        "hotspot-wrapper";
+  const hotspot =
+    hotspots.find(
+      h =>
+        h.id ===
+        selectedHotspotId
+    );
 
 
-      wrapper.dataset.id =
-        hotspot.id;
+  if (!hotspot)
+    return;
 
 
-      const dot =
-        document.createElement("button");
+  const screen =
+    getHotspotScreenPosition(
+      hotspot
+    );
 
 
-      dot.className =
-        "hotspot-dot";
+  if (!screen) {
+
+    popup.style.visibility =
+      "hidden";
+
+    return;
+
+  }
 
 
-      dot.textContent =
-        index + 1;
+  popup.style.visibility =
+    "visible";
 
 
-      dot.title =
-        hotspot.title ||
-        "Hotspot";
+  const gap = 32;
 
 
-      /*
-        KLIK NA PIKO:
-
-        vedno odpre BRALNI način.
-
-        Nikoli editor neposredno.
-      */
-
-      dot.addEventListener(
-        "click",
-        event => {
-
-          event.stopPropagation();
+  const width =
+    popup.offsetWidth;
 
 
-          stopAddMode();
+  const height =
+    popup.offsetHeight;
 
 
-          openReader(
-            hotspot.id
-          );
+  let left;
 
-        }
-      );
-
-
-      wrapper.appendChild(dot);
+  let top =
+    screen.y -
+    height / 2;
 
 
-      hotspotLayer.appendChild(
-        wrapper
-      );
+  /*
+    DESNO ALI LEVO OD PIKE
+  */
 
-    }
+  if (
+    screen.x <
+    window.innerWidth / 2
+  ) {
+
+    popup.classList.remove(
+      "open-left"
+    );
+
+
+    left =
+      screen.x +
+      gap;
+
+  }
+
+  else {
+
+    popup.classList.add(
+      "open-left"
+    );
+
+
+    left =
+      screen.x -
+      width -
+      gap;
+
+  }
+
+
+  /*
+    ROBOVI
+  */
+
+  left =
+    Math.max(
+      10,
+      Math.min(
+        left,
+        window.innerWidth -
+        width -
+        10
+      )
+    );
+
+
+  top =
+    Math.max(
+      10,
+      Math.min(
+        top,
+        window.innerHeight -
+        height -
+        10
+      )
+    );
+
+
+  popup.style.left =
+    left + "px";
+
+
+  popup.style.top =
+    top + "px";
+
+}
+
+
+/* =========================================================
+   POPUP LOOP
+
+   Premika samo odprto okence.
+
+   3D hotspot ostane povsem
+   v WebGL sceni.
+========================================================= */
+
+function popupLoop() {
+
+  positionPopup();
+
+
+  requestAnimationFrame(
+    popupLoop
   );
 
-
-  updateHotspotPositions();
-
 }
 
 
-/* ==========================================================
-   POSODABLJANJE POZICIJ
-
-   Teče vsak frame, zato pike sledijo
-   360° panorami med obračanjem.
-========================================================== */
-
-function updateHotspotPositions() {
-
-  document
-    .querySelectorAll(
-      ".hotspot-wrapper"
-    )
-    .forEach(wrapper => {
-
-      const id =
-        wrapper.dataset.id;
+popupLoop();
 
 
-      const hotspot =
-        hotspots.find(
-          h => h.id === id
-        );
-
-
-      if (!hotspot)
-        return;
-
-
-      const screen =
-        hotspotToScreen(
-          hotspot
-        );
-
-
-      if (!screen) {
-
-        wrapper.style.display =
-          "none";
-
-        return;
-
-      }
-
-
-      /*
-        Če je daleč izven zaslona,
-        skrijemo.
-      */
-
-      if (
-        screen.x < -100 ||
-        screen.x >
-          window.innerWidth + 100 ||
-        screen.y < -100 ||
-        screen.y >
-          window.innerHeight + 100
-      ) {
-
-        wrapper.style.display =
-          "none";
-
-        return;
-
-      }
-
-
-      wrapper.style.display =
-        "block";
-
-
-      wrapper.style.left =
-        screen.x + "px";
-
-
-      wrapper.style.top =
-        screen.y + "px";
-
-
-      /*
-        Popup vedno ostane ob piki.
-
-        Če je pika na desni strani,
-        popup odpremo LEVO.
-      */
-
-      const popup =
-        wrapper.querySelector(
-          ".hotspot-popup"
-        );
-
-
-      if (popup) {
-
-        if (
-          screen.x >
-          window.innerWidth / 2
-        ) {
-
-          popup.classList.add(
-            "open-left"
-          );
-
-        }
-
-        else {
-
-          popup.classList.remove(
-            "open-left"
-          );
-
-        }
-
-
-        /*
-          Popravek vertikalnega roba.
-        */
-
-        requestAnimationFrame(
-          () => {
-
-            const popupRect =
-              popup.getBoundingClientRect();
-
-
-            let offsetY = 0;
-
-
-            if (
-              popupRect.top < 10
-            ) {
-
-              offsetY =
-                10 -
-                popupRect.top;
-
-            }
-
-
-            if (
-              popupRect.bottom >
-              window.innerHeight - 10
-            ) {
-
-              offsetY -=
-                popupRect.bottom -
-                (
-                  window.innerHeight -
-                  10
-                );
-
-            }
-
-
-            popup.style.marginTop =
-              offsetY + "px";
-
-          }
-        );
-
-      }
-
-    });
-
-}
-
-
-/* ==========================================================
-   BRALNI POPUP
-========================================================== */
+/* =========================================================
+   READER
+========================================================= */
 
 function openReader(id) {
-
-  closePopup();
-
 
   const hotspot =
     hotspots.find(
@@ -1482,142 +1829,49 @@ function openReader(id) {
     return;
 
 
-  openHotspotId = id;
+  selectedHotspotId =
+    id;
 
 
-  const wrapper =
-    document.querySelector(
-      `.hotspot-wrapper[data-id="${id}"]`
-    );
-
-
-  if (!wrapper)
-    return;
-
-
-  const popup =
-    document.createElement("div");
-
-
-  popup.className =
-    "hotspot-popup";
-
-
-  popup.addEventListener(
-    "click",
-    event =>
-      event.stopPropagation()
-  );
-
-
-  /* X */
-
-  const close =
-    document.createElement("button");
-
-
-  close.className =
-    "popup-close";
-
-
-  close.textContent =
-    "×";
-
-
-  close.addEventListener(
-    "click",
-    event => {
-
-      event.stopPropagation();
-
-      closePopup();
-
-    }
-  );
-
-
-  /* NASLOV */
-
-  const title =
-    document.createElement("h2");
-
-
-  title.className =
-    "reader-title";
-
-
-  title.textContent =
+  readerTitle.textContent =
     hotspot.title ||
     "Brez naslova";
 
 
-  /* OPIS */
-
-  const description =
-    document.createElement("div");
-
-
-  description.className =
-    "reader-description";
-
-
-  description.textContent =
+  readerDescription.textContent =
     hotspot.description ||
     "Ni opisa.";
 
 
-  /* UREDI */
-
-  const edit =
-    document.createElement("button");
+  editorMode.style.display =
+    "none";
 
 
-  edit.className =
-    "edit-button";
+  readerMode.style.display =
+    "block";
 
 
-  edit.textContent =
-    "Uredi";
+  popup.style.display =
+    "block";
 
 
-  edit.addEventListener(
-    "click",
-    event => {
+  /*
+    Počakamo, da browser
+    izračuna velikost.
+  */
 
-      event.stopPropagation();
-
-      openEditor(id);
-
-    }
+  requestAnimationFrame(
+    positionPopup
   );
-
-
-  popup.append(
-    close,
-    title,
-    description,
-    edit
-  );
-
-
-  wrapper.appendChild(
-    popup
-  );
-
-
-  updateHotspotPositions();
 
 }
 
 
-/* ==========================================================
-   EDITOR POPUP
-========================================================== */
+/* =========================================================
+   EDITOR
+========================================================= */
 
 function openEditor(id) {
-
-  closePopup();
-
 
   const hotspot =
     hotspots.find(
@@ -1629,235 +1883,424 @@ function openEditor(id) {
     return;
 
 
-  openHotspotId = id;
-
-
-  const wrapper =
-    document.querySelector(
-      `.hotspot-wrapper[data-id="${id}"]`
-    );
-
-
-  if (!wrapper)
-    return;
-
-
-  const popup =
-    document.createElement("div");
-
-
-  popup.className =
-    "hotspot-popup";
-
-
-  popup.addEventListener(
-    "click",
-    event =>
-      event.stopPropagation()
-  );
-
-
-  /* X */
-
-  const close =
-    document.createElement("button");
-
-
-  close.className =
-    "popup-close";
-
-
-  close.textContent =
-    "×";
-
-
-  close.addEventListener(
-    "click",
-    event => {
-
-      event.stopPropagation();
-
-      /*
-        Če je popolnoma nov hotspot
-        brez vsebine, ga samo zapremo.
-        Pika ostane.
-      */
-
-      closePopup();
-
-    }
-  );
-
-
-  /* NASLOV */
-
-  const titleLabel =
-    document.createElement("label");
-
-
-  titleLabel.className =
-    "field-label";
-
-
-  titleLabel.textContent =
-    "Naslov";
-
-
-  const titleInput =
-    document.createElement("input");
-
-
-  titleInput.className =
-    "title-input";
-
-
-  titleInput.type =
-    "text";
-
-
-  titleInput.placeholder =
-    "Naslov hotspota";
+  selectedHotspotId =
+    id;
 
 
   titleInput.value =
     hotspot.title || "";
 
 
-  /* OPIS */
-
-  const descriptionLabel =
-    document.createElement("label");
-
-
-  descriptionLabel.className =
-    "field-label";
-
-
-  descriptionLabel.textContent =
-    "Opis";
-
-
-  const descriptionInput =
-    document.createElement(
-      "textarea"
-    );
-
-
-  descriptionInput.className =
-    "description-input";
-
-
-  descriptionInput.placeholder =
-    "Vpiši opis...";
-
-
   descriptionInput.value =
     hotspot.description || "";
 
 
-  /* GUMBI */
-
-  const buttons =
-    document.createElement("div");
+  readerMode.style.display =
+    "none";
 
 
-  buttons.className =
-    "editor-buttons";
+  editorMode.style.display =
+    "block";
 
 
-  const save =
-    document.createElement("button");
+  popup.style.display =
+    "block";
 
 
-  save.className =
-    "save-button";
-
-
-  save.textContent =
-    "Shrani";
-
-
-  const cancel =
-    document.createElement("button");
-
-
-  cancel.className =
-    "cancel-button";
-
-
-  cancel.textContent =
-    "Prekliči";
-
-
-  const remove =
-    document.createElement("button");
-
-
-  remove.className =
-    "delete-button";
-
-
-  remove.textContent =
-    "Izbriši";
-
-
-  /* SHRANI */
-
-  save.addEventListener(
-    "click",
-    event => {
-
-      event.stopPropagation();
-
-
-      hotspot.title =
-        titleInput.value.trim();
-
-
-      hotspot.description =
-        descriptionInput.value.trim();
-
-
-      saveHotspots();
-
-
-      /*
-        TOČNO TVOJ FLOW:
-
-        popup se NE zapre.
-
-        Samo iz editorja preide
-        v BRALNI način.
-      */
-
-      openReader(id);
-
-    }
+  requestAnimationFrame(
+    positionPopup
   );
 
 
-  /* PREKLIČI */
+  setTimeout(
+    () =>
+      titleInput.focus(),
+    50
+  );
 
-  cancel.addEventListener(
-    "click",
-    event => {
-
-      event.stopPropagation();
+}
 
 
-      /*
-        Ne shranimo sprememb.
+/* =========================================================
+   SHRANI
 
-        Če že obstaja vsebina,
-        gremo nazaj v reader.
-      */
+   Popup OSTANE odprt.
+
+   Samo spremeni se
+   editor -> reader.
+========================================================= */
+
+saveBtn.addEventListener(
+  "click",
+  () => {
+
+    const hotspot =
+      hotspots.find(
+        h =>
+          h.id ===
+          selectedHotspotId
+      );
+
+
+    if (!hotspot)
+      return;
+
+
+    hotspot.title =
+      titleInput.value.trim();
+
+
+    hotspot.description =
+      descriptionInput
+        .value
+        .trim();
+
+
+    saveHotspots();
+
+
+    openReader(
+      hotspot.id
+    );
+
+  }
+);
+
+
+/* =========================================================
+   UREDI
+========================================================= */
+
+editBtn.addEventListener(
+  "click",
+  () => {
+
+    if (!selectedHotspotId)
+      return;
+
+
+    openEditor(
+      selectedHotspotId
+    );
+
+  }
+);
+
+
+/* =========================================================
+   PREKLIČI
+========================================================= */
+
+cancelBtn.addEventListener(
+  "click",
+  () => {
+
+    const hotspot =
+      hotspots.find(
+        h =>
+          h.id ===
+          selectedHotspotId
+      );
+
+
+    if (!hotspot)
+      return;
+
+
+    if (
+      hotspot.title ||
+      hotspot.description
+    ) {
+
+      openReader(
+        hotspot.id
+      );
+
+    }
+
+    else {
+
+      closePopup();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   IZBRIŠI
+========================================================= */
+
+deleteBtn.addEventListener(
+  "click",
+  () => {
+
+    if (!selectedHotspotId)
+      return;
+
+
+    hotspots =
+      hotspots.filter(
+        h =>
+          h.id !==
+          selectedHotspotId
+      );
+
+
+    saveHotspots();
+
+
+    closePopup();
+
+
+    renderHotspots();
+
+  }
+);
+
+
+/* =========================================================
+   ZAPRI
+========================================================= */
+
+popupClose.addEventListener(
+  "click",
+  closePopup
+);
+
+
+function closePopup() {
+
+  popup.style.display =
+    "none";
+
+
+  selectedHotspotId =
+    null;
+
+}
+
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+function changeZoom(
+  amount
+) {
+
+  const cameraObject =
+    camera.getObject3D(
+      "camera"
+    );
+
+
+  if (!cameraObject)
+    return;
+
+
+  cameraObject.fov +=
+    amount;
+
+
+  cameraObject.fov =
+    THREE.MathUtils.clamp(
+      cameraObject.fov,
+      30,
+      100
+    );
+
+
+  cameraObject
+    .updateProjectionMatrix();
+
+}
+
+
+zoomInBtn.addEventListener(
+  "click",
+  () =>
+    changeZoom(-10)
+);
+
+
+zoomOutBtn.addEventListener(
+  "click",
+  () =>
+    changeZoom(10)
+);
+
+
+/* KOLEŠČEK */
+
+window.addEventListener(
+  "wheel",
+  event => {
+
+    if (
+      popup.contains(
+        event.target
+      )
+    )
+      return;
+
+
+    event.preventDefault();
+
+
+    changeZoom(
+      event.deltaY *
+      0.03
+    );
+
+  },
+  {
+    passive: false
+  }
+);
+
+
+/* =========================================================
+   FULLSCREEN
+========================================================= */
+
+fullscreenBtn.addEventListener(
+  "click",
+  async () => {
+
+    try {
 
       if (
-        hotspot.title ||
-        hotspot.description
+        !document.fullscreenElement
       ) {
 
-        openReader(id);
+        await document
+          .documentElement
+          .requestFullscreen();
+
+      }
+
+      else {
+
+        await document
+          .exitFullscreen();
+
+      }
+
+    }
+
+    catch (error) {
+
+      console.error(
+        error
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   WEBXR PODPORA
+
+   Preverimo, ali naprava res
+   podpira immersive-vr.
+========================================================= */
+
+async function checkVRSupport() {
+
+  /*
+    WebXR zahteva secure context.
+  */
+
+  if (
+    !window.isSecureContext ||
+    !navigator.xr
+  ) {
+
+    vrBtn.disabled =
+      true;
+
+
+    vrBtn.textContent =
+      "VR ni na voljo";
+
+
+    return;
+
+  }
+
+
+  try {
+
+    const supported =
+      await navigator.xr
+        .isSessionSupported(
+          "immersive-vr"
+        );
+
+
+    if (!supported) {
+
+      vrBtn.disabled =
+        true;
+
+
+      vrBtn.textContent =
+        "VR ni na voljo";
+
+    }
+
+    else {
+
+      vrBtn.disabled =
+        false;
+
+
+      vrBtn.textContent =
+        "🥽 VR";
+
+    }
+
+  }
+
+  catch (error) {
+
+    vrBtn.disabled =
+      true;
+
+
+    vrBtn.textContent =
+      "VR ni na voljo";
+
+  }
+
+}
+
+
+/* =========================================================
+   VR GUMB
+========================================================= */
+
+vrBtn.addEventListener(
+  "click",
+  async () => {
+
+    if (vrBtn.disabled)
+      return;
+
+
+    try {
+
+      if (
+        scene.is(
+          "vr-mode"
+        )
+      ) {
+
+        await scene.exitVR();
 
       }
 
@@ -1865,104 +2308,349 @@ function openEditor(id) {
 
         closePopup();
 
+        stopAddMode();
+
+
+        await scene.enterVR();
+
       }
 
     }
-  );
+
+    catch (error) {
+
+      console.error(
+        "VR napaka:",
+        error
+      );
 
 
-  /* IZBRIŠI */
+      alert(
+        "VR se ni mogel zagnati. Preveri WebXR podporo in HTTPS."
+      );
 
-  remove.addEventListener(
-    "click",
-    event => {
+    }
 
-      event.stopPropagation();
-
-
-      hotspots =
-        hotspots.filter(
-          h => h.id !== id
-        );
+  }
+);
 
 
-      saveHotspots();
+/* =========================================================
+   ENTER VR
+========================================================= */
+
+scene.addEventListener(
+  "enter-vr",
+  () => {
+
+    /*
+      HTML UI v headsetu ni uporaben.
+    */
+
+    toolbar.style.display =
+      "none";
 
 
-      openHotspotId = null;
+    popup.style.display =
+      "none";
 
 
-      renderHotspots();
+    instruction.style.display =
+      "none";
 
+
+    /*
+      GAZE RETICLE ON.
+    */
+
+    gazeCursor.setAttribute(
+      "visible",
+      true
+    );
+
+
+    /*
+      Kartica na začetku skrita.
+    */
+
+    vrCard.setAttribute(
+      "visible",
+      false
+    );
+
+  }
+);
+
+
+/* =========================================================
+   EXIT VR
+========================================================= */
+
+scene.addEventListener(
+  "exit-vr",
+  () => {
+
+    toolbar.style.display =
+      "flex";
+
+
+    gazeCursor.setAttribute(
+      "visible",
+      false
+    );
+
+
+    vrCard.setAttribute(
+      "visible",
+      false
+    );
+
+
+    resetGazeVisual();
+
+  }
+);
+
+
+/* =========================================================
+   GAZE ANIMACIJA
+
+   Ko pogledaš hotspot:
+   1.2 sekunde do izbire.
+
+   A-Frame cursor bo sam sprožil
+   "click" po fuseTimeout.
+========================================================= */
+
+function startGazeAnimation(
+  hotspotEntity
+) {
+
+  /*
+    Vizualno pokažemo,
+    da je gaze aktiven.
+
+    Hotspot se poveča.
+  */
+
+  hotspotEntity.setAttribute(
+    "animation__gaze",
+    {
+      property:
+        "scale",
+
+      from:
+        "1 1 1",
+
+      to:
+        "1.35 1.35 1.35",
+
+      dur:
+        1200,
+
+      easing:
+        "linear"
     }
   );
 
 
-  buttons.append(
-    save,
-    cancel,
-    remove
-  );
+  /*
+    Reticle prav tako raste.
+  */
 
+  gazeRing.setAttribute(
+    "animation__fuse",
+    {
+      property:
+        "scale",
 
-  popup.append(
-    close,
+      from:
+        "1 1 1",
 
-    titleLabel,
-    titleInput,
+      to:
+        "1.8 1.8 1.8",
 
-    descriptionLabel,
-    descriptionInput,
+      dur:
+        1200,
 
-    buttons
-  );
-
-
-  wrapper.appendChild(
-    popup
-  );
-
-
-  updateHotspotPositions();
-
-
-  setTimeout(
-    () => titleInput.focus(),
-    50
+      easing:
+        "linear"
+    }
   );
 
 }
 
 
-/* ==========================================================
-   ZAPRI POPUP
-========================================================== */
+/* =========================================================
+   GAZE PREKINITEV
+========================================================= */
 
-function closePopup() {
+function cancelGazeAnimation(
+  hotspotEntity
+) {
+
+  hotspotEntity.removeAttribute(
+    "animation__gaze"
+  );
+
+
+  hotspotEntity.setAttribute(
+    "scale",
+    "1 1 1"
+  );
+
+
+  resetGazeVisual();
+
+}
+
+
+function resetGazeVisual() {
+
+  gazeRing.removeAttribute(
+    "animation__fuse"
+  );
+
+
+  gazeRing.setAttribute(
+    "scale",
+    "1 1 1"
+  );
+
+}
+
+
+/* =========================================================
+   VR KARTICA
+
+   Ni HTML.
+
+   Je pravi 3D element,
+   zato ga headset vidi.
+========================================================= */
+
+function showVRCard(
+  hotspot
+) {
+
+  vrCardTitle.setAttribute(
+    "value",
+    hotspot.title ||
+    "Brez naslova"
+  );
+
+
+  vrCardDescription.setAttribute(
+    "value",
+    hotspot.description ||
+    "Ni opisa."
+  );
+
+
+  /*
+    Kartico postavimo pred uporabnika,
+    glede na trenutno smer pogleda.
+  */
+
+  const cameraObject =
+    camera.object3D;
+
+
+  const cameraPosition =
+    new THREE.Vector3();
+
+
+  const direction =
+    new THREE.Vector3();
+
+
+  cameraObject.getWorldPosition(
+    cameraPosition
+  );
+
+
+  cameraObject.getWorldDirection(
+    direction
+  );
+
+
+  /*
+    3 metre pred uporabnikom.
+  */
+
+  const position =
+    cameraPosition
+      .clone()
+      .add(
+        direction
+          .clone()
+          .multiplyScalar(3)
+      );
+
+
+  vrCard.object3D.position.copy(
+    position
+  );
+
+
+  /*
+    Obrni proti glavi.
+  */
+
+  vrCard.object3D.lookAt(
+    cameraPosition
+  );
+
+
+  vrCard.setAttribute(
+    "visible",
+    true
+  );
+
+
+  /*
+    Reset hotspotov,
+    da po aktivaciji niso povečani.
+  */
 
   document
     .querySelectorAll(
-      ".hotspot-popup"
+      ".vr-hotspot"
     )
     .forEach(
-      popup => popup.remove()
+      element => {
+
+        element.removeAttribute(
+          "animation__gaze"
+        );
+
+
+        element.setAttribute(
+          "scale",
+          "1 1 1"
+        );
+
+      }
     );
 
 
-  openHotspotId = null;
+  resetGazeVisual();
 
 }
 
 
-/* ==========================================================
+/* =========================================================
    ESC
-========================================================== */
+========================================================= */
 
 document.addEventListener(
   "keydown",
   event => {
 
-    if (event.key === "Escape") {
+    if (
+      event.key ===
+      "Escape"
+    ) {
 
       closePopup();
 
@@ -1974,26 +2662,9 @@ document.addEventListener(
 );
 
 
-/* ==========================================================
-   ANIMATION LOOP
-
-   Hotspoti sledijo kameri.
-========================================================== */
-
-function animationLoop() {
-
-  updateHotspotPositions();
-
-  requestAnimationFrame(
-    animationLoop
-  );
-
-}
-
-
-/* ==========================================================
+/* =========================================================
    START
-========================================================== */
+========================================================= */
 
 scene.addEventListener(
   "loaded",
@@ -2001,7 +2672,7 @@ scene.addEventListener(
 
     renderHotspots();
 
-    animationLoop();
+    checkVRSupport();
 
   }
 );
