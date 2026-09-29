@@ -1,7 +1,4 @@
 
-
-
-
 <!DOCTYPE html>
 <html lang="sl">
 <head>
@@ -4051,91 +4048,71 @@ startVRBtn.onclick =
   async ()=>{
 
     /*
-      iOS permission.
+      DOVOLJENJE ZA SENZOR GIBANJA.
+      Zahteva se neposredno po uporabnikovem kliku na VR.
+      Na iOS uporabimo requestPermission(); na Androidu pa preverimo,
+      ali deviceorientation dejansko pošilja podatke.
     */
-
-    if(
-      typeof DeviceOrientationEvent !==
-        "undefined" &&
-
-      typeof DeviceOrientationEvent
-        .requestPermission ===
-        "function"
-    ){
-
-      try{
-
-        const permission =
-          await DeviceOrientationEvent
-            .requestPermission();
-
-
-        if(
-          permission !==
-          "granted"
-        ){
-          /* Ne blokiramo VR. Če senzor ni dovoljen, nadaljujemo v
-             načinu na dotik; WebXR lahko še vedno deluje samostojno. */
-          console.warn("Senzor gibanja ni dovoljen; nadaljujem brez njega.");
-        }
-
-      }
-      catch(e){
-        /* Na Androidu/local file requestPermission ni zanesljiv.
-           Ne ustavimo VR zaradi napake dovoljenja. */
-        console.warn("Dovoljenja senzorja ni bilo mogoče zahtevati", e);
-      }
-
-    }
-
-
-    vrStart.style.display =
-      "none";
-
-
-    /*
-      Landscape.
-    */
+    let permissionGranted = true;
 
     try{
-
-      if(
-        screen.orientation &&
-        screen.orientation.lock
-      ){
-
-        await screen.orientation.lock(
-          "landscape"
-        );
-
+      if(typeof DeviceOrientationEvent !== "undefined" &&
+         typeof DeviceOrientationEvent.requestPermission === "function"){
+        const p = await DeviceOrientationEvent.requestPermission();
+        permissionGranted = (p === "granted");
       }
 
+      if(typeof DeviceMotionEvent !== "undefined" &&
+         typeof DeviceMotionEvent.requestPermission === "function"){
+        const p = await DeviceMotionEvent.requestPermission();
+        permissionGranted = permissionGranted && (p === "granted");
+      }
+    }catch(e){
+      permissionGranted = false;
+      console.warn("Zahteva dovoljenja za senzor ni uspela", e);
     }
-    catch(e){}
 
+    if(!permissionGranted){
+      alert("Dovoljenje za senzor gibanja ni bilo odobreno. VR se bo odprl, vendar brez sledenja gibanju telefona.");
+    }
 
-    /*
-      A-FRAME VR - OHRANJENO.
-    */
+    /* Po dovoljenju preverimo še, ali telefon res pošilja orientacijo. */
+    const sensorWorks = await new Promise(resolve=>{
+      let finished=false;
+      const done=value=>{
+        if(finished) return;
+        finished=true;
+        window.removeEventListener("deviceorientation", onOrientation, true);
+        resolve(value);
+      };
+      const onOrientation=e=>{
+        if(e && (e.alpha!==null || e.beta!==null || e.gamma!==null)) done(true);
+      };
+      window.addEventListener("deviceorientation", onOrientation, true);
+      setTimeout(()=>done(false), 1200);
+    });
+
+    vrStart.style.display = "none";
 
     try{
-      /* Lokalno odprt izvoženi HTML nima varnega WebXR izvora.
-         Ne čakamo na neuspešen WebXR, ampak takoj odpremo Cardboard fallback. */
-      if(location.protocol === "file:" || !window.isSecureContext){
-        await enterLocalVRFallback();
-      }else{
+      if(screen.orientation && screen.orientation.lock){
+        await screen.orientation.lock("landscape");
+      }
+    }catch(e){}
+
+    try{
+      /* Na HTTPS uporabimo pravi A-Frame/WebXR VR. */
+      if(window.isSecureContext && location.protocol !== "file:"){
         await scene.enterVR();
-        setTimeout(()=>{
-          if(!scene.is("vr-mode")){ enterLocalVRFallback(); }
-        },900);
+      }else{
+        /* Lokalni izvoženi HTML: Cardboard prikaz. Če je senzor na voljo,
+           A-Frame look-controls ga uporablja za obračanje pogleda. */
+        await enterLocalVRFallback(sensorWorks);
       }
+    }catch(e){
+      await enterLocalVRFallback(sensorWorks);
     }
-    catch(e){
-      await enterLocalVRFallback();
-    }
-
   };
-
 
 /* =========================================================
    ENTER VR
@@ -4420,7 +4397,7 @@ function stopLocalCardboard(){
    WebXR v Android brskalnikih zahteva varen HTTPS izvor, zato file:// ne more
    vedno dobiti prave WebXR seje. Ta način vseeno naredi dvodelni Cardboard
    prikaz in ohrani upravljanje kamere; na HTTPS se še vedno uporabi pravi WebXR. */
-async function enterLocalVRFallback(){
+async function enterLocalVRFallback(sensorWorks=false){
   if(localCardboardActive) return;
   localCardboardActive=true;
   try{
@@ -4434,8 +4411,7 @@ async function enterLocalVRFallback(){
   const lc=camera.components && camera.components['look-controls'];
   if(lc){
     lc.data.magicWindowTrackingEnabled=true;
-    /* naš touch handler ostane glavni zunaj pravega WebXR */
-    lc.data.touchEnabled=false;
+    lc.data.touchEnabled=true;
   }
 
   toolbar.style.display='none';
@@ -4471,7 +4447,7 @@ async function enterLocalVRFallback(){
 
   /* Če je DeviceOrientation na tem telefonu dovoljen, A-Frame ga uporabi.
      Če ga lokalna datoteka blokira, Cardboard prikaz še vedno ostane odprt. */
-  showHint('🥽 VR');
+  showHint(sensorWorks ? '🥽 VR · senzor gibanja je aktiven' : '🥽 VR · senzor ni na voljo, uporabi dotik');
 }
 
 /* =========================================================
