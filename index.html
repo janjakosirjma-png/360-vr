@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="sl">
 <head>
@@ -571,6 +572,15 @@ textarea:focus-visible{
   #popup{left:auto!important;right:8px!important;bottom:8px!important;width:min(390px,54vw)!important;max-height:94vh;}
 }
 
+
+/* ===== DOPOLNITEV: manjše točke in lastno ozadje zemljevida ===== */
+.map-point{min-height:38px!important;padding:3px 8px 3px 3px!important;gap:7px!important;border-radius:20px!important;}
+.map-point .pin{flex-basis:30px!important;width:30px!important;height:30px!important;border-width:3px!important;}
+.map-point .pin:after{width:7px!important;height:7px!important;}
+.map-point .name{font-size:12px!important;}
+.map-point .sub{font-size:9px!important;}
+#mapEditorBar .fileLabel{display:flex;align-items:center;min-height:42px;padding:0 13px;border-radius:9px;background:#0f766e;color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+
 </style>
 </head>
 
@@ -849,8 +859,8 @@ textarea:focus-visible{
   <div id="mapPanel">
     <div id="mapHeader">
       <div>
-        <h1 id="mapTitle">POGLEJ NA 360°</h1>
-        <p>Klikni točko za vstop. Točke na zemljevidu lahko povlečeš na poljubno mesto.</p>
+        <h1 id="mapTitle">UČNI SPREHOD 360</h1>
+        <p>Izberi svoje ozadje in nanj postavi točke. Točke lahko povlečeš na poljubno mesto.</p>
       </div>
       <button id="mapClose" type="button" aria-label="Zapri zemljevid">×</button>
     </div>
@@ -866,7 +876,11 @@ textarea:focus-visible{
       <div id="placementHint">Klikni mesto na zemljevidu za novo točko</div>
       
 
-      <div id="mapLegend">Klikni za vstop • povleci za premik.</div>
+      <div id="mapLegend">Klikni točko za vstop • povleci točko za premik • povleci prazno ozadje za poravnavo slike.</div>
+    </div>
+    <div id="mapEditorBar">
+      <label class="fileLabel" for="mapBgFile">🖼 ZAMENJAJ OZADJE</label>
+      <input id="mapBgFile" type="file" accept="image/jpeg,image/png,image/webp" style="display:none">
     </div>
   </div>
 </div>
@@ -1283,6 +1297,8 @@ const EMBEDDED_EXPORT_DATA = readEmbeddedExportData();
 const STORAGE_KEY = "stable-360-hotspots-v8";
 const TOUR_KEY = "stable-360-tour-v8";
 const PACKAGE_KEY = "stable-360-package-v8";
+const MAP_BG_KEY = "stable-360-map-background-v8";
+const MAP_BG_POS_KEY = "stable-360-map-background-position-v8";
 
 const DEFAULT_POINTS = [
   {id:"tocka1",name:"TOČKA 1",panorama:"https://janjakosirjma-png.github.io/360-vr/360.jpg",color:"#ef4444",x:22,y:30},
@@ -1295,6 +1311,8 @@ let TOUR_POINTS=[];
 let currentPointId="tocka1";
 let hotspots=[];
 let HOTSPOTS_BY_POINT={};
+let mapBackground="";
+let mapBackgroundPosition={x:50,y:50};
 
 function clone(v){return JSON.parse(JSON.stringify(v));}
 function pointStorageKey(id){ return STORAGE_KEY + "-point-" + id; }
@@ -1311,6 +1329,10 @@ function initializeTour(){
     TOUR_POINTS=clone(EMBEDDED_EXPORT_DATA.tourPoints);
     HOTSPOTS_BY_POINT=clone(EMBEDDED_EXPORT_DATA.hotspotsByPoint||{});
     currentPointId=EMBEDDED_EXPORT_DATA.currentPointId||TOUR_POINTS[0].id;
+    mapBackground=EMBEDDED_EXPORT_DATA.mapBackground||"";
+    mapBackgroundPosition=EMBEDDED_EXPORT_DATA.mapBackgroundPosition||{x:50,y:50};
+    if(mapBackground) safeLocalSet(MAP_BG_KEY,mapBackground);
+    safeLocalSet(MAP_BG_POS_KEY,JSON.stringify(mapBackgroundPosition));
     safeLocalSet(TOUR_KEY,JSON.stringify(TOUR_POINTS));
     Object.entries(HOTSPOTS_BY_POINT).forEach(([id,arr])=>safeLocalSet(pointStorageKey(id),JSON.stringify(arr||[])));
   }else{
@@ -1320,6 +1342,8 @@ function initializeTour(){
       try{HOTSPOTS_BY_POINT[p.id]=JSON.parse(safeLocalGet(pointStorageKey(p.id)))||[];}catch(e){HOTSPOTS_BY_POINT[p.id]=[];}
     });
     currentPointId=safeLocalGet("stable-360-current-point-v8")||TOUR_POINTS[0].id;
+    mapBackground=safeLocalGet(MAP_BG_KEY)||"";
+    try{mapBackgroundPosition=JSON.parse(safeLocalGet(MAP_BG_POS_KEY))||{x:50,y:50};}catch(e){mapBackgroundPosition={x:50,y:50};}
   }
   if(!TOUR_POINTS.some(p=>p.id===currentPointId)) currentPointId=TOUR_POINTS[0].id;
   saveTour();
@@ -3409,7 +3433,7 @@ async function exportStandaloneHtml(){
   try{
     const imageMap=await panoramaDataUrls();
     const exportedPoints=clone(TOUR_POINTS).map(p=>({...p,panorama:imageMap[p.panorama]||p.panorama}));
-    const exportData={version:3,packageId:"pkg-"+Date.now()+"-"+Math.random().toString(36).slice(2),exportedAt:new Date().toISOString(),currentPointId,tourPoints:exportedPoints,hotspotsByPoint:getAllHotspotsForExport()};
+    const exportData={version:4,mapBackground,mapBackgroundPosition,packageId:"pkg-"+Date.now()+"-"+Math.random().toString(36).slice(2),exportedAt:new Date().toISOString(),currentPointId,tourPoints:exportedPoints,hotspotsByPoint:getAllHotspotsForExport()};
     let html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
     const json=JSON.stringify(exportData);
     const bytes=new TextEncoder().encode(json);
@@ -3427,7 +3451,7 @@ async function exportStandaloneHtml(){
     if(navigator.share && navigator.canShare){
       try{
         if(navigator.canShare({files:[file]})){
-          await navigator.share({files:[file],title:"POGLEJ NA 360°",text:"360° učni sprehod"});
+          await navigator.share({files:[file],title:"UČNI SPREHOD 360",text:"360° učni sprehod"});
           shared=true;
         }
       }catch(shareError){
@@ -3446,7 +3470,56 @@ async function exportStandaloneHtml(){
 exportBtn.addEventListener("click",exportStandaloneHtml);
 
 /* ===== DINAMIČNE TOČKE ZEMLJEVIDA ===== */
-const dynamicMapPoints=$("dynamicMapPoints"),pointManager=$("pointManager"),closePointManager=$("closePointManager"),tourMap=$("tourMap");
+const dynamicMapPoints=$("dynamicMapPoints"),pointManager=$("pointManager"),closePointManager=$("closePointManager"),tourMap=$("tourMap"),mapBgFile=$("mapBgFile");
+function applyMapBackground(){
+  if(!mapBackground)return;
+  tourMap.style.backgroundImage=`linear-gradient(rgba(5,28,20,.12),rgba(5,28,20,.18)),url("${mapBackground}")`;
+  /* Celotna slika ostane vidna; okvir se ji prilagodi brez obrezovanja. */
+  tourMap.style.backgroundSize="contain";
+  tourMap.style.backgroundRepeat="no-repeat";
+  tourMap.style.backgroundColor="#102a1f";
+  tourMap.style.backgroundPosition=`${mapBackgroundPosition.x}% ${mapBackgroundPosition.y}%`;
+}
+function saveMapBackgroundPosition(){safeLocalSet(MAP_BG_POS_KEY,JSON.stringify(mapBackgroundPosition));}
+applyMapBackground();
+if(mapBgFile) mapBgFile.addEventListener("change",e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    mapBackground=r.result;mapBackgroundPosition={x:50,y:50};
+    safeLocalSet(MAP_BG_KEY,mapBackground);saveMapBackgroundPosition();applyMapBackground();
+    announceToScreenReader("Ozadje zemljevida je zamenjano. Povleci prazni del zemljevida za ročni premik slike.");
+  };
+  r.readAsDataURL(f);
+});
+
+/* Ročni premik ozadja: povleci po praznem delu zemljevida. Točke se še vedno premikajo ločeno. */
+(function enableMapBackgroundDrag(){
+  let pid=null,startX=0,startY=0,startPos=null,moved=false;
+  tourMap.style.cursor="grab";
+  tourMap.addEventListener("pointerdown",e=>{
+    if(!mapBackground || e.target.closest(".map-point") || e.target.closest("button") || e.target.closest("label"))return;
+    pid=e.pointerId;startX=e.clientX;startY=e.clientY;startPos={...mapBackgroundPosition};moved=false;
+    tourMap.style.cursor="grabbing";try{tourMap.setPointerCapture(pid);}catch(_){}
+  });
+  tourMap.addEventListener("pointermove",e=>{
+    if(pid===null||e.pointerId!==pid)return;
+    const rect=tourMap.getBoundingClientRect();
+    const dx=(e.clientX-startX)/Math.max(1,rect.width)*100;
+    const dy=(e.clientY-startY)/Math.max(1,rect.height)*100;
+    if(Math.hypot(e.clientX-startX,e.clientY-startY)>3)moved=true;
+    mapBackgroundPosition.x=Math.max(0,Math.min(100,startPos.x+dx));
+    mapBackgroundPosition.y=Math.max(0,Math.min(100,startPos.y+dy));
+    tourMap.style.backgroundPosition=`${mapBackgroundPosition.x}% ${mapBackgroundPosition.y}%`;
+    e.preventDefault();
+  });
+  const finish=e=>{
+    if(pid===null||(e.pointerId!==undefined&&e.pointerId!==pid))return;
+    if(moved)saveMapBackgroundPosition();
+    try{tourMap.releasePointerCapture(pid);}catch(_){}pid=null;tourMap.style.cursor="grab";
+  };
+  tourMap.addEventListener("pointerup",finish);tourMap.addEventListener("pointercancel",finish);
+})();
 const editCurrentPointBtn=$("editCurrentPointBtn"),currentPointName=$("currentPointName"),currentPointColor=$("currentPointColor"),currentPointFile=$("currentPointFile"),pointAddLearningBtn=$("pointAddLearningBtn"),pointAddTourBtn=$("pointAddTourBtn"),pointDeleteBtn=$("pointDeleteBtn");
 function renderMapPoints(){
   if(!dynamicMapPoints)return;dynamicMapPoints.innerHTML="";
