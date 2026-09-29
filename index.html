@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="sl">
 <head>
@@ -416,6 +417,7 @@ textarea:focus-visible{
    TOUR MAP - SHEMATSKI KONTINENT
 ========================================================= */
 #mapBtn{background:#0f766e;}
+#exportBtn{background:#b45309;}
 #locationBadge{
   display:flex;align-items:center;min-height:42px;padding:0 12px;border-radius:9px;
   background:#fff;color:#111;font-size:13px;font-weight:800;white-space:nowrap;
@@ -741,6 +743,7 @@ textarea:focus-visible{
 <div id="toolbar">
 
   <button id="mapBtn">🗺 ZEMLJEVID</button>
+  <button id="exportBtn" type="button">💾 IZVOZI HTML</button>
   <div id="locationBadge" aria-live="polite">📍 JANJA</div>
 
   <button id="addBtn">
@@ -1099,6 +1102,7 @@ const hint =
   $("hint");
 
 const mapBtn = $("mapBtn");
+const exportBtn = $("exportBtn");
 const locationBadge = $("locationBadge");
 const mapOverlay = $("mapOverlay");
 const mapClose = $("mapClose");
@@ -1186,6 +1190,9 @@ vrInfo.setAttribute(
    ISTI KLJUČ
 ========================================================= */
 
+/* Podatki, vgrajeni v izvoženo HTML datoteko. Ne spreminjaj oznak EXPORT_DATA. */
+const EMBEDDED_EXPORT_DATA = /*__EXPORT_DATA_START__*/ null /*__EXPORT_DATA_END__*/;
+
 const STORAGE_KEY =
   "stable-360-hotspots-v5";
 
@@ -1210,6 +1217,10 @@ function loadHotspotsForPoint(id){
   try{
     const raw = localStorage.getItem(pointStorageKey(id));
     if(raw){ loaded = JSON.parse(raw) || []; }
+    else if(EMBEDDED_EXPORT_DATA && EMBEDDED_EXPORT_DATA.hotspotsByPoint && Array.isArray(EMBEDDED_EXPORT_DATA.hotspotsByPoint[id])){
+      loaded = EMBEDDED_EXPORT_DATA.hotspotsByPoint[id];
+      localStorage.setItem(pointStorageKey(id), JSON.stringify(loaded));
+    }
     else if(id === "janja"){
       /* Migracija: obstoječi hotspoti iz zadnje delujoče verzije ostanejo pri JANJI. */
       loaded = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -3282,6 +3293,115 @@ function installPointerControls(){
 /* =========================================================
    MAP EVENTS
 ========================================================= */
+/* =========================================================
+   IZVOZ PRENOSLJIVE HTML DATOTEKE
+   - shrani hotspote vseh lokacij v samo HTML datoteko
+   - poskusi vgraditi tudi panoramske slike kot data URL
+   - prejemnik lahko doda/uredi hotspote in ponovno izvozi HTML
+========================================================= */
+
+function getAllHotspotsForExport(){
+  const result = {};
+  TOUR_POINTS.forEach(point=>{
+    try{
+      const raw = localStorage.getItem(pointStorageKey(point.id));
+      if(raw){
+        result[point.id] = JSON.parse(raw) || [];
+      }else if(EMBEDDED_EXPORT_DATA && EMBEDDED_EXPORT_DATA.hotspotsByPoint && Array.isArray(EMBEDDED_EXPORT_DATA.hotspotsByPoint[point.id])){
+        result[point.id] = EMBEDDED_EXPORT_DATA.hotspotsByPoint[point.id];
+      }else{
+        result[point.id] = [];
+      }
+    }catch(e){ result[point.id] = []; }
+  });
+  /* trenutna lokacija je lahko ravno urejena */
+  result[currentPointId] = JSON.parse(JSON.stringify(hotspots));
+  return result;
+}
+
+function blobToDataURL(blob){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function panoramaDataUrls(){
+  const result = {};
+  const unique = [...new Set(TOUR_POINTS.map(p=>p.panorama))];
+  for(const src of unique){
+    if(/^data:/i.test(src)){ result[src]=src; continue; }
+    try{
+      const response = await fetch(src, {cache:"no-store"});
+      if(!response.ok) throw new Error("HTTP " + response.status);
+      result[src] = await blobToDataURL(await response.blob());
+    }catch(e){
+      /* Če slike ni mogoče vgraditi, ostane prvotna pot. */
+      result[src] = src;
+    }
+  }
+  return result;
+}
+
+async function exportStandaloneHtml(){
+  stopDictation();
+  stopSpeaking();
+  closePopup();
+  stopAddMode();
+
+  const oldText = exportBtn.textContent;
+  exportBtn.disabled = true;
+  exportBtn.textContent = "⏳ IZVAŽAM ...";
+
+  try{
+    const exportData = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      currentPointId,
+      hotspotsByPoint: getAllHotspotsForExport()
+    };
+
+    const imageMap = await panoramaDataUrls();
+    let html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+    /* V izvoženi kopiji vgradimo podatke namesto null. */
+    const safeJson = JSON.stringify(exportData).replace(/</g,"\\u003c");
+    html = html.replace(
+      /\/\*__EXPORT_DATA_START__\*\/[\s\S]*?\/\*__EXPORT_DATA_END__\*\//,
+      "/*__EXPORT_DATA_START__*/ " + safeJson + " /*__EXPORT_DATA_END__*/"
+    );
+
+    /* Če je mogoče, vgradimo panorame, da HTML ne potrebuje ločene JPG datoteke. */
+    Object.entries(imageMap).forEach(([src,dataUrl])=>{
+      if(src === dataUrl) return;
+      html = html.split('panorama:"' + src.replace(/"/g,'&quot;') + '"').join('panorama:"' + dataUrl + '"');
+      html = html.split('src="' + src + '"').join('src="' + dataUrl + '"');
+    });
+
+    const blob = new Blob([html], {type:"text/html;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+    a.href = url;
+    a.download = "360-vr-hotspoti-" + stamp + ".html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+    announceToScreenReader("HTML datoteka s hotspoti je izvožena.");
+  }catch(e){
+    console.error(e);
+    alert("Izvoz HTML ni uspel: " + (e && e.message ? e.message : e));
+  }finally{
+    exportBtn.disabled = false;
+    exportBtn.textContent = oldText;
+  }
+}
+
+exportBtn.addEventListener("click", exportStandaloneHtml);
+
 mapBtn.addEventListener("click", showMap);
 mapClose.addEventListener("click", hideMap);
 mapOverlay.addEventListener("click", event=>{ if(event.target===mapOverlay) hideMap(); });
