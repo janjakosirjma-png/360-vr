@@ -767,11 +767,11 @@ textarea:focus-visible{
 <div id="toolbar">
 
   <button id="mapBtn">🗺 ZEMLJEVID</button>
-  <button id="exportBtn" type="button" title="Shrani vse točke, hotspote in naložene 360° fotografije v eno HTML datoteko">💾 IZVOZI HTML</button>
+  <button id="exportBtn" type="button" title="Shrani vse točke, učne točke in naložene 360° fotografije v eno HTML datoteko">💾 IZVOZI HTML</button>
   <div id="locationBadge" aria-live="polite">📍 JANJA</div>
 
   <button id="addBtn">
-    + Dodaj hotspot
+    + Dodaj učno točko
   </button>
 
   <button id="zoomInBtn">
@@ -787,7 +787,7 @@ textarea:focus-visible{
   </button>
 
   <button id="vrBtn">
-    🥽 CARDBOARD
+    🥽 VR
   </button>
 
 </div>
@@ -804,7 +804,7 @@ textarea:focus-visible{
     <div id="mapHeader">
       <div>
         <h1 id="mapTitle">🗺 360° ZEMLJEVID</h1>
-        <p>Izberi lokacijo na zemljevidu. Vsaka točka ima svoje ločene hotspote.</p>
+        <p>Izberi lokacijo na zemljevidu. Vsaka točka ima svoje ločene učne točke.</p>
       </div>
       <button id="mapClose" type="button" aria-label="Zapri zemljevid">×</button>
     </div>
@@ -852,7 +852,7 @@ textarea:focus-visible{
   <button
     id="popupClose"
     type="button"
-    aria-label="Zapri vsebino hotspota"
+    aria-label="Zapri vsebino učne točke"
     title="Zapri">
     ×
   </button>
@@ -871,7 +871,7 @@ textarea:focus-visible{
       <button
         id="speakBtn"
         type="button"
-        aria-label="Glasno preberi hotspot">
+        aria-label="Glasno preberi učno točko">
         🔊 Preberi
       </button>
 
@@ -982,11 +982,11 @@ textarea:focus-visible{
     </h2>
 
     <p>
-      Obrni telefon vodoravno in ga vstavi v Cardboard očala.
+      Obrni telefon vodoravno in ga vstavi v VR očala.
     </p>
 
     <button id="startVRBtn">
-      ZAŽENI CARDBOARD
+      🥽 VR
     </button>
 
     <button id="cancelVRBtn">
@@ -2810,7 +2810,7 @@ function stopAddMode(){
 
 
   addBtn.textContent =
-    "+ Dodaj hotspot";
+    "+ Dodaj učno točko";
 
 
   hint.style.display =
