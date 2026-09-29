@@ -1,4 +1,7 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="sl">
 <head>
@@ -581,6 +584,7 @@ textarea:focus-visible{
 .map-point .sub{font-size:9px!important;}
 #mapEditorBar .fileLabel{display:flex;align-items:center;min-height:42px;padding:0 13px;border-radius:9px;background:#0f766e;color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
 #mapEditorBar #exportBtn{background:#b45309;display:flex;align-items:center;justify-content:center;}
+#mapEditorBar #resetBtn{background:#475569;display:flex;align-items:center;justify-content:center;}
 
 
 /* ===== OZADJE PRVE STRANI: uporabnikov zemljevid ===== */
@@ -892,6 +896,7 @@ textarea:focus-visible{
       <label class="fileLabel" for="mapBgFile">🖼 ZAMENJAJ OZADJE</label>
       <input id="mapBgFile" type="file" accept="image/jpeg,image/png,image/webp" style="display:none">
       <button id="exportBtn" type="button" title="Shrani celoten učni sprehod z vsemi točkami, AHA! oznakami in naloženimi 360° fotografijami v novo HTML datoteko">⬇️ PRENESI CELOTEN SPREHOD</button>
+      <button id="resetBtn" type="button" title="Izbriši lokalne spremembe in povrni začetno stanje">↺ PONASTAVI</button>
     </div>
   </div>
 </div>
@@ -1207,6 +1212,7 @@ const hint =
 
 const mapBtn = $("mapBtn");
 const exportBtn = $("exportBtn");
+const resetBtn = $("resetBtn");
 const locationBadge = $("locationBadge");
 const mapOverlay = $("mapOverlay");
 const mapClose = $("mapClose");
@@ -3466,8 +3472,6 @@ async function exportStandaloneHtml(){
     const verifyBytes=Uint8Array.from(verifyBinary,c=>c.charCodeAt(0));
     const verifyData=JSON.parse(new TextDecoder().decode(verifyBytes));
     if(!Array.isArray(verifyData.tourPoints) || !verifyData.hotspotsByPoint) throw new Error("Izvozni paket ni popoln.");
-    /* Mobilno vrtenje gor/dol je že del glavne kode (installMobilePanControls).
-       Pri izvozu NE dodajamo drugega touch handlerja, ker bi se tepel z A-Frame/VR. */
     const blob=new Blob([html],{type:"text/html;charset=utf-8"});
     const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
     const fileName="ucni-sprehod-"+stamp+".html";
@@ -3494,6 +3498,28 @@ async function exportStandaloneHtml(){
   finally{exportBtn.disabled=false;exportBtn.textContent=oldText;}
 }
 exportBtn.addEventListener("click",exportStandaloneHtml);
+
+/* ===== PONASTAVITEV NA ZAČETNO STANJE ===== */
+function resetTourToDefault(){
+  const ok=confirm("Želiš izbrisati vse lokalne spremembe in povrniti UČNI SPREHOD na začetno stanje?");
+  if(!ok)return;
+  try{
+    /* Izbrišemo samo podatke te aplikacije, ne celotnega localStorage. */
+    const keys=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k && (k===STORAGE_KEY || k===TOUR_KEY || k===PACKAGE_KEY || k===MAP_BG_KEY || k==="stable-360-current-point-v8" || k.startsWith(STORAGE_KEY+"-point-"))) keys.push(k);
+    }
+    keys.forEach(k=>localStorage.removeItem(k));
+  }catch(e){}
+  TOUR_POINTS=clone(DEFAULT_POINTS);
+  currentPointId=TOUR_POINTS[0].id;
+  hotspots=[];
+  HOTSPOTS_BY_POINT={};
+  mapBackground="";
+  location.reload();
+}
+if(resetBtn) resetBtn.addEventListener("click",resetTourToDefault);
 
 /* ===== DINAMIČNE TOČKE ZEMLJEVIDA ===== */
 const dynamicMapPoints=$("dynamicMapPoints"),pointManager=$("pointManager"),closePointManager=$("closePointManager"),tourMap=$("tourMap"),mapBgFile=$("mapBgFile");
@@ -4048,71 +4074,92 @@ startVRBtn.onclick =
   async ()=>{
 
     /*
-      DOVOLJENJE ZA SENZOR GIBANJA.
-      Zahteva se neposredno po uporabnikovem kliku na VR.
-      Na iOS uporabimo requestPermission(); na Androidu pa preverimo,
-      ali deviceorientation dejansko pošilja podatke.
+      iOS permission.
     */
-    let permissionGranted = true;
 
-    try{
-      if(typeof DeviceOrientationEvent !== "undefined" &&
-         typeof DeviceOrientationEvent.requestPermission === "function"){
-        const p = await DeviceOrientationEvent.requestPermission();
-        permissionGranted = (p === "granted");
+    if(
+      typeof DeviceOrientationEvent !==
+        "undefined" &&
+
+      typeof DeviceOrientationEvent
+        .requestPermission ===
+        "function"
+    ){
+
+      try{
+
+        const permission =
+          await DeviceOrientationEvent
+            .requestPermission();
+
+
+        if(
+          permission !==
+          "granted"
+        ){
+
+          alert(
+            "Dovoljenje za senzor gibanja ni bilo odobreno."
+          );
+
+          return;
+
+        }
+
+      }
+      catch(e){
+
+        return;
+
       }
 
-      if(typeof DeviceMotionEvent !== "undefined" &&
-         typeof DeviceMotionEvent.requestPermission === "function"){
-        const p = await DeviceMotionEvent.requestPermission();
-        permissionGranted = permissionGranted && (p === "granted");
-      }
-    }catch(e){
-      permissionGranted = false;
-      console.warn("Zahteva dovoljenja za senzor ni uspela", e);
     }
 
-    if(!permissionGranted){
-      alert("Dovoljenje za senzor gibanja ni bilo odobreno. VR se bo odprl, vendar brez sledenja gibanju telefona.");
-    }
 
-    /* Po dovoljenju preverimo še, ali telefon res pošilja orientacijo. */
-    const sensorWorks = await new Promise(resolve=>{
-      let finished=false;
-      const done=value=>{
-        if(finished) return;
-        finished=true;
-        window.removeEventListener("deviceorientation", onOrientation, true);
-        resolve(value);
-      };
-      const onOrientation=e=>{
-        if(e && (e.alpha!==null || e.beta!==null || e.gamma!==null)) done(true);
-      };
-      window.addEventListener("deviceorientation", onOrientation, true);
-      setTimeout(()=>done(false), 1200);
-    });
+    vrStart.style.display =
+      "none";
 
-    vrStart.style.display = "none";
+
+    /*
+      Landscape.
+    */
 
     try{
-      if(screen.orientation && screen.orientation.lock){
-        await screen.orientation.lock("landscape");
+
+      if(
+        screen.orientation &&
+        screen.orientation.lock
+      ){
+
+        await screen.orientation.lock(
+          "landscape"
+        );
+
       }
-    }catch(e){}
+
+    }
+    catch(e){}
+
+
+    /*
+      A-FRAME VR - OHRANJENO.
+    */
 
     try{
-      /* Na HTTPS uporabimo pravi A-Frame/WebXR VR. */
-      if(window.isSecureContext && location.protocol !== "file:"){
-        await scene.enterVR();
-      }else{
-        /* Lokalni izvoženi HTML: Cardboard prikaz. Če je senzor na voljo,
-           A-Frame look-controls ga uporablja za obračanje pogleda. */
-        await enterLocalVRFallback(sensorWorks);
-      }
-    }catch(e){
-      await enterLocalVRFallback(sensorWorks);
+
+      await scene.enterVR();
+
     }
+    catch(e){
+
+      alert(
+        "Brskalnik ni uspel zagnati VR načina."
+      );
+
+    }
+
   };
+
 
 /* =========================================================
    ENTER VR
@@ -4319,137 +4366,6 @@ document.addEventListener(
 );
 
 
-
-/* =========================================================
-   TELEFON: ZANESLJIVO VRTENJE 360° S PRSTOM
-   - vodoravno = levo/desno
-   - navpično = gor/dol
-   - deluje zunaj načina dodajanja AHA!
-========================================================= */
-function installMobilePanControls(){
-  const canvas = scene.canvas;
-  if(!canvas) return;
-
-  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-  if(!coarse) return;
-
-  /* Na telefonu izklopimo A-Frame touch handler, da se ne tepe z našim. */
-  const lc = camera.components && camera.components['look-controls'];
-  if(lc){ lc.data.touchEnabled = false; }
-
-  let active=false, pid=null, lastX=0, lastY=0;
-  const sensitivity = 0.0042;
-
-  canvas.style.touchAction='none';
-
-  canvas.addEventListener('pointerdown', e=>{
-    if(e.pointerType==='mouse' || addMode || scene.is('vr-mode')) return;
-    active=true; pid=e.pointerId; lastX=e.clientX; lastY=e.clientY;
-    try{canvas.setPointerCapture(pid);}catch(_){ }
-    e.preventDefault();
-  }, {passive:false});
-
-  canvas.addEventListener('pointermove', e=>{
-    if(!active || e.pointerId!==pid || addMode || scene.is('vr-mode')) return;
-    const dx=e.clientX-lastX, dy=e.clientY-lastY;
-    lastX=e.clientX; lastY=e.clientY;
-
-    const controls = camera.components && camera.components['look-controls'];
-    if(controls && controls.yawObject && controls.pitchObject){
-      controls.yawObject.rotation.y -= dx*sensitivity;
-      controls.pitchObject.rotation.x -= dy*sensitivity;
-      const lim=Math.PI/2-0.02;
-      controls.pitchObject.rotation.x=Math.max(-lim,Math.min(lim,controls.pitchObject.rotation.x));
-    }
-    e.preventDefault();
-  }, {passive:false});
-
-  const end=e=>{
-    if(!active || (e.pointerId!==undefined && e.pointerId!==pid)) return;
-    try{canvas.releasePointerCapture(pid);}catch(_){ }
-    active=false; pid=null;
-    e.preventDefault();
-  };
-  canvas.addEventListener('pointerup',end,{passive:false});
-  canvas.addEventListener('pointercancel',end,{passive:false});
-}
-
-/* Lokalni HTML na Androidu pogosto nima dovoljenja za pravi WebXR.
-   V tem primeru VR gumb vseeno odpre celozaslonski 360° pogled z giroskopom. */
-let localCardboardActive=false;
-let localCardboardRAF=0;
-let localCardboardWrap=null;
-
-function stopLocalCardboard(){
-  localCardboardActive=false;
-  if(localCardboardRAF) cancelAnimationFrame(localCardboardRAF);
-  localCardboardRAF=0;
-  if(localCardboardWrap){ localCardboardWrap.remove(); localCardboardWrap=null; }
-  toolbar.style.display='flex';
-  hint.style.display='';
-  setVRGazeEnabled(false);
-  setDesktopMouseEnabled(true);
-  try{ if(screen.orientation&&screen.orientation.unlock) screen.orientation.unlock(); }catch(_){ }
-  try{ if(document.fullscreenElement&&document.exitFullscreen) document.exitFullscreen(); }catch(_){ }
-}
-
-/* Rezervni Cardboard za IZVOŽEN lokalni HTML.
-   WebXR v Android brskalnikih zahteva varen HTTPS izvor, zato file:// ne more
-   vedno dobiti prave WebXR seje. Ta način vseeno naredi dvodelni Cardboard
-   prikaz in ohrani upravljanje kamere; na HTTPS se še vedno uporabi pravi WebXR. */
-async function enterLocalVRFallback(sensorWorks=false){
-  if(localCardboardActive) return;
-  localCardboardActive=true;
-  try{
-    if(!document.fullscreenElement && document.documentElement.requestFullscreen)
-      await document.documentElement.requestFullscreen();
-  }catch(_){ }
-  try{
-    if(screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
-  }catch(_){ }
-
-  const lc=camera.components && camera.components['look-controls'];
-  if(lc){
-    lc.data.magicWindowTrackingEnabled=true;
-    lc.data.touchEnabled=true;
-  }
-
-  toolbar.style.display='none';
-  hint.style.display='none';
-  setDesktopMouseEnabled(false);
-
-  const wrap=document.createElement('div');
-  wrap.id='localCardboardFallback';
-  wrap.style.cssText='position:fixed;inset:0;z-index:50000;background:#000;display:flex;overflow:hidden;touch-action:none';
-  const left=document.createElement('canvas');
-  const right=document.createElement('canvas');
-  [left,right].forEach(c=>{c.style.cssText='width:50%;height:100%;object-fit:cover;background:#000';wrap.appendChild(c);});
-  const close=document.createElement('button');
-  close.type='button'; close.textContent='×'; close.setAttribute('aria-label','Zapri VR');
-  close.style.cssText='position:absolute;right:12px;top:12px;z-index:3;width:48px;height:48px;border:0;border-radius:50%;font-size:30px;background:rgba(20,20,20,.75);color:#fff';
-  close.onclick=stopLocalCardboard; wrap.appendChild(close);
-  document.body.appendChild(wrap); localCardboardWrap=wrap;
-
-  const source=scene.canvas;
-  function paint(){
-    if(!localCardboardActive || !source) return;
-    const w=Math.max(2,Math.floor(innerWidth/2*devicePixelRatio));
-    const h=Math.max(2,Math.floor(innerHeight*devicePixelRatio));
-    for(const c of [left,right]){
-      if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
-      const ctx=c.getContext('2d');
-      ctx.clearRect(0,0,w,h);
-      try{ctx.drawImage(source,0,0,w,h);}catch(_){ }
-    }
-    localCardboardRAF=requestAnimationFrame(paint);
-  }
-  paint();
-
-  /* Če je DeviceOrientation na tem telefonu dovoljen, A-Frame ga uporabi.
-     Če ga lokalna datoteka blokira, Cardboard prikaz še vedno ostane odprt. */
-  showHint(sensorWorks ? '🥽 VR · senzor gibanja je aktiven' : '🥽 VR · senzor ni na voljo, uporabi dotik');
-}
-
 /* =========================================================
    SCENE READY
 ========================================================= */
@@ -4469,7 +4385,6 @@ scene.addEventListener(
 
 
     installPointerControls();
-    installMobilePanControls();
 
 
     setFov(
