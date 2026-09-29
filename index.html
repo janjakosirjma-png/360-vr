@@ -767,7 +767,7 @@ textarea:focus-visible{
 <div id="toolbar">
 
   <button id="mapBtn">🗺 ZEMLJEVID</button>
-  <button id="exportBtn" type="button">💾 IZVOZI HTML</button>
+  <button id="exportBtn" type="button" title="Shrani vse točke, hotspote in naložene 360° fotografije v eno HTML datoteko">💾 IZVOZI HTML</button>
   <div id="locationBadge" aria-live="polite">📍 JANJA</div>
 
   <button id="addBtn">
@@ -1231,36 +1231,47 @@ const DEFAULT_POINTS = [
 let TOUR_POINTS=[];
 let currentPointId="tocka1";
 let hotspots=[];
+let HOTSPOTS_BY_POINT={};
 
 function clone(v){return JSON.parse(JSON.stringify(v));}
 function pointStorageKey(id){ return STORAGE_KEY + "-point-" + id; }
 function currentPoint(){ return TOUR_POINTS.find(p=>p.id===currentPointId) || TOUR_POINTS[0]; }
 
+function safeLocalGet(key){ try{return localStorage.getItem(key);}catch(e){return null;} }
+function safeLocalSet(key,value){ try{localStorage.setItem(key,value);}catch(e){} }
+function safeLocalRemove(key){ try{localStorage.removeItem(key);}catch(e){} }
+
 function initializeTour(){
-  /* Izvoženi paket ima prednost pred starim localStorage, zato se hotspoti ob odprtju izvoza ne izgubijo. */
+  /* V izvoženi datoteki so vgrajeni podatki vedno začetni vir resnice.
+     Tako deluje tudi pri file://, kjer je localStorage lahko omejen. */
   if(EMBEDDED_EXPORT_DATA && Array.isArray(EMBEDDED_EXPORT_DATA.tourPoints)){
-    const packageId=EMBEDDED_EXPORT_DATA.packageId||"embedded";
-    const seen=localStorage.getItem(PACKAGE_KEY);
-    if(seen!==packageId){
-      TOUR_POINTS=clone(EMBEDDED_EXPORT_DATA.tourPoints);
-      localStorage.setItem(TOUR_KEY,JSON.stringify(TOUR_POINTS));
-      Object.entries(EMBEDDED_EXPORT_DATA.hotspotsByPoint||{}).forEach(([id,arr])=>localStorage.setItem(pointStorageKey(id),JSON.stringify(arr||[])));
-      localStorage.setItem(PACKAGE_KEY,packageId);
-    }
+    TOUR_POINTS=clone(EMBEDDED_EXPORT_DATA.tourPoints);
+    HOTSPOTS_BY_POINT=clone(EMBEDDED_EXPORT_DATA.hotspotsByPoint||{});
+    currentPointId=EMBEDDED_EXPORT_DATA.currentPointId||TOUR_POINTS[0].id;
+    safeLocalSet(TOUR_KEY,JSON.stringify(TOUR_POINTS));
+    Object.entries(HOTSPOTS_BY_POINT).forEach(([id,arr])=>safeLocalSet(pointStorageKey(id),JSON.stringify(arr||[])));
+  }else{
+    try{TOUR_POINTS=JSON.parse(safeLocalGet(TOUR_KEY))||[];}catch(e){}
+    if(!TOUR_POINTS.length) TOUR_POINTS=clone(DEFAULT_POINTS);
+    TOUR_POINTS.forEach(p=>{
+      try{HOTSPOTS_BY_POINT[p.id]=JSON.parse(safeLocalGet(pointStorageKey(p.id)))||[];}catch(e){HOTSPOTS_BY_POINT[p.id]=[];}
+    });
+    currentPointId=safeLocalGet("stable-360-current-point-v7")||TOUR_POINTS[0].id;
   }
-  if(!TOUR_POINTS.length){
-    try{TOUR_POINTS=JSON.parse(localStorage.getItem(TOUR_KEY))||[];}catch(e){}
-  }
-  if(!TOUR_POINTS.length) TOUR_POINTS=clone(DEFAULT_POINTS);
-  currentPointId=(EMBEDDED_EXPORT_DATA&&EMBEDDED_EXPORT_DATA.currentPointId)||localStorage.getItem("stable-360-current-point-v7")||TOUR_POINTS[0].id;
   if(!TOUR_POINTS.some(p=>p.id===currentPointId)) currentPointId=TOUR_POINTS[0].id;
   saveTour();
 }
-function saveTour(){localStorage.setItem(TOUR_KEY,JSON.stringify(TOUR_POINTS));}
+function saveTour(){safeLocalSet(TOUR_KEY,JSON.stringify(TOUR_POINTS));}
 function loadHotspotsForPoint(id){
-  try{hotspots=JSON.parse(localStorage.getItem(pointStorageKey(id)))||[];}catch(e){hotspots=[];}
+  if(!Array.isArray(HOTSPOTS_BY_POINT[id])){
+    try{HOTSPOTS_BY_POINT[id]=JSON.parse(safeLocalGet(pointStorageKey(id)))||[];}catch(e){HOTSPOTS_BY_POINT[id]=[];}
+  }
+  hotspots=clone(HOTSPOTS_BY_POINT[id]||[]);
 }
-function saveHotspots(){localStorage.setItem(pointStorageKey(currentPointId),JSON.stringify(hotspots));}
+function saveHotspots(){
+  HOTSPOTS_BY_POINT[currentPointId]=clone(hotspots);
+  safeLocalSet(pointStorageKey(currentPointId),JSON.stringify(hotspots));
+}
 function getHotspot(id){ return hotspots.find(h=>h.id===id); }
 function updateMapActiveState(){document.querySelectorAll(".map-point").forEach(btn=>btn.classList.toggle("active",btn.dataset.pointId===currentPointId));}
 function showMap(){if(scene.is("vr-mode"))return;closePopup();stopAddMode();renderMapPoints();mapOverlay.style.display="flex";}
@@ -1276,7 +1287,7 @@ function applyPointPanorama(point){
 function switchTourPoint(id){
   const point=TOUR_POINTS.find(p=>p.id===id);if(!point)return;
   closePopup();stopAddMode();hideVRInfo();currentPointId=point.id;
-  localStorage.setItem("stable-360-current-point-v7",currentPointId);
+  safeLocalSet("stable-360-current-point-v7",currentPointId);
   loadHotspotsForPoint(currentPointId);applyPointPanorama(point);
   locationBadge.textContent="📍 "+point.name;renderHotspots();renderMapPoints();hideMap();announceToScreenReader("Odprta lokacija "+point.name);
 }
@@ -3314,9 +3325,11 @@ function installPointerControls(){
    IZVOZ PRENOSLJIVE HTML DATOTEKE
 ========================================================= */
 function getAllHotspotsForExport(){
+  /* Najprej zajemi trenutno odprto točko, nato izvozi iz pomnilnika – ne zanašamo se na localStorage. */
+  HOTSPOTS_BY_POINT[currentPointId]=clone(hotspots);
   const result={};
-  TOUR_POINTS.forEach(point=>{try{result[point.id]=JSON.parse(localStorage.getItem(pointStorageKey(point.id)))||[];}catch(e){result[point.id]=[];}});
-  result[currentPointId]=clone(hotspots);return result;
+  TOUR_POINTS.forEach(point=>{result[point.id]=clone(HOTSPOTS_BY_POINT[point.id]||[]);});
+  return result;
 }
 function blobToDataURL(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(blob);});}
 async function panoramaDataUrls(){
@@ -3333,7 +3346,7 @@ async function exportStandaloneHtml(){
   try{
     const imageMap=await panoramaDataUrls();
     const exportedPoints=clone(TOUR_POINTS).map(p=>({...p,panorama:imageMap[p.panorama]||p.panorama}));
-    const exportData={version:2,packageId:"pkg-"+Date.now()+"-"+Math.random().toString(36).slice(2),exportedAt:new Date().toISOString(),currentPointId,tourPoints:exportedPoints,hotspotsByPoint:getAllHotspotsForExport()};
+    const exportData={version:3,packageId:"pkg-"+Date.now()+"-"+Math.random().toString(36).slice(2),exportedAt:new Date().toISOString(),currentPointId,tourPoints:exportedPoints,hotspotsByPoint:getAllHotspotsForExport()};
     let html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
     const safeJson=JSON.stringify(exportData).replace(/</g,"\\u003c");
     html=html.replace(/\/\*__EXPORT_DATA_START__\*\/[\s\S]*?\/\*__EXPORT_DATA_END__\*\//,"/*__EXPORT_DATA_START__*/ "+safeJson+" /*__EXPORT_DATA_END__*/");
@@ -3407,11 +3420,11 @@ function enablePointDrag(el,p){
   el.addEventListener("pointerup",finish);
   el.addEventListener("pointercancel",finish);
 }
-function newPointAt(x,y){const id="tocka-"+Date.now();const p={id,name:"TOČKA "+(TOUR_POINTS.length+1),panorama:"https://janjakosirjma-png.github.io/360-vr/360.jpg",color:"#ef4444",x,y};TOUR_POINTS.push(p);localStorage.setItem(pointStorageKey(id),"[]");saveTour();placingPoint=false;placementHint.style.display="none";renderMapPoints();renderPointManager();}
+function newPointAt(x,y){const id="tocka-"+Date.now();const p={id,name:"TOČKA "+(TOUR_POINTS.length+1),panorama:"https://janjakosirjma-png.github.io/360-vr/360.jpg",color:"#ef4444",x,y};TOUR_POINTS.push(p);HOTSPOTS_BY_POINT[id]=[];safeLocalSet(pointStorageKey(id),"[]");saveTour();placingPoint=false;placementHint.style.display="none";renderMapPoints();renderPointManager();}
 addPointBtn.addEventListener("click",e=>{e.stopPropagation();placingPoint=!placingPoint;placementHint.style.display=placingPoint?"block":"none";addPointBtn.textContent=placingPoint?"✕ PREKLIČI":"➕ NOVA TOČKA";});
 tourMap.addEventListener("click",e=>{if(!placingPoint)return;if(e.target.closest(".map-point")||e.target.closest("#mapEditorBar"))return;const r=tourMap.getBoundingClientRect();newPointAt((e.clientX-r.left)/r.width*100,(e.clientY-r.top)/r.height*100);addPointBtn.textContent="➕ NOVA TOČKA";});
 function renderPointManager(){
-  pointRows.innerHTML="";TOUR_POINTS.forEach((p,i)=>{const row=document.createElement("div");row.className="point-row";row.innerHTML='<strong>'+(i+1)+'</strong><input class="pname" type="text"><input class="pcolor" type="color"><label class="fileLabel">📷 360° slika<input class="pfile" type="file" accept="image/jpeg,image/png,image/webp"></label><div class="pointActions"><div class="orderBtns"><button class="up">↑</button><button class="down">↓</button><button class="deletePoint">🗑</button></div></div>';row.querySelector(".pname").value=p.name;row.querySelector(".pcolor").value=p.color||"#ef4444";row.querySelector(".pname").oninput=e=>{p.name=e.target.value||("TOČKA "+(i+1));saveTour();renderMapPoints();locationBadge.textContent=currentPointId===p.id?"📍 "+p.name:locationBadge.textContent;};row.querySelector(".pcolor").oninput=e=>{p.color=e.target.value;saveTour();renderMapPoints();};row.querySelector(".pfile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{p.panorama=r.result;saveTour();if(p.id===currentPointId)applyPointPanorama(p);renderPointManager();};r.readAsDataURL(f);};row.querySelector(".up").onclick=()=>{if(i>0){[TOUR_POINTS[i-1],TOUR_POINTS[i]]=[TOUR_POINTS[i],TOUR_POINTS[i-1]];saveTour();renderPointManager();renderMapPoints();}};row.querySelector(".down").onclick=()=>{if(i<TOUR_POINTS.length-1){[TOUR_POINTS[i+1],TOUR_POINTS[i]]=[TOUR_POINTS[i],TOUR_POINTS[i+1]];saveTour();renderPointManager();renderMapPoints();}};row.querySelector(".deletePoint").onclick=()=>{if(TOUR_POINTS.length<=1){alert("Vsaj ena točka mora ostati.");return;}if(!confirm("Izbrišem točko "+p.name+" in njene hotspote?"))return;TOUR_POINTS.splice(i,1);localStorage.removeItem(pointStorageKey(p.id));if(currentPointId===p.id){currentPointId=TOUR_POINTS[0].id;loadHotspotsForPoint(currentPointId);applyPointPanorama(currentPoint());renderHotspots();}saveTour();renderPointManager();renderMapPoints();};pointRows.appendChild(row);});
+  pointRows.innerHTML="";TOUR_POINTS.forEach((p,i)=>{const row=document.createElement("div");row.className="point-row";row.innerHTML='<strong>'+(i+1)+'</strong><input class="pname" type="text"><input class="pcolor" type="color"><label class="fileLabel">📷 360° slika<input class="pfile" type="file" accept="image/jpeg,image/png,image/webp"></label><div class="pointActions"><div class="orderBtns"><button class="up">↑</button><button class="down">↓</button><button class="deletePoint">🗑</button></div></div>';row.querySelector(".pname").value=p.name;row.querySelector(".pcolor").value=p.color||"#ef4444";row.querySelector(".pname").oninput=e=>{p.name=e.target.value||("TOČKA "+(i+1));saveTour();renderMapPoints();locationBadge.textContent=currentPointId===p.id?"📍 "+p.name:locationBadge.textContent;};row.querySelector(".pcolor").oninput=e=>{p.color=e.target.value;saveTour();renderMapPoints();};row.querySelector(".pfile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{p.panorama=r.result;saveTour();if(p.id===currentPointId)applyPointPanorama(p);renderPointManager();};r.readAsDataURL(f);};row.querySelector(".up").onclick=()=>{if(i>0){[TOUR_POINTS[i-1],TOUR_POINTS[i]]=[TOUR_POINTS[i],TOUR_POINTS[i-1]];saveTour();renderPointManager();renderMapPoints();}};row.querySelector(".down").onclick=()=>{if(i<TOUR_POINTS.length-1){[TOUR_POINTS[i+1],TOUR_POINTS[i]]=[TOUR_POINTS[i],TOUR_POINTS[i+1]];saveTour();renderPointManager();renderMapPoints();}};row.querySelector(".deletePoint").onclick=()=>{if(TOUR_POINTS.length<=1){alert("Vsaj ena točka mora ostati.");return;}if(!confirm("Izbrišem točko "+p.name+" in njene hotspote?"))return;TOUR_POINTS.splice(i,1);delete HOTSPOTS_BY_POINT[p.id];safeLocalRemove(pointStorageKey(p.id));if(currentPointId===p.id){currentPointId=TOUR_POINTS[0].id;loadHotspotsForPoint(currentPointId);applyPointPanorama(currentPoint());renderHotspots();}saveTour();renderPointManager();renderMapPoints();};pointRows.appendChild(row);});
 }
 managePointsBtn.addEventListener("click",e=>{e.stopPropagation();renderPointManager();pointManager.style.display="flex";});closePointManager.addEventListener("click",()=>pointManager.style.display="none");pointManager.addEventListener("click",e=>{if(e.target===pointManager)pointManager.style.display="none";});
 renderMapPoints();
