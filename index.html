@@ -1216,10 +1216,19 @@ vrInfo.setAttribute(
 ========================================================= */
 
 /* Podatki, vgrajeni v izvoženo HTML datoteko. */
-const EMBEDDED_EXPORT_DATA = /*__EXPORT_DATA_START__*/ null /*__EXPORT_DATA_END__*/;
-const STORAGE_KEY = "stable-360-hotspots-v7";
-const TOUR_KEY = "stable-360-tour-v7";
-const PACKAGE_KEY = "stable-360-package-v7";
+const EMBEDDED_EXPORT_PAYLOAD = "/*__EXPORT_B64_START__*/__EMPTY__/*__EXPORT_B64_END__*/";
+function readEmbeddedExportData(){
+  try{
+    if(!EMBEDDED_EXPORT_PAYLOAD || EMBEDDED_EXPORT_PAYLOAD.includes("__EMPTY__")) return null;
+    const binary=atob(EMBEDDED_EXPORT_PAYLOAD);
+    const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }catch(e){console.error("Napaka pri branju izvoza",e);return null;}
+}
+const EMBEDDED_EXPORT_DATA = readEmbeddedExportData();
+const STORAGE_KEY = "stable-360-hotspots-v8";
+const TOUR_KEY = "stable-360-tour-v8";
+const PACKAGE_KEY = "stable-360-package-v8";
 
 const DEFAULT_POINTS = [
   {id:"tocka1",name:"TOČKA 1",panorama:"https://janjakosirjma-png.github.io/360-vr/360.jpg",color:"#ef4444",x:22,y:30},
@@ -1256,7 +1265,7 @@ function initializeTour(){
     TOUR_POINTS.forEach(p=>{
       try{HOTSPOTS_BY_POINT[p.id]=JSON.parse(safeLocalGet(pointStorageKey(p.id)))||[];}catch(e){HOTSPOTS_BY_POINT[p.id]=[];}
     });
-    currentPointId=safeLocalGet("stable-360-current-point-v7")||TOUR_POINTS[0].id;
+    currentPointId=safeLocalGet("stable-360-current-point-v8")||TOUR_POINTS[0].id;
   }
   if(!TOUR_POINTS.some(p=>p.id===currentPointId)) currentPointId=TOUR_POINTS[0].id;
   saveTour();
@@ -1287,7 +1296,7 @@ function applyPointPanorama(point){
 function switchTourPoint(id){
   const point=TOUR_POINTS.find(p=>p.id===id);if(!point)return;
   closePopup();stopAddMode();hideVRInfo();currentPointId=point.id;
-  safeLocalSet("stable-360-current-point-v7",currentPointId);
+  safeLocalSet("stable-360-current-point-v8",currentPointId);
   loadHotspotsForPoint(currentPointId);applyPointPanorama(point);
   locationBadge.textContent="📍 "+point.name;renderHotspots();renderMapPoints();hideMap();announceToScreenReader("Odprta lokacija "+point.name);
 }
@@ -3348,8 +3357,13 @@ async function exportStandaloneHtml(){
     const exportedPoints=clone(TOUR_POINTS).map(p=>({...p,panorama:imageMap[p.panorama]||p.panorama}));
     const exportData={version:3,packageId:"pkg-"+Date.now()+"-"+Math.random().toString(36).slice(2),exportedAt:new Date().toISOString(),currentPointId,tourPoints:exportedPoints,hotspotsByPoint:getAllHotspotsForExport()};
     let html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
-    const safeJson=JSON.stringify(exportData).replace(/</g,"\\u003c");
-    html=html.replace(/\/\*__EXPORT_DATA_START__\*\/[\s\S]*?\/\*__EXPORT_DATA_END__\*\//,"/*__EXPORT_DATA_START__*/ "+safeJson+" /*__EXPORT_DATA_END__*/");
+    const json=JSON.stringify(exportData);
+    const bytes=new TextEncoder().encode(json);
+    let binary="";
+    const chunk=0x8000;
+    for(let i=0;i<bytes.length;i+=chunk){binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));}
+    const payload=btoa(binary);
+    html=html.replace(/\/\*__EXPORT_B64_START__\*\/[\s\S]*?\/\*__EXPORT_B64_END__\*\//,"/*__EXPORT_B64_START__*/"+payload+"/*__EXPORT_B64_END__*/");
     const blob=new Blob([html],{type:"text/html;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");
     const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");a.href=url;a.download="ucni-sprehod-"+stamp+".html";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
     announceToScreenReader("HTML datoteka z vsemi točkami, slikami in hotspoti je izvožena.");
