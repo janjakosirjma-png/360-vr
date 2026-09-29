@@ -3469,6 +3469,8 @@ async function exportStandaloneHtml(){
     const verifyBytes=Uint8Array.from(verifyBinary,c=>c.charCodeAt(0));
     const verifyData=JSON.parse(new TextDecoder().decode(verifyBytes));
     if(!Array.isArray(verifyData.tourPoints) || !verifyData.hotspotsByPoint) throw new Error("Izvozni paket ni popoln.");
+    /* Mobilno vrtenje gor/dol je že del glavne kode (installMobilePanControls).
+       Pri izvozu NE dodajamo drugega touch handlerja, ker bi se tepel z A-Frame/VR. */
     const blob=new Blob([html],{type:"text/html;charset=utf-8"});
     const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
     const fileName="ucni-sprehod-"+stamp+".html";
@@ -4117,19 +4119,19 @@ startVRBtn.onclick =
     */
 
     try{
-
-      await scene.enterVR();
-
-      /* Če WebXR ni dejansko vstopil v VR, uporabi lokalni telefonski način. */
-      setTimeout(()=>{
-        if(!scene.is("vr-mode")){ enterLocalVRFallback(); }
-      },700);
-
+      /* Lokalno odprt izvoženi HTML nima varnega WebXR izvora.
+         Ne čakamo na neuspešen WebXR, ampak takoj odpremo Cardboard fallback. */
+      if(location.protocol === "file:" || !window.isSecureContext){
+        await enterLocalVRFallback();
+      }else{
+        await scene.enterVR();
+        setTimeout(()=>{
+          if(!scene.is("vr-mode")){ enterLocalVRFallback(); }
+        },900);
+      }
     }
     catch(e){
-
       await enterLocalVRFallback();
-
     }
 
   };
@@ -4397,20 +4399,79 @@ function installMobilePanControls(){
 
 /* Lokalni HTML na Androidu pogosto nima dovoljenja za pravi WebXR.
    V tem primeru VR gumb vseeno odpre celozaslonski 360° pogled z giroskopom. */
+let localCardboardActive=false;
+let localCardboardRAF=0;
+let localCardboardWrap=null;
+
+function stopLocalCardboard(){
+  localCardboardActive=false;
+  if(localCardboardRAF) cancelAnimationFrame(localCardboardRAF);
+  localCardboardRAF=0;
+  if(localCardboardWrap){ localCardboardWrap.remove(); localCardboardWrap=null; }
+  toolbar.style.display='flex';
+  hint.style.display='';
+  setVRGazeEnabled(false);
+  setDesktopMouseEnabled(true);
+  try{ if(screen.orientation&&screen.orientation.unlock) screen.orientation.unlock(); }catch(_){ }
+  try{ if(document.fullscreenElement&&document.exitFullscreen) document.exitFullscreen(); }catch(_){ }
+}
+
+/* Rezervni Cardboard za IZVOŽEN lokalni HTML.
+   WebXR v Android brskalnikih zahteva varen HTTPS izvor, zato file:// ne more
+   vedno dobiti prave WebXR seje. Ta način vseeno naredi dvodelni Cardboard
+   prikaz in ohrani upravljanje kamere; na HTTPS se še vedno uporabi pravi WebXR. */
 async function enterLocalVRFallback(){
+  if(localCardboardActive) return;
+  localCardboardActive=true;
   try{
-    const el=document.documentElement;
-    if(!document.fullscreenElement && el.requestFullscreen) await el.requestFullscreen();
+    if(!document.fullscreenElement && document.documentElement.requestFullscreen)
+      await document.documentElement.requestFullscreen();
   }catch(_){ }
   try{
     if(screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
   }catch(_){ }
+
   const lc=camera.components && camera.components['look-controls'];
   if(lc){
     lc.data.magicWindowTrackingEnabled=true;
-    lc.data.touchEnabled=true;
+    /* naš touch handler ostane glavni zunaj pravega WebXR */
+    lc.data.touchEnabled=false;
   }
-  showHint(window.isSecureContext ? 'VR pogled: obrni telefon ležeče. Če se pogled ne vrti z gibanjem telefona, uporabi prst.' : 'VR na dotik je vključen. Za vrtenje z gibanjem telefona odpri isto stran prek HTTPS (npr. GitHub Pages).');
+
+  toolbar.style.display='none';
+  hint.style.display='none';
+  setDesktopMouseEnabled(false);
+
+  const wrap=document.createElement('div');
+  wrap.id='localCardboardFallback';
+  wrap.style.cssText='position:fixed;inset:0;z-index:50000;background:#000;display:flex;overflow:hidden;touch-action:none';
+  const left=document.createElement('canvas');
+  const right=document.createElement('canvas');
+  [left,right].forEach(c=>{c.style.cssText='width:50%;height:100%;object-fit:cover;background:#000';wrap.appendChild(c);});
+  const close=document.createElement('button');
+  close.type='button'; close.textContent='×'; close.setAttribute('aria-label','Zapri VR');
+  close.style.cssText='position:absolute;right:12px;top:12px;z-index:3;width:48px;height:48px;border:0;border-radius:50%;font-size:30px;background:rgba(20,20,20,.75);color:#fff';
+  close.onclick=stopLocalCardboard; wrap.appendChild(close);
+  document.body.appendChild(wrap); localCardboardWrap=wrap;
+
+  const source=scene.canvas;
+  function paint(){
+    if(!localCardboardActive || !source) return;
+    const w=Math.max(2,Math.floor(innerWidth/2*devicePixelRatio));
+    const h=Math.max(2,Math.floor(innerHeight*devicePixelRatio));
+    for(const c of [left,right]){
+      if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
+      const ctx=c.getContext('2d');
+      ctx.clearRect(0,0,w,h);
+      try{ctx.drawImage(source,0,0,w,h);}catch(_){ }
+    }
+    localCardboardRAF=requestAnimationFrame(paint);
+  }
+  paint();
+
+  /* Če je DeviceOrientation na tem telefonu dovoljen, A-Frame ga uporabi.
+     Če ga lokalna datoteka blokira, Cardboard prikaz še vedno ostane odprt. */
+  showHint('🥽 VR');
 }
 
 /* =========================================================
