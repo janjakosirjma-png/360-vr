@@ -767,6 +767,7 @@ textarea:focus-visible{
 <div id="toolbar">
 
   <button id="mapBtn">🗺 ZEMLJEVID</button>
+  <button id="editCurrentPointBtn" type="button">✏️ UREDI TOČKO</button>
   <button id="exportBtn" type="button" title="Shrani vse točke, učne točke in naložene 360° fotografije v eno HTML datoteko">💾 IZVOZI HTML</button>
   <div id="locationBadge" aria-live="polite">📍 JANJA</div>
 
@@ -804,7 +805,7 @@ textarea:focus-visible{
     <div id="mapHeader">
       <div>
         <h1 id="mapTitle">🗺 360° ZEMLJEVID</h1>
-        <p>Izberi lokacijo na zemljevidu. Vsaka točka ima svoje ločene učne točke.</p>
+        <p>Klikni točko za vstop. Točke na zemljevidu lahko povlečeš na poljubno mesto.</p>
       </div>
       <button id="mapClose" type="button" aria-label="Zapri zemljevid">×</button>
     </div>
@@ -818,12 +819,9 @@ textarea:focus-visible{
 
       <div id="dynamicMapPoints"></div>
       <div id="placementHint">Klikni mesto na zemljevidu za novo točko</div>
-      <div id="mapEditorBar">
-        <button id="addPointBtn" type="button">➕ NOVA TOČKA</button>
-        <button id="managePointsBtn" type="button">✏️ UREDI TOČKE</button>
-      </div>
+      
 
-      <div id="mapLegend">Klikni piko ali ime za vstop v 360° panoramo.</div>
+      <div id="mapLegend">Klikni za vstop • povleci za premik.</div>
     </div>
   </div>
 </div>
@@ -831,9 +829,20 @@ textarea:focus-visible{
 
 <div id="pointManager" role="dialog" aria-modal="true" aria-labelledby="pointManagerTitle">
   <div id="pointManagerBox">
-    <div id="pointManagerHeader"><h2 id="pointManagerTitle">Uredi točke učnega sprehoda</h2><button id="closePointManager">×</button></div>
-    <p>Preimenuj točke, izberi barvo, naloži 360° sliko in spremeni zaporedje. Položaj točke na zemljevidu spremeniš tako, da jo povlečeš.</p>
-    <div id="pointRows"></div>
+    <div id="pointManagerHeader"><h2 id="pointManagerTitle">Uredi odprto točko</h2><button id="closePointManager">×</button></div>
+    <p>Tu urejaš trenutno odprto točko. Na zemljevidu jo samo prestavljaš.</p>
+    <label class="fieldLabel" for="currentPointName">Ime točke</label>
+    <input id="currentPointName" type="text" style="width:100%;padding:11px;border:1px solid #aaa;border-radius:8px;font:inherit">
+    <label class="fieldLabel" for="currentPointColor">Barva točke na zemljevidu</label>
+    <input id="currentPointColor" type="color" style="width:100%;height:46px">
+    <label class="fieldLabel">360° fotografija</label>
+    <label class="fileLabel" style="display:block;text-align:center">📷 ZAMENJAJ / DODAJ 360° SLIKO<input id="currentPointFile" type="file" accept="image/jpeg,image/png,image/webp"></label>
+    <div class="editorButtons">
+      <button id="pointAddLearningBtn" type="button">＋ DODAJ UČNO TOČKO</button>
+      <button id="pointAddTourBtn" type="button">＋ NOVA TOČKA SPREHODA</button>
+      <button id="pointDeleteBtn" type="button">🗑 IZBRIŠI TOČKO</button>
+    </div>
+    <p style="font-size:13px;line-height:1.4">Novo točko sprehoda nato prestaviš na želeno mesto na zemljevidu.</p>
   </div>
 </div>
 
@@ -3373,74 +3382,40 @@ async function exportStandaloneHtml(){
 exportBtn.addEventListener("click",exportStandaloneHtml);
 
 /* ===== DINAMIČNE TOČKE ZEMLJEVIDA ===== */
-const dynamicMapPoints=$("dynamicMapPoints"),addPointBtn=$("addPointBtn"),managePointsBtn=$("managePointsBtn"),placementHint=$("placementHint"),pointManager=$("pointManager"),closePointManager=$("closePointManager"),pointRows=$("pointRows"),tourMap=$("tourMap");
-let placingPoint=false;
+const dynamicMapPoints=$("dynamicMapPoints"),pointManager=$("pointManager"),closePointManager=$("closePointManager"),tourMap=$("tourMap");
+const editCurrentPointBtn=$("editCurrentPointBtn"),currentPointName=$("currentPointName"),currentPointColor=$("currentPointColor"),currentPointFile=$("currentPointFile"),pointAddLearningBtn=$("pointAddLearningBtn"),pointAddTourBtn=$("pointAddTourBtn"),pointDeleteBtn=$("pointDeleteBtn");
 function renderMapPoints(){
   if(!dynamicMapPoints)return;dynamicMapPoints.innerHTML="";
   TOUR_POINTS.forEach((p,i)=>{
     const b=document.createElement("button");
-    b.className="map-point"+(p.id===currentPointId?" active":"");
-    b.dataset.pointId=p.id;
-    b.style.left=(p.x??50)+"%"; b.style.top=(p.y??50)+"%";
-    b.style.setProperty("--point-color",p.color||"#ef4444");
-    b.style.touchAction="none";
+    b.className="map-point"+(p.id===currentPointId?" active":""); b.dataset.pointId=p.id;
+    b.style.left=(p.x??50)+"%"; b.style.top=(p.y??50)+"%"; b.style.setProperty("--point-color",p.color||"#ef4444"); b.style.touchAction="none";
     b.innerHTML='<span class="pin" aria-hidden="true"></span><span><span class="name"></span><span class="sub"></span></span>';
-    b.querySelector(".name").textContent=p.name;
-    b.querySelector(".sub").textContent="360° TOČKA "+(i+1);
-    b.addEventListener("click",e=>{
-      e.stopPropagation();
-      if(placingPoint || b.dataset.justDragged==="1"){
-        b.dataset.justDragged="0";
-        e.preventDefault();
-        return;
-      }
-      switchTourPoint(p.id);
-    });
-    enablePointDrag(b,p);
-    dynamicMapPoints.appendChild(b);
+    b.querySelector(".name").textContent=p.name; b.querySelector(".sub").textContent="360° TOČKA "+(i+1);
+    b.addEventListener("click",e=>{e.stopPropagation();if(b.dataset.justDragged==="1"){b.dataset.justDragged="0";e.preventDefault();return;}switchTourPoint(p.id);});
+    enablePointDrag(b,p); dynamicMapPoints.appendChild(b);
   });
 }
 function enablePointDrag(el,p){
-  let startX=0,startY=0,dragging=false,pointerId=null;
-  const threshold=6;
-  el.addEventListener("pointerdown",e=>{
-    if(placingPoint)return;
-    e.stopPropagation();
-    startX=e.clientX; startY=e.clientY; dragging=false; pointerId=e.pointerId;
-    try{el.setPointerCapture(pointerId);}catch(_){}
-  });
-  el.addEventListener("pointermove",e=>{
-    if(pointerId===null || e.pointerId!==pointerId)return;
-    const dx=e.clientX-startX,dy=e.clientY-startY;
-    if(!dragging && Math.hypot(dx,dy)<threshold)return;
-    dragging=true;
-    e.preventDefault(); e.stopPropagation();
-    const r=tourMap.getBoundingClientRect();
-    p.x=Math.max(2,Math.min(96,(e.clientX-r.left)/r.width*100));
-    p.y=Math.max(5,Math.min(92,(e.clientY-r.top)/r.height*100));
-    el.style.left=p.x+"%"; el.style.top=p.y+"%";
-  });
-  const finish=e=>{
-    if(pointerId===null || (e.pointerId!==undefined && e.pointerId!==pointerId))return;
-    if(dragging){
-      el.dataset.justDragged="1";
-      saveTour();
-      setTimeout(()=>{el.dataset.justDragged="0";},350);
-      e.preventDefault(); e.stopPropagation();
-    }
-    try{el.releasePointerCapture(pointerId);}catch(_){}
-    pointerId=null; dragging=false;
-  };
-  el.addEventListener("pointerup",finish);
-  el.addEventListener("pointercancel",finish);
+  let startX=0,startY=0,dragging=false,pointerId=null; const threshold=6;
+  el.addEventListener("pointerdown",e=>{e.stopPropagation();startX=e.clientX;startY=e.clientY;dragging=false;pointerId=e.pointerId;try{el.setPointerCapture(pointerId);}catch(_){}});
+  el.addEventListener("pointermove",e=>{if(pointerId===null||e.pointerId!==pointerId)return;const dx=e.clientX-startX,dy=e.clientY-startY;if(!dragging&&Math.hypot(dx,dy)<threshold)return;dragging=true;e.preventDefault();e.stopPropagation();const r=tourMap.getBoundingClientRect();p.x=Math.max(2,Math.min(96,(e.clientX-r.left)/r.width*100));p.y=Math.max(5,Math.min(92,(e.clientY-r.top)/r.height*100));el.style.left=p.x+"%";el.style.top=p.y+"%";});
+  const finish=e=>{if(pointerId===null||(e.pointerId!==undefined&&e.pointerId!==pointerId))return;if(dragging){el.dataset.justDragged="1";saveTour();setTimeout(()=>{el.dataset.justDragged="0";},350);e.preventDefault();e.stopPropagation();}try{el.releasePointerCapture(pointerId);}catch(_){}pointerId=null;dragging=false;};
+  el.addEventListener("pointerup",finish);el.addEventListener("pointercancel",finish);
 }
-function newPointAt(x,y){const id="tocka-"+Date.now();const p={id,name:"TOČKA "+(TOUR_POINTS.length+1),panorama:"https://janjakosirjma-png.github.io/360-vr/360.jpg",color:"#ef4444",x,y};TOUR_POINTS.push(p);HOTSPOTS_BY_POINT[id]=[];safeLocalSet(pointStorageKey(id),"[]");saveTour();placingPoint=false;placementHint.style.display="none";renderMapPoints();renderPointManager();}
-addPointBtn.addEventListener("click",e=>{e.stopPropagation();placingPoint=!placingPoint;placementHint.style.display=placingPoint?"block":"none";addPointBtn.textContent=placingPoint?"✕ PREKLIČI":"➕ NOVA TOČKA";});
-tourMap.addEventListener("click",e=>{if(!placingPoint)return;if(e.target.closest(".map-point")||e.target.closest("#mapEditorBar"))return;const r=tourMap.getBoundingClientRect();newPointAt((e.clientX-r.left)/r.width*100,(e.clientY-r.top)/r.height*100);addPointBtn.textContent="➕ NOVA TOČKA";});
-function renderPointManager(){
-  pointRows.innerHTML="";TOUR_POINTS.forEach((p,i)=>{const row=document.createElement("div");row.className="point-row";row.innerHTML='<strong>'+(i+1)+'</strong><input class="pname" type="text"><input class="pcolor" type="color"><label class="fileLabel">📷 360° slika<input class="pfile" type="file" accept="image/jpeg,image/png,image/webp"></label><div class="pointActions"><div class="orderBtns"><button class="up">↑</button><button class="down">↓</button><button class="deletePoint">🗑</button></div></div>';row.querySelector(".pname").value=p.name;row.querySelector(".pcolor").value=p.color||"#ef4444";row.querySelector(".pname").oninput=e=>{p.name=e.target.value||("TOČKA "+(i+1));saveTour();renderMapPoints();locationBadge.textContent=currentPointId===p.id?"📍 "+p.name:locationBadge.textContent;};row.querySelector(".pcolor").oninput=e=>{p.color=e.target.value;saveTour();renderMapPoints();};row.querySelector(".pfile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{p.panorama=r.result;saveTour();if(p.id===currentPointId)applyPointPanorama(p);renderPointManager();};r.readAsDataURL(f);};row.querySelector(".up").onclick=()=>{if(i>0){[TOUR_POINTS[i-1],TOUR_POINTS[i]]=[TOUR_POINTS[i],TOUR_POINTS[i-1]];saveTour();renderPointManager();renderMapPoints();}};row.querySelector(".down").onclick=()=>{if(i<TOUR_POINTS.length-1){[TOUR_POINTS[i+1],TOUR_POINTS[i]]=[TOUR_POINTS[i],TOUR_POINTS[i+1]];saveTour();renderPointManager();renderMapPoints();}};row.querySelector(".deletePoint").onclick=()=>{if(TOUR_POINTS.length<=1){alert("Vsaj ena točka mora ostati.");return;}if(!confirm("Izbrišem točko "+p.name+" in njene hotspote?"))return;TOUR_POINTS.splice(i,1);delete HOTSPOTS_BY_POINT[p.id];safeLocalRemove(pointStorageKey(p.id));if(currentPointId===p.id){currentPointId=TOUR_POINTS[0].id;loadHotspotsForPoint(currentPointId);applyPointPanorama(currentPoint());renderHotspots();}saveTour();renderPointManager();renderMapPoints();};pointRows.appendChild(row);});
+function openCurrentPointEditor(){
+  const p=currentPoint(); if(!p)return;
+  currentPointName.value=p.name||""; currentPointColor.value=p.color||"#ef4444"; currentPointFile.value=""; pointManager.style.display="flex";
 }
-managePointsBtn.addEventListener("click",e=>{e.stopPropagation();renderPointManager();pointManager.style.display="flex";});closePointManager.addEventListener("click",()=>pointManager.style.display="none");pointManager.addEventListener("click",e=>{if(e.target===pointManager)pointManager.style.display="none";});
+editCurrentPointBtn.addEventListener("click",openCurrentPointEditor);
+closePointManager.addEventListener("click",()=>pointManager.style.display="none");
+pointManager.addEventListener("click",e=>{if(e.target===pointManager)pointManager.style.display="none";});
+currentPointName.addEventListener("input",e=>{const p=currentPoint();p.name=e.target.value||"TOČKA";saveTour();locationBadge.textContent="📍 "+p.name;renderMapPoints();});
+currentPointColor.addEventListener("input",e=>{const p=currentPoint();p.color=e.target.value;saveTour();renderMapPoints();});
+currentPointFile.addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const p=currentPoint();p.panorama=r.result;saveTour();applyPointPanorama(p);renderMapPoints();announceToScreenReader("360 stopinjska slika je zamenjana.");};r.readAsDataURL(f);});
+pointAddLearningBtn.addEventListener("click",()=>{pointManager.style.display="none";startAddMode();});
+pointAddTourBtn.addEventListener("click",()=>{const id="tocka-"+Date.now();const p={id,name:"TOČKA "+(TOUR_POINTS.length+1),panorama:"https://janjakosirjma-png.github.io/360-vr/360.jpg",color:"#ef4444",x:50,y:50};TOUR_POINTS.push(p);HOTSPOTS_BY_POINT[id]=[];safeLocalSet(pointStorageKey(id),"[]");saveTour();renderMapPoints();switchTourPoint(id);openCurrentPointEditor();});
+pointDeleteBtn.addEventListener("click",()=>{const p=currentPoint();if(TOUR_POINTS.length<=1){alert("Vsaj ena točka mora ostati.");return;}if(!confirm("Izbrišem točko "+p.name+" in njene učne točke?"))return;const i=TOUR_POINTS.findIndex(x=>x.id===p.id);TOUR_POINTS.splice(i,1);delete HOTSPOTS_BY_POINT[p.id];safeLocalRemove(pointStorageKey(p.id));currentPointId=TOUR_POINTS[Math.max(0,i-1)].id;loadHotspotsForPoint(currentPointId);applyPointPanorama(currentPoint());renderHotspots();saveTour();renderMapPoints();pointManager.style.display="none";locationBadge.textContent="📍 "+currentPoint().name;});
 renderMapPoints();
 
 
