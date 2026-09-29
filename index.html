@@ -1284,7 +1284,7 @@ vrInfo.setAttribute(
 ========================================================= */
 
 /* Podatki, vgrajeni v izvoženo HTML datoteko. */
-const EMBEDDED_EXPORT_PAYLOAD = "/*__EXPORT_B64_START__*/__EMPTY__/*__EXPORT_B64_END__*/";
+const EMBEDDED_EXPORT_PAYLOAD = "__EMPTY__";
 function readEmbeddedExportData(){
   try{
     if(!EMBEDDED_EXPORT_PAYLOAD || EMBEDDED_EXPORT_PAYLOAD.includes("__EMPTY__")) return null;
@@ -3436,7 +3436,7 @@ async function exportStandaloneHtml(){
     const chunk=0x8000;
     for(let i=0;i<bytes.length;i+=chunk){binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));}
     const payload=btoa(binary);
-    html=html.replace(/\/\*__EXPORT_B64_START__\*\/[\s\S]*?\/\*__EXPORT_B64_END__\*\//,"/*__EXPORT_B64_START__*/"+payload+"/*__EXPORT_B64_END__*/");
+    html=html.replace(/const EMBEDDED_EXPORT_PAYLOAD = ["\'][\s\S]*?["\'];/, "const EMBEDDED_EXPORT_PAYLOAD = "+JSON.stringify(payload)+";");
     const blob=new Blob([html],{type:"text/html;charset=utf-8"});
     const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
     const fileName="ucni-sprehod-"+stamp+".html";
