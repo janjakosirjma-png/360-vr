@@ -1268,8 +1268,9 @@ function applyPointPanorama(point){
   if(!point)return;
   panoramaImage.setAttribute("src",point.panorama);
   sky.setAttribute("src",point.panorama);
-  /* Brez negativnega scale: panorama se ne zrcali. */
-  sky.setAttribute("scale","1 1 1");
+  /* A-Frame a-sky uporablja pravilno notranjo orientacijo sam.
+     Ne nastavljaj scale="1 1 1", ker s tem postane equirectangularna panorama zrcaljena. */
+  sky.removeAttribute("scale");
 }
 function switchTourPoint(id){
   const point=TOUR_POINTS.find(p=>p.id===id);if(!point)return;
