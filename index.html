@@ -567,7 +567,8 @@ textarea:focus-visible{
   <a-sky
     id="sky"
     src="#panoramaImage"
-    rotation="0 0 0">
+    rotation="0 0 0"
+    scale="-1 1 1">
   </a-sky>
 
   <!-- HOTSPOTS -->
@@ -1268,9 +1269,9 @@ function applyPointPanorama(point){
   if(!point)return;
   panoramaImage.setAttribute("src",point.panorama);
   sky.setAttribute("src",point.panorama);
-  /* A-Frame a-sky uporablja pravilno notranjo orientacijo sam.
-     Ne nastavljaj scale="1 1 1", ker s tem postane equirectangularna panorama zrcaljena. */
-  sky.removeAttribute("scale");
+  /* Equirectangularna panorama mora biti obrnjena proti notranjosti sfere.
+     Eksplicitni X=-1 prepreči zrcaljenje napisov pri dinamično naloženih slikah. */
+  sky.setAttribute("scale","-1 1 1");
 }
 function switchTourPoint(id){
   const point=TOUR_POINTS.find(p=>p.id===id);if(!point)return;
@@ -4231,6 +4232,7 @@ scene.addEventListener(
     const point = currentPoint();
     panoramaImage.setAttribute("src", point.panorama);
     sky.setAttribute("src", point.panorama);
+    sky.setAttribute("scale","-1 1 1");
     locationBadge.textContent = "📍 " + point.name;
     updateMapActiveState();
 
