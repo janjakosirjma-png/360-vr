@@ -526,6 +526,51 @@ textarea:focus-visible{
 #placementHint{position:absolute;z-index:12;left:50%;top:50%;transform:translate(-50%,-50%);display:none;padding:14px 18px;border-radius:999px;background:rgba(0,0,0,.82);font-weight:900;pointer-events:none}
 @media(max-width:700px){.point-row{grid-template-columns:34px 1fr 58px;}.point-row .fileLabel{grid-column:1/3}.point-row .pointActions{grid-column:3}.point-row{font-size:12px}#mapEditorBar{max-width:95%;bottom:10px}}
 
+
+
+/* ===== ANDROID / TELEFON: večji dotiki, varni robovi, spodnja orodna vrstica ===== */
+@media (max-width: 760px), (pointer: coarse) {
+  body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}
+  button{min-height:48px;min-width:48px;font-size:15px;padding:0 14px;}
+  #toolbar{
+    top:auto;left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));
+    bottom:max(8px,env(safe-area-inset-bottom));max-height:38vh;overflow:auto;
+    justify-content:center;gap:6px;padding:7px;border-radius:16px;
+  }
+  #toolbar button{flex:0 0 auto;}
+  #locationBadge{order:-1;width:100%;justify-content:center;min-height:34px;}
+  #hint{bottom:calc(92px + env(safe-area-inset-bottom));font-size:14px;}
+  #popup{max-height:72vh;overflow:auto;padding:16px;bottom:calc(86px + env(safe-area-inset-bottom));top:auto!important;left:10px!important;right:10px!important;width:auto!important;}
+  #popupClose{width:44px;height:44px;min-width:44px;min-height:44px;}
+  #titleInput,#descriptionInput{font-size:16px;} /* prepreči samodejni zoom na Android/iOS */
+  .dictateBtn{flex-basis:52px;min-width:52px;}
+  #mapOverlay{padding:max(8px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom));}
+  #mapPanel{width:100%;height:100%;min-height:0;border-radius:18px;}
+  #mapHeader{left:14px;right:14px;top:12px;align-items:center;}
+  #mapHeader h1{font-size:24px;}
+  #mapHeader p{font-size:12px;max-width:72vw;}
+  #mapClose{width:48px;height:48px;padding:0;}
+  #tourMap{inset:92px 6px 74px;touch-action:none;}
+  .map-point{min-height:52px;padding:5px 11px 5px 5px;touch-action:none;user-select:none;-webkit-user-select:none;}
+  .map-point .pin{flex-basis:40px;width:40px;height:40px;}
+  .map-point .name{font-size:13px;}
+  #mapEditorBar{left:8px;right:8px;bottom:8px;max-width:none;justify-content:center;}
+  #pointManager{padding:8px;align-items:flex-end;}
+  #pointManagerBox{width:100%;max-height:88vh;border-radius:18px 18px 0 0;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom));}
+  .point-row{grid-template-columns:38px minmax(0,1fr) 58px;gap:7px;}
+  .point-row input[type=text]{font-size:16px;min-height:46px;}
+  .point-row input[type=color]{width:52px;height:46px;}
+  .point-row .fileLabel{min-height:46px;display:flex;align-items:center;justify-content:center;grid-column:1/3;}
+  .point-row .pointActions{grid-column:3;}
+  .readerButtons button,.editorButtons button{min-height:50px;}
+}
+@media (orientation: landscape) and (max-height: 520px){
+  #toolbar{max-height:48vh;left:8px;right:auto;width:min(210px,42vw);justify-content:flex-start;}
+  #toolbar button{font-size:13px;min-height:44px;}
+  #locationBadge{font-size:11px;}
+  #popup{left:auto!important;right:8px!important;bottom:8px!important;width:min(390px,54vw)!important;max-height:94vh;}
+}
+
 </style>
 </head>
 
@@ -768,7 +813,7 @@ textarea:focus-visible{
 
   <button id="mapBtn">🗺 ZEMLJEVID</button>
   <button id="editCurrentPointBtn" type="button">✏️ UREDI TOČKO</button>
-  <button id="exportBtn" type="button" title="Shrani vse točke, AHA! oznake in naložene 360° fotografije v eno HTML datoteko">💾 IZVOZI HTML</button>
+  <button id="exportBtn" type="button" title="Shrani vse točke, AHA! oznake in naložene 360° fotografije v eno HTML datoteko">💾 IZVOZI / DELI</button>
   <div id="locationBadge" aria-live="polite">📍 JANJA</div>
 
   <button id="addBtn">
@@ -836,7 +881,7 @@ textarea:focus-visible{
     <label class="fieldLabel" for="currentPointColor">Barva točke na zemljevidu</label>
     <input id="currentPointColor" type="color" style="width:100%;height:46px">
     <label class="fieldLabel">360° fotografija</label>
-    <label class="fileLabel" style="display:block;text-align:center">📷 ZAMENJAJ / DODAJ 360° SLIKO<input id="currentPointFile" type="file" accept="image/jpeg,image/png,image/webp"></label>
+    <label class="fileLabel" style="display:block;text-align:center">📷 ZAMENJAJ / DODAJ 360° SLIKO<input id="currentPointFile" type="file" accept="image/*" accept="image/jpeg,image/png,image/webp"></label>
     <div class="editorButtons">
       <button id="pointAddLearningBtn" type="button">＋ DODAJ AHA!</button>
       <button id="pointAddTourBtn" type="button">＋ NOVA TOČKA SPREHODA</button>
@@ -3373,9 +3418,28 @@ async function exportStandaloneHtml(){
     for(let i=0;i<bytes.length;i+=chunk){binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));}
     const payload=btoa(binary);
     html=html.replace(/\/\*__EXPORT_B64_START__\*\/[\s\S]*?\/\*__EXPORT_B64_END__\*\//,"/*__EXPORT_B64_START__*/"+payload+"/*__EXPORT_B64_END__*/");
-    const blob=new Blob([html],{type:"text/html;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");
-    const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");a.href=url;a.download="ucni-sprehod-"+stamp+".html";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
-    announceToScreenReader("HTML datoteka z vsemi točkami, slikami in hotspoti je izvožena.");
+    const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+    const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+    const fileName="ucni-sprehod-"+stamp+".html";
+    const file=new File([blob],fileName,{type:"text/html;charset=utf-8"});
+    let shared=false;
+    /* Na Androidu najprej ponudi sistemski meni Deli (Drive, Gmail, WhatsApp ...). */
+    if(navigator.share && navigator.canShare){
+      try{
+        if(navigator.canShare({files:[file]})){
+          await navigator.share({files:[file],title:"POGLEJ NA 360°",text:"360° učni sprehod"});
+          shared=true;
+        }
+      }catch(shareError){
+        /* Preklic deljenja ni napaka; spodaj še vedno omogočimo običajen prenos. */
+        if(shareError && shareError.name!=="AbortError") console.warn("Deljenje ni uspelo",shareError);
+      }
+    }
+    if(!shared){
+      const url=URL.createObjectURL(blob);const a=document.createElement("a");
+      a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
+    }
+    announceToScreenReader(shared?"HTML datoteka je pripravljena za deljenje.":"HTML datoteka z vsemi točkami, slikami in AHA! oznakami je izvožena.");
   }catch(e){console.error(e);alert("Izvoz HTML ni uspel: "+(e&&e.message?e.message:e));}
   finally{exportBtn.disabled=false;exportBtn.textContent=oldText;}
 }
