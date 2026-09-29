@@ -768,11 +768,11 @@ textarea:focus-visible{
 
   <button id="mapBtn">🗺 ZEMLJEVID</button>
   <button id="editCurrentPointBtn" type="button">✏️ UREDI TOČKO</button>
-  <button id="exportBtn" type="button" title="Shrani vse točke, učne točke in naložene 360° fotografije v eno HTML datoteko">💾 IZVOZI HTML</button>
+  <button id="exportBtn" type="button" title="Shrani vse točke, AHA! oznake in naložene 360° fotografije v eno HTML datoteko">💾 IZVOZI HTML</button>
   <div id="locationBadge" aria-live="polite">📍 JANJA</div>
 
   <button id="addBtn">
-    + Dodaj učno točko
+    + Dodaj AHA!
   </button>
 
   <button id="zoomInBtn">
@@ -838,7 +838,7 @@ textarea:focus-visible{
     <label class="fieldLabel">360° fotografija</label>
     <label class="fileLabel" style="display:block;text-align:center">📷 ZAMENJAJ / DODAJ 360° SLIKO<input id="currentPointFile" type="file" accept="image/jpeg,image/png,image/webp"></label>
     <div class="editorButtons">
-      <button id="pointAddLearningBtn" type="button">＋ DODAJ UČNO TOČKO</button>
+      <button id="pointAddLearningBtn" type="button">＋ DODAJ AHA!</button>
       <button id="pointAddTourBtn" type="button">＋ NOVA TOČKA SPREHODA</button>
       <button id="pointDeleteBtn" type="button">🗑 IZBRIŠI TOČKO</button>
     </div>
@@ -861,7 +861,7 @@ textarea:focus-visible{
   <button
     id="popupClose"
     type="button"
-    aria-label="Zapri vsebino učne točke"
+    aria-label="Zapri vsebino AHA!"
     title="Zapri">
     ×
   </button>
@@ -880,7 +880,7 @@ textarea:focus-visible{
       <button
         id="speakBtn"
         type="button"
-        aria-label="Glasno preberi učno točko">
+        aria-label="Glasno preberi AHA!">
         🔊 Preberi
       </button>
 
@@ -2819,7 +2819,7 @@ function stopAddMode(){
 
 
   addBtn.textContent =
-    "+ Dodaj učno točko";
+    "+ Dodaj AHA!";
 
 
   hint.style.display =
@@ -3415,7 +3415,7 @@ currentPointColor.addEventListener("input",e=>{const p=currentPoint();p.color=e.
 currentPointFile.addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const p=currentPoint();p.panorama=r.result;saveTour();applyPointPanorama(p);renderMapPoints();announceToScreenReader("360 stopinjska slika je zamenjana.");};r.readAsDataURL(f);});
 pointAddLearningBtn.addEventListener("click",()=>{pointManager.style.display="none";startAddMode();});
 pointAddTourBtn.addEventListener("click",()=>{const id="tocka-"+Date.now();const p={id,name:"TOČKA "+(TOUR_POINTS.length+1),panorama:"https://janjakosirjma-png.github.io/360-vr/360.jpg",color:"#ef4444",x:50,y:50};TOUR_POINTS.push(p);HOTSPOTS_BY_POINT[id]=[];safeLocalSet(pointStorageKey(id),"[]");saveTour();renderMapPoints();switchTourPoint(id);openCurrentPointEditor();});
-pointDeleteBtn.addEventListener("click",()=>{const p=currentPoint();if(TOUR_POINTS.length<=1){alert("Vsaj ena točka mora ostati.");return;}if(!confirm("Izbrišem točko "+p.name+" in njene učne točke?"))return;const i=TOUR_POINTS.findIndex(x=>x.id===p.id);TOUR_POINTS.splice(i,1);delete HOTSPOTS_BY_POINT[p.id];safeLocalRemove(pointStorageKey(p.id));currentPointId=TOUR_POINTS[Math.max(0,i-1)].id;loadHotspotsForPoint(currentPointId);applyPointPanorama(currentPoint());renderHotspots();saveTour();renderMapPoints();pointManager.style.display="none";locationBadge.textContent="📍 "+currentPoint().name;});
+pointDeleteBtn.addEventListener("click",()=>{const p=currentPoint();if(TOUR_POINTS.length<=1){alert("Vsaj ena točka mora ostati.");return;}if(!confirm("Izbrišem točko "+p.name+" in njene AHA! oznake?"))return;const i=TOUR_POINTS.findIndex(x=>x.id===p.id);TOUR_POINTS.splice(i,1);delete HOTSPOTS_BY_POINT[p.id];safeLocalRemove(pointStorageKey(p.id));currentPointId=TOUR_POINTS[Math.max(0,i-1)].id;loadHotspotsForPoint(currentPointId);applyPointPanorama(currentPoint());renderHotspots();saveTour();renderMapPoints();pointManager.style.display="none";locationBadge.textContent="📍 "+currentPoint().name;});
 renderMapPoints();
 
 
