@@ -1284,14 +1284,26 @@ vrInfo.setAttribute(
 ========================================================= */
 
 /* Podatki, vgrajeni v izvoženo HTML datoteko. */
-const EMBEDDED_EXPORT_PAYLOAD = "__EMPTY__";
+const EMBEDDED_EXPORT_PAYLOAD = "/*__EXPORT_B64_START__*/__EMPTY__/*__EXPORT_B64_END__*/";
 function readEmbeddedExportData(){
   try{
     if(!EMBEDDED_EXPORT_PAYLOAD || EMBEDDED_EXPORT_PAYLOAD.includes("__EMPTY__")) return null;
-    const binary=atob(EMBEDDED_EXPORT_PAYLOAD);
+    /* V konstanti sta zaradi samostojnega izvoza tudi varnostni oznaki.
+       Pred Base64 dekodiranjem ju odstranimo. */
+    const startMarker="/*__EXPORT_B64_START__*/";
+    const endMarker="/*__EXPORT_B64_END__*/";
+    let payload=EMBEDDED_EXPORT_PAYLOAD;
+    const start=payload.indexOf(startMarker);
+    const end=payload.lastIndexOf(endMarker);
+    if(start!==-1 && end!==-1 && end>start){
+      payload=payload.slice(start+startMarker.length,end);
+    }
+    payload=payload.trim();
+    if(!payload || payload==="__EMPTY__") return null;
+    const binary=atob(payload);
     const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
     return JSON.parse(new TextDecoder().decode(bytes));
-  }catch(e){console.error("Napaka pri branju izvoza",e);return null;}
+  }catch(e){console.error("Napaka pri branju vgrajenega izvoza",e);return null;}
 }
 const EMBEDDED_EXPORT_DATA = readEmbeddedExportData();
 const STORAGE_KEY = "stable-360-hotspots-v8";
@@ -3436,7 +3448,13 @@ async function exportStandaloneHtml(){
     const chunk=0x8000;
     for(let i=0;i<bytes.length;i+=chunk){binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));}
     const payload=btoa(binary);
-    html=html.replace(/const EMBEDDED_EXPORT_PAYLOAD = ["\'][\s\S]*?["\'];/, "const EMBEDDED_EXPORT_PAYLOAD = "+JSON.stringify(payload)+";");
+    html=html.replace(/\/\*__EXPORT_B64_START__\*\/[\s\S]*?\/\*__EXPORT_B64_END__\*\//,"/*__EXPORT_B64_START__*/"+payload+"/*__EXPORT_B64_END__*/");
+    /* Samopreizkus izvoza: ne ponudimo datoteke, če paket ni res vgrajen. */
+    if(!html.includes("/*__EXPORT_B64_START__*/"+payload+"/*__EXPORT_B64_END__*/")) throw new Error("Podatkovnega paketa ni bilo mogoče vgraditi v HTML.");
+    const verifyBinary=atob(payload);
+    const verifyBytes=Uint8Array.from(verifyBinary,c=>c.charCodeAt(0));
+    const verifyData=JSON.parse(new TextDecoder().decode(verifyBytes));
+    if(!Array.isArray(verifyData.tourPoints) || !verifyData.hotspotsByPoint) throw new Error("Izvozni paket ni popoln.");
     const blob=new Blob([html],{type:"text/html;charset=utf-8"});
     const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
     const fileName="ucni-sprehod-"+stamp+".html";
