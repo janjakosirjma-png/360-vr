@@ -1,4 +1,7 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="sl">
 <head>
@@ -3466,28 +3469,8 @@ async function exportStandaloneHtml(){
     const verifyBytes=Uint8Array.from(verifyBinary,c=>c.charCodeAt(0));
     const verifyData=JSON.parse(new TextDecoder().decode(verifyBytes));
     if(!Array.isArray(verifyData.tourPoints) || !verifyData.hotspotsByPoint) throw new Error("Izvozni paket ni popoln.");
-    /* IZVOZ: dodatno zagotovimo mobilno vrtenje gor/dol tudi v samostojni lokalni HTML datoteki. */
-    const exportedTouchFix = `<script>(function(){
-      function bootExportedTouch(){
-        var scene=document.getElementById('scene'), cam=document.getElementById('camera');
-        if(!scene||!cam) return;
-        function install(){
-          var canvas=scene.canvas; if(!canvas||canvas.__exportTouch360) return;
-          canvas.__exportTouch360=true; canvas.style.touchAction='none';
-          var active=false,lastX=0,lastY=0;
-          function controls(){return cam.components&&cam.components['look-controls'];}
-          function start(x,y){active=true;lastX=x;lastY=y;var c=controls();if(c)c.data.touchEnabled=false;}
-          function move(x,y){if(!active)return;var dx=x-lastX,dy=y-lastY;lastX=x;lastY=y;var c=controls();if(c&&c.yawObject&&c.pitchObject){c.yawObject.rotation.y-=dx*0.0042;c.pitchObject.rotation.x-=dy*0.0042;var lim=Math.PI/2-0.02;c.pitchObject.rotation.x=Math.max(-lim,Math.min(lim,c.pitchObject.rotation.x));}}
-          canvas.addEventListener('touchstart',function(e){if(e.touches.length!==1||window.addMode||(scene.is&&scene.is('vr-mode')))return;start(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();},{passive:false});
-          canvas.addEventListener('touchmove',function(e){if(!active||e.touches.length!==1)return;move(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();},{passive:false});
-          canvas.addEventListener('touchend',function(e){active=false;e.preventDefault();},{passive:false});
-          canvas.addEventListener('touchcancel',function(){active=false;},{passive:false});
-        }
-        if(scene.hasLoaded) install(); else scene.addEventListener('loaded',install,{once:true});
-      }
-      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootExportedTouch,{once:true});else bootExportedTouch();
-    })();<\/script>`;
-    html=html.replace('</body>',exportedTouchFix+'</body>');
+    /* Mobilno vrtenje gor/dol je že del glavne kode (installMobilePanControls).
+       Pri izvozu NE dodajamo drugega touch handlerja, ker bi se tepel z A-Frame/VR. */
     const blob=new Blob([html],{type:"text/html;charset=utf-8"});
     const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
     const fileName="ucni-sprehod-"+stamp+".html";
