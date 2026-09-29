@@ -1,5 +1,7 @@
 
 
+
+
 <!DOCTYPE html>
 <html lang="sl">
 <head>
@@ -4070,20 +4072,16 @@ startVRBtn.onclick =
           permission !==
           "granted"
         ){
-
-          alert(
-            "Dovoljenje za senzor gibanja ni bilo odobreno."
-          );
-
-          return;
-
+          /* Ne blokiramo VR. Če senzor ni dovoljen, nadaljujemo v
+             načinu na dotik; WebXR lahko še vedno deluje samostojno. */
+          console.warn("Senzor gibanja ni dovoljen; nadaljujem brez njega.");
         }
 
       }
       catch(e){
-
-        return;
-
+        /* Na Androidu/local file requestPermission ni zanesljiv.
+           Ne ustavimo VR zaradi napake dovoljenja. */
+        console.warn("Dovoljenja senzorja ni bilo mogoče zahtevati", e);
       }
 
     }
@@ -4122,12 +4120,15 @@ startVRBtn.onclick =
 
       await scene.enterVR();
 
+      /* Če WebXR ni dejansko vstopil v VR, uporabi lokalni telefonski način. */
+      setTimeout(()=>{
+        if(!scene.is("vr-mode")){ enterLocalVRFallback(); }
+      },700);
+
     }
     catch(e){
 
-      alert(
-        "Brskalnik ni uspel zagnati VR načina."
-      );
+      await enterLocalVRFallback();
 
     }
 
@@ -4339,6 +4340,79 @@ document.addEventListener(
 );
 
 
+
+/* =========================================================
+   TELEFON: ZANESLJIVO VRTENJE 360° S PRSTOM
+   - vodoravno = levo/desno
+   - navpično = gor/dol
+   - deluje zunaj načina dodajanja AHA!
+========================================================= */
+function installMobilePanControls(){
+  const canvas = scene.canvas;
+  if(!canvas) return;
+
+  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  if(!coarse) return;
+
+  /* Na telefonu izklopimo A-Frame touch handler, da se ne tepe z našim. */
+  const lc = camera.components && camera.components['look-controls'];
+  if(lc){ lc.data.touchEnabled = false; }
+
+  let active=false, pid=null, lastX=0, lastY=0;
+  const sensitivity = 0.0042;
+
+  canvas.style.touchAction='none';
+
+  canvas.addEventListener('pointerdown', e=>{
+    if(e.pointerType==='mouse' || addMode || scene.is('vr-mode')) return;
+    active=true; pid=e.pointerId; lastX=e.clientX; lastY=e.clientY;
+    try{canvas.setPointerCapture(pid);}catch(_){ }
+    e.preventDefault();
+  }, {passive:false});
+
+  canvas.addEventListener('pointermove', e=>{
+    if(!active || e.pointerId!==pid || addMode || scene.is('vr-mode')) return;
+    const dx=e.clientX-lastX, dy=e.clientY-lastY;
+    lastX=e.clientX; lastY=e.clientY;
+
+    const controls = camera.components && camera.components['look-controls'];
+    if(controls && controls.yawObject && controls.pitchObject){
+      controls.yawObject.rotation.y -= dx*sensitivity;
+      controls.pitchObject.rotation.x -= dy*sensitivity;
+      const lim=Math.PI/2-0.02;
+      controls.pitchObject.rotation.x=Math.max(-lim,Math.min(lim,controls.pitchObject.rotation.x));
+    }
+    e.preventDefault();
+  }, {passive:false});
+
+  const end=e=>{
+    if(!active || (e.pointerId!==undefined && e.pointerId!==pid)) return;
+    try{canvas.releasePointerCapture(pid);}catch(_){ }
+    active=false; pid=null;
+    e.preventDefault();
+  };
+  canvas.addEventListener('pointerup',end,{passive:false});
+  canvas.addEventListener('pointercancel',end,{passive:false});
+}
+
+/* Lokalni HTML na Androidu pogosto nima dovoljenja za pravi WebXR.
+   V tem primeru VR gumb vseeno odpre celozaslonski 360° pogled z giroskopom. */
+async function enterLocalVRFallback(){
+  try{
+    const el=document.documentElement;
+    if(!document.fullscreenElement && el.requestFullscreen) await el.requestFullscreen();
+  }catch(_){ }
+  try{
+    if(screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+  }catch(_){ }
+  const lc=camera.components && camera.components['look-controls'];
+  if(lc){
+    lc.data.magicWindowTrackingEnabled=true;
+    lc.data.touchEnabled=true;
+  }
+  showHint(window.isSecureContext ? 'VR pogled: obrni telefon ležeče. Če se pogled ne vrti z gibanjem telefona, uporabi prst.' : 'VR na dotik je vključen. Za vrtenje z gibanjem telefona odpri isto stran prek HTTPS (npr. GitHub Pages).');
+}
+
 /* =========================================================
    SCENE READY
 ========================================================= */
@@ -4358,6 +4432,7 @@ scene.addEventListener(
 
 
     installPointerControls();
+    installMobilePanControls();
 
 
     setFov(
