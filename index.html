@@ -2200,10 +2200,6 @@ function startDictation(
     target.value;
 
 
-  let finalTranscript =
-    "";
-
-
   recognition.onstart =
     ()=>{
 
@@ -2239,32 +2235,36 @@ function startDictation(
   recognition.onresult =
     event=>{
 
-      let interimTranscript =
+      let finalText =
+        "";
+
+      let interimText =
         "";
 
 
       for(
-        let i=event.resultIndex;
+        let i=0;
         i<event.results.length;
         i++
       ){
 
         const transcript =
           event.results[i][0]
-            .transcript;
+            .transcript
+            .trim();
 
 
         if(
           event.results[i].isFinal
         ){
 
-          finalTranscript +=
+          finalText +=
             transcript + " ";
 
         }
         else{
 
-          interimTranscript +=
+          interimText +=
             transcript;
 
         }
@@ -2272,8 +2272,13 @@ function startDictation(
       }
 
 
+      const spokenText =
+        (finalText + interimText)
+          .trim();
+
+
       const separator =
-        originalText.trim()
+        originalText.trim() && spokenText
           ? " "
           : "";
 
@@ -2281,8 +2286,7 @@ function startDictation(
       target.value =
         originalText +
         separator +
-        finalTranscript +
-        interimTranscript;
+        spokenText;
 
 
       try{
@@ -2297,6 +2301,7 @@ function startDictation(
       catch(e){}
 
     };
+
 
 
   recognition.onerror =
