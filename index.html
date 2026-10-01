@@ -2272,9 +2272,44 @@ function startDictation(
       }
 
 
-      const spokenText =
-        (finalText + interimText)
-          .trim();
+      /* Chrome/Android lahko isti del govora vrne hkrati kot
+         finalni in vmesni rezultat (npr. "dodaj" + "dodaj točko").
+         Če se interim začne z že finaliziranim besedilom, uporabimo
+         daljši interim namesto seštevanja in s tem preprečimo podvajanje. */
+      const cleanFinalText =
+        finalText.trim();
+
+      const cleanInterimText =
+        interimText.trim();
+
+      let spokenText =
+        cleanFinalText;
+
+      if(cleanInterimText){
+        const finalLower =
+          cleanFinalText.toLocaleLowerCase("sl-SI");
+
+        const interimLower =
+          cleanInterimText.toLocaleLowerCase("sl-SI");
+
+        if(
+          cleanFinalText &&
+          interimLower.startsWith(finalLower)
+        ){
+          spokenText = cleanInterimText;
+        }
+        else if(
+          cleanFinalText &&
+          finalLower.startsWith(interimLower)
+        ){
+          spokenText = cleanFinalText;
+        }
+        else{
+          spokenText =
+            (cleanFinalText + " " + cleanInterimText)
+              .trim();
+        }
+      }
 
 
       const separator =
