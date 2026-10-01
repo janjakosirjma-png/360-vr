@@ -1,7 +1,4 @@
 
-
-
-
 <!DOCTYPE html>
 <html lang="sl">
 <head>
@@ -2235,12 +2232,12 @@ function startDictation(
   recognition.onresult =
     event=>{
 
-      let finalText =
+      /* Android/Chrome pogosto vrne zaporedne različice istega govora,
+         npr. "danes" -> "danes" -> "danes je" -> "danes je četrtek".
+         Zato rezultatov ne seštevamo slepo. Če je novi rezultat daljša
+         različica že prepoznanega besedila, starega z njim zamenjamo. */
+      let spokenText =
         "";
-
-      let interimText =
-        "";
-
 
       for(
         let i=0;
@@ -2253,62 +2250,49 @@ function startDictation(
             .transcript
             .trim();
 
-
-        if(
-          event.results[i].isFinal
-        ){
-
-          finalText +=
-            transcript + " ";
-
-        }
-        else{
-
-          interimText +=
-            transcript;
-
+        if(!transcript){
+          continue;
         }
 
-      }
-
-
-      /* Chrome/Android lahko isti del govora vrne hkrati kot
-         finalni in vmesni rezultat (npr. "dodaj" + "dodaj točko").
-         Če se interim začne z že finaliziranim besedilom, uporabimo
-         daljši interim namesto seštevanja in s tem preprečimo podvajanje. */
-      const cleanFinalText =
-        finalText.trim();
-
-      const cleanInterimText =
-        interimText.trim();
-
-      let spokenText =
-        cleanFinalText;
-
-      if(cleanInterimText){
-        const finalLower =
-          cleanFinalText.toLocaleLowerCase("sl-SI");
-
-        const interimLower =
-          cleanInterimText.toLocaleLowerCase("sl-SI");
-
-        if(
-          cleanFinalText &&
-          interimLower.startsWith(finalLower)
-        ){
-          spokenText = cleanInterimText;
-        }
-        else if(
-          cleanFinalText &&
-          finalLower.startsWith(interimLower)
-        ){
-          spokenText = cleanFinalText;
-        }
-        else{
+        if(!spokenText){
           spokenText =
-            (cleanFinalText + " " + cleanInterimText)
-              .trim();
+            transcript;
+          continue;
         }
+
+        const spokenLower =
+          spokenText.toLocaleLowerCase("sl-SI");
+
+        const transcriptLower =
+          transcript.toLocaleLowerCase("sl-SI");
+
+        if(
+          transcriptLower === spokenLower
+        ){
+          continue;
+        }
+
+        if(
+          transcriptLower.startsWith(
+            spokenLower + " "
+          )
+        ){
+          spokenText =
+            transcript;
+          continue;
+        }
+
+        if(
+          spokenLower.startsWith(
+            transcriptLower + " "
+          )
+        ){
+          continue;
+        }
+
+        spokenText +=
+          " " + transcript;
+
       }
 
 
@@ -2336,7 +2320,6 @@ function startDictation(
       catch(e){}
 
     };
-
 
 
   recognition.onerror =
