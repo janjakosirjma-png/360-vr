@@ -1289,7 +1289,7 @@ textarea:focus-visible{
     <div id="mapEditorBar">
       <label class="fileLabel" for="mapBgFile">🖼 ZAMENJAJ OZADJE</label>
       <input id="mapBgFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.svg" style="display:none">
-      <button id="exportBtn" type="button" title="Shrani celoten učni sprehod z vsemi točkami, AHA! oznakami in naloženimi 360° fotografijami v novo HTML datoteko" disabled="">⏳ IZVAŽAM ...</button>
+      <button id="exportBtn" type="button" title="Prenesi en sam HTML dokument z vsemi fotografijami, zemljevidom in VR-ogledom">💾 IZVOZI SVOJ HTML</button>
       <button id="resetBtn" type="button" title="Izbriši lokalne spremembe in povrni začetno stanje">↺ PONASTAVI</button>
     </div>
   </div>
@@ -3875,58 +3875,126 @@ function getAllHotspotsForExport(){
   return result;
 }
 function blobToDataURL(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(blob);});}
-async function panoramaDataUrls(){
-  const result={};
-  for(const src of [...new Set(TOUR_POINTS.map(p=>p.panorama))]){
-    if(/^data:/i.test(src)){result[src]=src;continue;}
-    try{const response=await fetch(src,{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);result[src]=await blobToDataURL(await response.blob());}
-    catch(e){result[src]=src;}
-  }return result;
+/* Vse uporabljene slike in A-Frame vgradi v prenosljivo HTML datoteko. */
+/* Če je datoteka z GitHuba nedosegljiva (ali je stran odprta prek file://),
+   lahko uporabnik izbere fotografijo neposredno iz svojega računalnika. */
+function chooseExportFile(label, accept){
+  return new Promise((resolve,reject)=>{
+    const picker=document.createElement("input");
+    picker.type="file";picker.accept=accept;picker.style.display="none";
+    let finished=false;
+    const finish=(file)=>{
+      if(finished)return;finished=true;
+      picker.remove();
+      if(file)resolve(file);else reject(new Error("Izbira datoteke je bila preklicana: "+label));
+    };
+    picker.addEventListener("change",()=>finish(picker.files&&picker.files[0]));
+    picker.addEventListener("cancel",()=>finish(null));
+    document.body.appendChild(picker);
+    picker.click();
+  });
+}
+async function exportAssetDataURL(src,label){
+  if(typeof src!=="string"||!src.trim())throw new Error("Manjka fotografija: "+label);
+  if(/^data:image\//i.test(src))return src;
+  try{
+    const response=await fetch(src,{cache:"no-store"});
+    if(!response.ok)throw new Error("HTTP "+response.status);
+    const blob=await response.blob();
+    if(!blob.type.startsWith("image/"))throw new Error("Vir ni slika");
+    return await blobToDataURL(blob);
+  }catch(error){
+    const name=(src.split("/").pop()||src).split("?")[0];
+    const agreed=confirm("Fotografije za '"+label+"' ("+name+") ni mogoče samodejno prebrati.\n\nIzberi to isto fotografijo z računalnika, da bo vključena v samostojni HTML.\n\nV redu = izberi datoteko, Prekliči = ustavi izvoz.");
+    if(!agreed)throw new Error("Izvoz je bil ustavljen, ker manjka slika: "+label);
+    const file=await chooseExportFile(label,"image/*,.jpg,.jpeg,.png,.webp,.gif");
+    if(!file.type.startsWith("image/")&&!/\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(file.name))throw new Error("Izbrana datoteka ni slika: "+label);
+    return await blobToDataURL(file);
+  }
+}
+async function exportAFrameLibrary(){
+  const urls=[
+    "https://cdn.jsdelivr.net/npm/aframe@1.7.1/dist/aframe.min.js",
+    "https://unpkg.com/aframe@1.7.1/dist/aframe.min.js",
+    "https://aframe.io/releases/1.7.1/aframe.min.js"
+  ];
+  for(const url of urls){
+    try{
+      const response=await fetch(url,{mode:"cors",cache:"force-cache"});
+      if(!response.ok)continue;
+      const code=await response.text();
+      if(code.length>100000 && /AFRAME|aframe/i.test(code))return code;
+    }catch(e){console.warn("A-Frame: "+url,e);}
+  }
+  const agreed=confirm("Knjižnice A-Frame ni mogoče samodejno vključiti.\n\nČe imaš datoteko aframe.min.js (različica 1.7.1), jo lahko izbereš z računalnika. Sicer prekliči izvoz in poskusi znova s spletne strani, ko imaš internet.");
+  if(!agreed)throw new Error("VR-knjižnica A-Frame ni dostopna za samostojen izvoz.");
+  const file=await chooseExportFile("A-Frame",".js,application/javascript,text/javascript");
+  const code=await file.text();
+  if(code.length<100000 || !/AFRAME|aframe/i.test(code))throw new Error("Datoteka ni ustrezna knjižnica A-Frame.");
+  return code;
 }
 async function exportStandaloneHtml(){
   stopDictation();stopSpeaking();closePopup();stopAddMode();saveHotspots();saveTour();
-  const oldText=exportBtn.textContent;exportBtn.disabled=true;exportBtn.textContent="⏳ IZVAŽAM ...";
+  const oldText=exportBtn.textContent;
+  exportBtn.disabled=true;exportBtn.textContent="⏳ PRIPRAVLJAM HTML ...";
   try{
-    const imageMap=await panoramaDataUrls();
-    const exportedPoints=clone(TOUR_POINTS).map(p=>({...p,panorama:imageMap[p.panorama]||p.panorama}));
-    const exportData={version:3,mapBackground,packageId:"pkg-"+Date.now()+"-"+Math.random().toString(36).slice(2),exportedAt:new Date().toISOString(),currentPointId,tourPoints:exportedPoints,hotspotsByPoint:getAllHotspotsForExport()};
-    let html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+    /* Če je več točk povezanih na isto sliko, jo vgradi le enkrat v paket podatkov. */
+    const images=new Map();
+    for(const p of TOUR_POINTS){
+      const src=p.panorama||"360.jpg";
+      if(!images.has(src))images.set(src,await exportAssetDataURL(src,p.name||p.id));
+    }
+    const bg=mapBackground?await exportAssetDataURL(mapBackground,"ozadje zemljevida"):"";
+    const exportedPoints=clone(TOUR_POINTS).map(p=>({...p,panorama:images.get(p.panorama||"360.jpg")}));
+    const exportData={
+      version:4,mapBackground:bg,
+      packageId:"pkg-"+Date.now()+"-"+Math.random().toString(36).slice(2),
+      exportedAt:new Date().toISOString(),currentPointId,
+      tourPoints:exportedPoints,hotspotsByPoint:getAllHotspotsForExport()
+    };
+    /* Ne shranjujemo trenutnega živega 3D canvasa ali drugih A-Frame runtime elementov. */
+    const doc=document.documentElement.cloneNode(true);
+    doc.querySelectorAll("canvas.a-canvas,.a-enter-vr,.a-enter-ar,.a-orientation-modal,.a-loader-title,.a-inspector-loader").forEach(el=>el.remove());
+    const clonedBtn=doc.querySelector("#exportBtn");
+    if(clonedBtn){clonedBtn.disabled=false;clonedBtn.removeAttribute("disabled");clonedBtn.textContent="💾 IZVOZI SVOJ HTML";}
+    const clonedMap=doc.querySelector("#tourMap");
+    if(clonedMap){clonedMap.style.backgroundImage=bg?'url("'+bg+'")':"none";}
+    const chosen=exportedPoints.find(p=>p.id===currentPointId)||exportedPoints[0];
+    if(chosen){
+      const sky=doc.querySelector("#sky"),image=doc.querySelector("#panoramaImage");
+      if(sky)sky.setAttribute("src",chosen.panorama);
+      if(image)image.setAttribute("src",chosen.panorama);
+    }
+    /* A-Frame je v prenesenem HTML vgrajen, da VR deluje tudi brez interneta. */
+    const aframe=doc.querySelector('script[src*="aframe"]');
+    if(!aframe)throw new Error("V dokumentu manjka knjižnica A-Frame.");
+    aframe.removeAttribute("src");
+    aframe.textContent=(await exportAFrameLibrary()).replace(/<\/script/gi,"<\\/script");
+    /* V aplikacijskem skriptu zamenjaj obstoječi paket, ne podvajaj ga. */
+    const appScript=[...doc.querySelectorAll("script")].find(s=>s.textContent.includes("const EMBEDDED_EXPORT_PAYLOAD ="));
+    if(!appScript)throw new Error("Ni mogoče najti skripta s podatki ogleda.");
     const json=JSON.stringify(exportData);
     const bytes=new TextEncoder().encode(json);
     let binary="";
     const chunk=0x8000;
-    for(let i=0;i<bytes.length;i+=chunk){binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));}
+    for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));
     const payload=btoa(binary);
-    html=html.replace(/\/\*__EXPORT_B64_START__\*\/[\s\S]*?\/\*__EXPORT_B64_END__\*\//,"/*__EXPORT_B64_START__*/"+payload+"/*__EXPORT_B64_END__*/");
-    /* Samopreizkus izvoza: ne ponudimo datoteke, če paket ni res vgrajen. */
-    if(!html.includes("/*__EXPORT_B64_START__*/"+payload+"/*__EXPORT_B64_END__*/")) throw new Error("Podatkovnega paketa ni bilo mogoče vgraditi v HTML.");
-    const verifyBinary=atob(payload);
-    const verifyBytes=Uint8Array.from(verifyBinary,c=>c.charCodeAt(0));
-    const verifyData=JSON.parse(new TextDecoder().decode(verifyBytes));
-    if(!Array.isArray(verifyData.tourPoints) || !verifyData.hotspotsByPoint) throw new Error("Izvozni paket ni popoln.");
+    const marker=/\/\*__EXPORT_B64_START__\*\/[\s\S]*?\/\*__EXPORT_B64_END__\*\//;
+    if(!marker.test(appScript.textContent))throw new Error("Izvozni podatkovni paket ni bil najden.");
+    appScript.textContent=appScript.textContent.replace(marker,"/*__EXPORT_B64_START__*/"+payload+"/*__EXPORT_B64_END__*/");
+    const check=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(payload),c=>c.charCodeAt(0))));
+    if(!check.tourPoints?.length||!check.hotspotsByPoint||!check.mapBackground)throw new Error("V izvozu manjkajo točke ali ozadje zemljevida.");
+    if(check.tourPoints.some(p=>!/^data:image\//.test(p.panorama)))throw new Error("V izvozu niso vključene vse fotografije.");
+    const html="<!DOCTYPE html>\n"+doc.outerHTML;
     const blob=new Blob([html],{type:"text/html;charset=utf-8"});
     const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
-    const fileName="ucni-sprehod-"+stamp+".html";
-    const file=new File([blob],fileName,{type:"text/html;charset=utf-8"});
-    let shared=false;
-    /* Na Androidu najprej ponudi sistemski meni Deli (Drive, Gmail, WhatsApp ...). */
-    if(navigator.share && navigator.canShare){
-      try{
-        if(navigator.canShare({files:[file]})){
-          await navigator.share({files:[file],title:"UČNI SPREHOD 360",text:"360° učni sprehod"});
-          shared=true;
-        }
-      }catch(shareError){
-        /* Preklic deljenja ni napaka; spodaj še vedno omogočimo običajen prenos. */
-        if(shareError && shareError.name!=="AbortError") console.warn("Deljenje ni uspelo",shareError);
-      }
-    }
-    if(!shared){
-      const url=URL.createObjectURL(blob);const a=document.createElement("a");
-      a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
-    }
-    announceToScreenReader(shared?"HTML datoteka je pripravljena za deljenje.":"HTML datoteka z vsemi točkami, slikami in AHA! oznakami je izvožena.");
-  }catch(e){console.error(e);alert("Izvoz HTML ni uspel: "+(e&&e.message?e.message:e));}
+    const fileName="moj-ucni-sprehod-"+stamp+".html";
+    const url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    announceToScreenReader("Prenesen je en sam HTML dokument z zemljevidom, vsemi fotografijami, VR-ogledom in oznakami.");
+    alert("HTML je izvožen. V mapi Prenosi odpri datoteko '"+fileName+"'. Vse fotografije, zemljevid in knjižnica za 360° ogled so v tej datoteki.");
+  }catch(e){console.error(e);alert("Izvoz ni uspel. Nič ni bilo izgubljeno. "+(e?.message||e));}
   finally{exportBtn.disabled=false;exportBtn.textContent=oldText;}
 }
 exportBtn.addEventListener("click",exportStandaloneHtml);
