@@ -1,7 +1,4 @@
 
-
-
-
 <!DOCTYPE html>
 <html lang="sl">
 <head>
@@ -2200,10 +2197,6 @@ function startDictation(
     target.value;
 
 
-  let finalTranscript =
-    "";
-
-
   recognition.onstart =
     ()=>{
 
@@ -2239,41 +2232,72 @@ function startDictation(
   recognition.onresult =
     event=>{
 
-      let interimTranscript =
+      /* Android/Chrome pogosto vrne zaporedne različice istega govora,
+         npr. "danes" -> "danes" -> "danes je" -> "danes je četrtek".
+         Zato rezultatov ne seštevamo slepo. Če je novi rezultat daljša
+         različica že prepoznanega besedila, starega z njim zamenjamo. */
+      let spokenText =
         "";
 
-
       for(
-        let i=event.resultIndex;
+        let i=0;
         i<event.results.length;
         i++
       ){
 
         const transcript =
           event.results[i][0]
-            .transcript;
+            .transcript
+            .trim();
 
+        if(!transcript){
+          continue;
+        }
+
+        if(!spokenText){
+          spokenText =
+            transcript;
+          continue;
+        }
+
+        const spokenLower =
+          spokenText.toLocaleLowerCase("sl-SI");
+
+        const transcriptLower =
+          transcript.toLocaleLowerCase("sl-SI");
 
         if(
-          event.results[i].isFinal
+          transcriptLower === spokenLower
         ){
-
-          finalTranscript +=
-            transcript + " ";
-
+          continue;
         }
-        else{
 
-          interimTranscript +=
+        if(
+          transcriptLower.startsWith(
+            spokenLower + " "
+          )
+        ){
+          spokenText =
             transcript;
-
+          continue;
         }
+
+        if(
+          spokenLower.startsWith(
+            transcriptLower + " "
+          )
+        ){
+          continue;
+        }
+
+        spokenText +=
+          " " + transcript;
 
       }
 
 
       const separator =
-        originalText.trim()
+        originalText.trim() && spokenText
           ? " "
           : "";
 
@@ -2281,8 +2305,7 @@ function startDictation(
       target.value =
         originalText +
         separator +
-        finalTranscript +
-        interimTranscript;
+        spokenText;
 
 
       try{
