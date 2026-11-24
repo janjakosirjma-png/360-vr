@@ -5182,7 +5182,7 @@ async function restoreAfterCardboardOrStart(){
     mapBackground=state.mapBackground;
     loadHotspotsForPoint(currentPointId);
     locationBadge.textContent="📍 "+currentPoint().name;
-    applyMapBackground();renderMapPoints();applyPointPanorama(currentPoint());renderHotspots();
+    applyMapBackground();renderMapPoints();applyPointPanorama(currentPoint());renderHotspots();hideMap();
     sessionStorage.removeItem(vrResumeMarker);
     // Remove only this temporary checkpoint, never ordinary saved photographs.
     try{const db=await imageDb();const tx=db.transaction("data","readwrite");tx.objectStore("data").delete(key);tx.oncomplete=tx.onabort=()=>db.close();}catch(e){}
