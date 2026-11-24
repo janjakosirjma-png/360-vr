@@ -6,7 +6,7 @@
 
 <title>360° VR ogled</title>
 
-<meta aframe-injected="" name="mobile-web-app-capable" content="yes"><meta aframe-injected="" name="theme-color" content="black"><script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script><style>/* .a-fullscreen means not embedded. */
+<meta aframe-injected="" name="mobile-web-app-capable" content="yes"><meta aframe-injected="" name="theme-color" content="black"><script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script><style>/* .a-fullscreen means not embedded. */
 html.a-fullscreen {
   bottom: 0;
   left: 0;
@@ -1099,7 +1099,7 @@ textarea:focus-visible{
      A-FRAME
 ======================================================== -->
 
-<a-scene id="scene" embedded="" vr-mode-ui="enabled:true" device-orientation-permission-ui="enabled:true" renderer="
+<a-scene id="scene" embedded="" vr-mode-ui="enabled:true; cardboardModeEnabled:true" device-orientation-permission-ui="enabled:true" renderer="
     antialias:true;
     colorManagement:true;
     highRefreshRate:true;
@@ -1700,6 +1700,8 @@ function safeLocalSet(key,value){
 }
 /* Večje slike shranimo v IndexedDB; stari localStorage pustimo za združljivost. */
 const IMAGE_DB_NAME="stable-360-images-v8";
+const IMAGE_TOUR_KEY=EMBEDDED_EXPORT_DATA ? "tourPoints:"+(EMBEDDED_EXPORT_DATA.packageId||EMBEDDED_EXPORT_DATA.exportedAt||"embedded") : "tourPoints";
+let imageSaveQueue=Promise.resolve();
 function imageDb(){return new Promise((resolve,reject)=>{
   if(!window.indexedDB)return reject(new Error("IndexedDB ni na voljo"));
   const req=indexedDB.open(IMAGE_DB_NAME,1);
@@ -1708,7 +1710,7 @@ function imageDb(){return new Promise((resolve,reject)=>{
 });}
 async function imageDbPut(key,value){const db=await imageDb();return new Promise((resolve,reject)=>{
   const tx=db.transaction("data","readwrite");tx.objectStore("data").put(value,key);
-  tx.oncomplete=()=>{db.close();resolve();};tx.onerror=()=>{db.close();reject(tx.error);};
+  tx.oncomplete=()=>{db.close();resolve();};tx.onerror=tx.onabort=()=>{db.close();reject(tx.error||new Error("Shranjevanje je bilo prekinjeno."));};
 });}
 async function imageDbGet(key){const db=await imageDb();return new Promise((resolve,reject)=>{
   const tx=db.transaction("data","readonly");const req=tx.objectStore("data").get(key);
@@ -1750,7 +1752,10 @@ function saveTour(){
   /* Če slike presežejo omejitev localStorage, ostanejo v IndexedDB. */
   const compact=TOUR_POINTS.map(p=>({...p,panorama:(p.panorama||"").startsWith("data:")?"":p.panorama}));
   safeLocalSet(TOUR_KEY,JSON.stringify(compact));
-  imageDbPut("tourPoints",clone(TOUR_POINTS)).catch(e=>console.warn("Shranjevanje točk v IndexedDB:",e));
+  const snapshot=clone(TOUR_POINTS);
+  const write=imageSaveQueue.then(()=>imageDbPut(IMAGE_TOUR_KEY,snapshot));
+  imageSaveQueue=write.catch(e=>console.warn("Shranjevanje točk v IndexedDB:",e));
+  return write;
 }
 function loadHotspotsForPoint(id){
   if(!Array.isArray(HOTSPOTS_BY_POINT[id])){
@@ -4088,14 +4093,21 @@ currentPointImageType.addEventListener("change",()=>{
 currentPointFile.addEventListener("change",async e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
   const pointId=currentPointId;
+  const imageType=currentPointImageType.value;
   try{
+    await savedImagesReady;
     const data=await readSelectedImage(f);
     const p=TOUR_POINTS.find(p=>p.id===pointId);if(!p)return;
-    const next=clone(TOUR_POINTS).map(p=>p.id===pointId?{...p,panorama:data,imageType:currentPointImageType.value}:p);
-    await imageDbPut("tourPoints",next);
-    TOUR_POINTS=next;
-    saveTour();applyPointPanorama(currentPoint());renderMapPoints();
-    announceToScreenReader("Fotografija točke je shranjena.");
+    p.panorama=data;p.imageType=imageType;
+    if(currentPointId===pointId)applyPointPanorama(p);
+    renderMapPoints();
+    try{
+      await saveTour();
+      announceToScreenReader("Fotografija točke je shranjena.");
+    }catch(storageError){
+      console.warn("Shranjevanje fotografije v IndexedDB ni uspelo:",storageError);
+      alert("Fotografija je prikazana, vendar je brskalnik ni mogel trajno shraniti. Uporabi IZVOZI SVOJ HTML, da ohraniš spremembo.");
+    }
   }catch(error){showImageError(error);}finally{e.target.value="";}
 });
 pointAddLearningBtn.addEventListener("click",()=>{pointManager.style.display="none";startAddMode();});
@@ -5000,9 +5012,8 @@ scene.addEventListener(
 
 /* Ponovno naloži večje slike iz IndexedDB po zagonu, razen če smo odprli izvoženi paket. */
 async function restoreSavedImages(){
-  if(EMBEDDED_EXPORT_DATA)return;
   try{
-    const [savedPoints,savedBg]=await Promise.all([imageDbGet("tourPoints"),imageDbGet("mapBackground")]);
+    const [savedPoints,savedBg]=await Promise.all([imageDbGet(IMAGE_TOUR_KEY),EMBEDDED_EXPORT_DATA?Promise.resolve(null):imageDbGet("mapBackground")]);
     if(Array.isArray(savedPoints)&&savedPoints.length){
       const latestIds=new Set(TOUR_POINTS.map(p=>p.id));
       /* Lokalni seznami/urejanja imajo prednost, iz baze dopolnimo manjkajoče slike. */
@@ -5010,10 +5021,15 @@ async function restoreSavedImages(){
       TOUR_POINTS=TOUR_POINTS.map(p=>{
         const saved=byId.get(p.id);
         if(!saved)return p;
-        return {...p,panorama:(!p.panorama||!p.panorama.startsWith("data:"))&&saved.panorama?.startsWith("data:")?saved.panorama:p.panorama,imageType:saved.imageType||p.imageType||"360"};
+        return {...p,panorama:(EMBEDDED_EXPORT_DATA||!p.panorama||!p.panorama.startsWith("data:"))&&saved.panorama?.startsWith("data:")?saved.panorama:p.panorama,imageType:saved.imageType||p.imageType||"360"};
       });
       /* Če lokalna shramba ni imela točk, obnovi tudi točke iz IndexedDB. */
       if(!safeLocalGet(TOUR_KEY))TOUR_POINTS=savedPoints;
+      else if(EMBEDDED_EXPORT_DATA){
+        for(const saved of savedPoints){
+          if(!latestIds.has(saved.id)&&saved.panorama?.startsWith("data:"))TOUR_POINTS.push(saved);
+        }
+      }
     }
     if(savedBg&&!mapBackground)mapBackground=savedBg;
     applyMapBackground();renderMapPoints();applyPointPanorama(currentPoint());
@@ -5023,7 +5039,7 @@ async function restoreSavedImages(){
 renderMapPoints();
 locationBadge.textContent = "📍 " + currentPoint().name;
 applyPointPanorama(currentPoint());
-restoreSavedImages();
+const savedImagesReady=restoreSavedImages();
 
 /* =========================================================
    UI LOOP
