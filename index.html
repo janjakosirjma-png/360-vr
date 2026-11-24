@@ -4902,32 +4902,50 @@ scene.addEventListener(
   "exit-vr",
   async ()=>{
     restoreCardboardControls();
-    // Po koncu XR ponovno priklopi A-Frame izrisovalno zanko na običajni zaslon.
-    const rendererAtExit=scene.renderer;
-    const canvasAtExit=rendererAtExit?.domElement;
-    let attempts=0;
-    function resumeNormalView(){
-      if(scene.is("vr-mode") || cardboardStarting || scene.renderer!==rendererAtExit || !rendererAtExit)return;
-      if(rendererAtExit.xr?.isPresenting){
-        if(++attempts<100)setTimeout(resumeNormalView,50);
-        return;
+    // Po izhodu naj A-Frame najprej sam zakljuci XR. Rezervna zanka
+    // se uporabi samo, ce obicajni izris dejansko ne napreduje.
+    const r=scene.renderer;
+    const recoveryToken={};
+    scene.__exitRecoveryToken=recoveryToken;
+    let lastFrame=-1, stalledSince=0, repaired=false;
+    function recoverNormalFrame(now){
+      if(scene.__exitRecoveryToken!==recoveryToken || scene.is("vr-mode") || cardboardStarting || scene.renderer!==r || !r)return;
+      if(document.hidden){stalledSince=0;requestAnimationFrame(recoverNormalFrame);return;}
+      if(r.xr?.isPresenting){
+        // Ne posegaj v aktivno XR sejo.
+        requestAnimationFrame(recoverNormalFrame);return;
       }
-      if(rendererAtExit.getContext().isContextLost()){
-        canvasAtExit?.addEventListener("webglcontextrestored",()=>setTimeout(resumeNormalView,0),{once:true});
-        return;
+      if(r.getContext().isContextLost()){
+        // Three.js obnovi teksture ob webglcontextrestored; ne brisi slik.
+        repaired=false;stalledSince=0;
+        requestAnimationFrame(recoverNormalFrame);return;
       }
-      rendererAtExit.setRenderTarget(null);
-      if(typeof scene.resize==="function")scene.resize();
-      if(!scene.isPlaying)scene.play();
-      if(scene.camera)scene.camera.updateMatrixWorld(true);
-      // Three.js lahko po XR še vedno čaka na staro animacijsko zanko.
-      if(typeof scene.render==="function" && typeof rendererAtExit.setAnimationLoop==="function"){
-        rendererAtExit.setAnimationLoop(null);
-        rendererAtExit.setAnimationLoop(scene.render.bind(scene));
+      if(!repaired){
+        try{
+          r.xr.enabled=false;
+          if(typeof r.resetState==="function")r.resetState();
+          r.setRenderTarget(null);
+          scene.resize();
+          if(!scene.isPlaying)scene.play();
+          if(scene.camera)scene.camera.updateMatrixWorld(true);
+          repaired=true;
+        }catch(e){console.warn("Obnova prikaza po VR:",e);}
       }
+      const frame=r.info?.render?.frame;
+      if(frame!==lastFrame){lastFrame=frame;stalledSince=now;}
+      if(!stalledSince)stalledSince=now;
+      if(now-stalledSince>350){
+        // Ne ustavljaj izvorne zanke. Izrisi le, kadar ni nove slike.
+        try{
+          r.setRenderTarget(null);
+          scene.render(now);
+          lastFrame=r.info?.render?.frame;
+          // V rezervnem nacinu izrisi vsak naslednji browser frame.
+        }catch(e){console.warn("Rezervni izris po VR:",e);stalledSince=now;}
+      }
+      requestAnimationFrame(recoverNormalFrame);
     }
-    // Časovnik ni odvisen od XR requestAnimationFrame, ki se lahko ustavi.
-    setTimeout(resumeNormalView,100);
+    requestAnimationFrame(recoverNormalFrame);
 
 
     /*
