@@ -1795,15 +1795,18 @@ function applyPointPanorama(point){
       if(version!==photoRenderVersion)return;
       const mesh=target.getObject3D("mesh");
       if(!mesh||!mesh.material){requestAnimationFrame(install);return;}
-      const limit=Math.min(scene.renderer?.capabilities?.maxTextureSize||4096,
-        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)?4096:8192);
+      const gpuLimit=scene.renderer?.capabilities?.maxTextureSize||4096;
+      const limit=flat?Math.min(gpuLimit,
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)?4096:8192):gpuLimit;
       const factor=Math.min(1,limit/img.naturalWidth,limit/img.naturalHeight);
       let source=img;
       if(factor<1){
         const canvas=document.createElement("canvas");
         canvas.width=Math.max(1,Math.round(img.naturalWidth*factor));
         canvas.height=Math.max(1,Math.round(img.naturalHeight*factor));
-        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+        const ctx=canvas.getContext("2d");
+        if(!flat){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";}
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
         source=canvas;
       }
       const texture=new THREE.Texture(source);
@@ -1811,6 +1814,17 @@ function applyPointPanorama(point){
       else if(THREE.sRGBEncoding!==undefined)texture.encoding=THREE.sRGBEncoding;
       texture.minFilter=THREE.LinearFilter;
       texture.generateMipmaps=false;
+      if(!flat){
+        texture.magFilter=THREE.LinearFilter;
+        const webgl2=scene.renderer?.capabilities?.isWebGL2;
+        const powerOfTwo=n=>(n&(n-1))===0;
+        const w=source.naturalWidth||source.width,h=source.naturalHeight||source.height;
+        if(webgl2||(powerOfTwo(w)&&powerOfTwo(h))){
+          texture.generateMipmaps=true;
+          texture.minFilter=THREE.LinearMipmapLinearFilter;
+          texture.anisotropy=Math.min(8,scene.renderer?.capabilities?.getMaxAnisotropy?.()||1);
+        }
+      }
       texture.needsUpdate=true;
       // A-Frame ne sme naknadno prepisati neposredno naložene teksture.
       target.setAttribute("material","src","");
