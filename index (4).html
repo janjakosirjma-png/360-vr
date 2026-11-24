@@ -1114,7 +1114,7 @@ textarea:focus-visible{
 
   <!-- PANORAMA -->
 
-  <a-sky id="sky" src="360.jpg" rotation="0 0 0" scale="-1 1 1" material="" geometry="" visible="">
+  <a-sky id="sky" rotation="0 0 0" scale="-1 1 1" material="" geometry="" visible="">
   </a-sky>
 
   <!-- HOTSPOTS -->
@@ -1170,7 +1170,7 @@ textarea:focus-visible{
       " camera="" rotation="">
 
       <!-- Navadna slika ostane vedno ravna in poravnana s pogledom. -->
-      <a-plane id="flatPhotoPlane" visible="false" position="0 0 -5" width="5.7" height="4.156443719412724" material="shader:flat;side:double;depthTest:false" geometry="" rotation=""></a-plane>
+      <a-plane id="flatPhotoPlane" visible="false" position="0 0 -5" material="shader:flat;side:double;depthTest:false" geometry="primitive:plane;width:5.7;height:4.156443719412724" rotation=""></a-plane>
 
       <!-- =================================================
            DESKTOP MOUSE CURSOR
@@ -1310,7 +1310,8 @@ textarea:focus-visible{
       <option value="flat">Navadna fotografija (brez raztegovanja)</option>
     </select>
     <label class="fieldLabel" for="currentPointFile">Fotografija točke</label>
-    <label class="fileLabel" style="display:block;text-align:center">📷 ZAMENJAJ / DODAJ FOTOGRAFIJO<input id="currentPointFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif"></label>
+    <label class="fileLabel" for="currentPointFile" style="display:block;text-align:center;position:relative;cursor:pointer">📷 ZAMENJAJ / DODAJ FOTOGRAFIJO<input id="currentPointFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.avif" aria-label="Izberi fotografijo točke" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:1;margin:0;padding:0"></label>
+    <div id="pointPhotoStatus" role="status" aria-live="polite" style="font-size:13px;text-align:center;overflow-wrap:anywhere"></div>
     <div class="editorButtons">
       <button id="pointAddLearningBtn" type="button">＋ DODAJ AHA!</button>
       <button id="pointAddTourBtn" type="button">＋ NOVA TOČKA SPREHODA</button>
@@ -1771,41 +1772,85 @@ function getHotspot(id){ return hotspots.find(h=>h.id===id); }
 function updateMapActiveState(){document.querySelectorAll(".map-point").forEach(btn=>btn.classList.toggle("active",btn.dataset.pointId===currentPointId));}
 function showMap(){if(scene.is("vr-mode"))return;closePopup();stopAddMode();renderMapPoints();mapOverlay.style.display="flex";}
 function hideMap(){mapOverlay.style.display="none";}
+/* Fotografije: neposredna tekstura, brez začasnih blob URL-jev. */
+let photoRenderVersion=0;
 function applyPointPanorama(point){
-  if(!point)return;
-  const flatPlane=document.getElementById("flatPhotoPlane");
+  if(!point||!point.panorama)return;
+  const version=++photoRenderVersion;
+  const flat=point.imageType==="flat";
+  const plane=document.getElementById("flatPhotoPlane");
+  const target=flat?plane:sky;
   const src=point.panorama;
-  if(!src)return;
-  if(point.imageType==="flat"){
-    sky.setAttribute("visible",false);
-    flatPlane.setAttribute("visible",true);
-    flatPlane.setAttribute("material","shader","flat");
-    flatPlane.setAttribute("material","side","double");
-    flatPlane.setAttribute("material","src",src);
-    const currentSrc=src;
-    const img=new Image();
-    img.onload=()=>{
-      if(currentPoint()?.panorama!==currentSrc||currentPoint()?.imageType!=="flat")return;
-      /* Omejimo obe dimenziji: nikoli ne raztegnemo fotografije. */
-      const ratio=img.naturalWidth/Math.max(1,img.naturalHeight);
-      /* Znotraj vidnega polja kamere (brez perspektivnega poševnega popačenja). */
-      const maxW=5.7, maxH=4.2;
-      const w=Math.min(maxW,maxH*ratio),h=w/ratio;
-      flatPlane.setAttribute("width",w);
-      flatPlane.setAttribute("height",h);
-      flatPlane.setAttribute("position","0 0 -5");
-      flatPlane.setAttribute("rotation","0 0 0");
+  plane.setAttribute("visible",flat);
+  sky.setAttribute("visible",!flat);
+  const img=new Image();
+  if(!src.startsWith("data:")&&!src.startsWith("blob:"))img.crossOrigin="anonymous";
+  img.onload=()=>{
+    if(version!==photoRenderVersion)return;
+    if(flat){
+      plane.dataset.photoRatio=String(img.naturalWidth/img.naturalHeight);
+      fitFlatPhoto();
+    }
+    const install=()=>{
+      if(version!==photoRenderVersion)return;
+      const mesh=target.getObject3D("mesh");
+      if(!mesh||!mesh.material){requestAnimationFrame(install);return;}
+      const limit=Math.min(scene.renderer?.capabilities?.maxTextureSize||4096,
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)?4096:8192);
+      const factor=Math.min(1,limit/img.naturalWidth,limit/img.naturalHeight);
+      let source=img;
+      if(factor<1){
+        const canvas=document.createElement("canvas");
+        canvas.width=Math.max(1,Math.round(img.naturalWidth*factor));
+        canvas.height=Math.max(1,Math.round(img.naturalHeight*factor));
+        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+        source=canvas;
+      }
+      const texture=new THREE.Texture(source);
+      if(THREE.SRGBColorSpace!==undefined)texture.colorSpace=THREE.SRGBColorSpace;
+      else if(THREE.sRGBEncoding!==undefined)texture.encoding=THREE.sRGBEncoding;
+      texture.minFilter=THREE.LinearFilter;
+      texture.generateMipmaps=false;
+      texture.needsUpdate=true;
+      // A-Frame ne sme naknadno prepisati neposredno naložene teksture.
+      target.setAttribute("material","src","");
+      const material=target.getObject3D("mesh").material;
+      const old=target.__pointPhotoTexture;
+      material.map=texture;
+      material.needsUpdate=true;
+      target.__pointPhotoTexture=texture;
+      if(old)old.dispose();
+      if(flat)fitFlatPhoto();
     };
-    img.onerror=()=>console.warn("Fotografije ni mogoče prebrati",src);
-    img.src=src;
-  }else{
-    flatPlane.setAttribute("visible",false);
-    sky.setAttribute("visible",true);
-    panoramaImage.setAttribute("src",src);
-    sky.setAttribute("src",src);
-    sky.setAttribute("scale","-1 1 1");
-  }
+    if(scene.hasLoaded)install();else scene.addEventListener("loaded",install,{once:true});
+  };
+  img.onerror=()=>{
+    if(version!==photoRenderVersion)return;
+    // Ohrani običajno A-Frame nalaganje za relativne / zunanje vire.
+    target.setAttribute("material","src",src);
+    console.warn("Fotografije ni mogoče neposredno prebrati.");
+  };
+  img.src=src;
 }
+function fitFlatPhoto(){
+  const plane=document.getElementById("flatPhotoPlane");
+  const ratio=Number(plane.dataset.photoRatio);
+  if(!ratio||currentPoint()?.imageType!=="flat")return;
+  const cam=scene.camera;
+  let maxW=5.7,maxH=4.2;
+  if(cam&&!scene.is("vr-mode")){
+    const m=cam.projectionMatrix.elements;
+    maxW=10/Math.abs(m[0]);
+    maxH=10/Math.abs(m[5]);
+  }
+  const w=Math.min(maxW,maxH*ratio),h=w/ratio;
+  // En sam zapis geometrije ohrani obe dimenziji pri vsaki posodobitvi.
+  plane.setAttribute("geometry",{primitive:"plane",width:w,height:h});
+  plane.setAttribute("position","0 0 -5");
+}
+window.addEventListener("resize",()=>requestAnimationFrame(()=>requestAnimationFrame(fitFlatPhoto)));
+scene.addEventListener("enter-vr",()=>requestAnimationFrame(fitFlatPhoto));
+scene.addEventListener("exit-vr",()=>requestAnimationFrame(()=>requestAnimationFrame(fitFlatPhoto)));
 function switchTourPoint(id){
   const point=TOUR_POINTS.find(p=>p.id===id);if(!point)return;
   closePopup();stopAddMode();hideVRInfo();currentPointId=point.id;
@@ -2109,7 +2154,7 @@ function renderHotspots(){
         "click",
         event=>{
 
-          if(addMode){
+          if(addMode || (!scene.is("vr-mode") && (ahaDrag?.moved || performance.now()<ahaSuppressUntil))){
             return;
           }
 
@@ -3680,6 +3725,48 @@ function createHotspotAtScreenPoint(
    INSTALL POINTER CONTROLS
 ========================================================= */
 
+let ahaDrag=null, ahaSuppressUntil=0;
+function installAhaDrag(canvas){
+  const ray=new THREE.Raycaster();
+  function aim(x,y){
+    const r=canvas.getBoundingClientRect();
+    scene.camera.updateMatrixWorld(true);
+    ray.setFromCamera(new THREE.Vector2(2*(x-r.left)/r.width-1,1-2*(y-r.top)/r.height),scene.camera);
+  }
+  canvas.addEventListener("pointerdown",e=>{
+    if(addMode||scene.is("vr-mode")||ahaDrag||!scene.camera||(e.pointerType==="mouse"&&e.button!==0))return;
+    aim(e.clientX,e.clientY);
+    const markers=[...hotspotContainer.children];
+    const hit=ray.intersectObjects(markers.map(m=>m.object3D),true)[0];
+    if(!hit)return;
+    let obj=hit.object; while(obj&&!markers.some(m=>m.object3D===obj))obj=obj.parent;
+    const marker=markers.find(m=>m.object3D===obj), hotspot=marker&&getHotspot(marker.dataset.hotspotId);
+    if(!hotspot)return;
+    const look=camera.getAttribute("look-controls");
+    ahaDrag={id:e.pointerId,x:e.clientX,y:e.clientY,marker,hotspot,moved:false,look:look.enabled};
+    camera.setAttribute("look-controls","enabled",false);
+    try{canvas.setPointerCapture(e.pointerId);}catch(_){}
+  },true);
+  canvas.addEventListener("pointermove",e=>{
+    const d=ahaDrag;if(!d||d.id!==e.pointerId)return;
+    if(!d.moved&&Math.hypot(e.clientX-d.x,e.clientY-d.y)<7)return;
+    d.moved=true;e.preventDefault();e.stopImmediatePropagation();
+    aim(e.clientX,e.clientY);
+    const pos=vectorToSpherical(ray.ray.direction);
+    d.hotspot.yaw=pos.yaw;d.hotspot.pitch=pos.pitch;
+    d.marker.setAttribute("position",sphericalToVector(pos.yaw,pos.pitch,8));
+  },true);
+  function finish(e){
+    const d=ahaDrag;if(!d||d.id!==e.pointerId)return;
+    ahaDrag=null;
+    if(d.moved){ahaSuppressUntil=performance.now()+500;saveHotspots();e.preventDefault();e.stopImmediatePropagation();}
+    camera.setAttribute("look-controls","enabled",d.look);
+    try{canvas.releasePointerCapture(e.pointerId);}catch(_){}
+  }
+  canvas.addEventListener("pointerup",finish,true);
+  canvas.addEventListener("pointercancel",finish,true);
+  canvas.addEventListener("lostpointercapture",finish,true);
+}
 function installPointerControls(){
 
   sceneCanvas =
@@ -3689,6 +3776,7 @@ function installPointerControls(){
   if(!sceneCanvas){
     return;
   }
+  installAhaDrag(sceneCanvas);
 
 
   sceneCanvas.addEventListener(
@@ -3967,7 +4055,7 @@ async function exportStandaloneHtml(){
     const chosen=exportedPoints.find(p=>p.id===currentPointId)||exportedPoints[0];
     if(chosen){
       const sky=doc.querySelector("#sky"),image=doc.querySelector("#panoramaImage");
-      if(sky)sky.setAttribute("src",chosen.panorama);
+      if(sky){sky.removeAttribute("src");sky.setAttribute("material","shader:flat;side:back");}
       if(image)image.setAttribute("src",chosen.panorama);
     }
     /* A-Frame je v prenesenem HTML vgrajen, da VR deluje tudi brez interneta. */
@@ -4078,7 +4166,7 @@ function enablePointDrag(el,p){
 }
 function openCurrentPointEditor(){
   const p=currentPoint(); if(!p)return;
-  currentPointName.value=p.name||""; currentPointColor.value=p.color||"#ef4444"; currentPointImageType.value=p.imageType||"360"; currentPointFile.value=""; pointManager.style.display="flex";
+  currentPointName.value=p.name||""; currentPointColor.value=p.color||"#ef4444"; currentPointImageType.value=p.imageType||"360"; currentPointFile.value=""; $("pointPhotoStatus").textContent=""; pointManager.style.display="flex";
 }
 editCurrentPointBtn.addEventListener("click",openCurrentPointEditor);
 closePointManager.addEventListener("click",()=>pointManager.style.display="none");
@@ -4094,21 +4182,25 @@ currentPointFile.addEventListener("change",async e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
   const pointId=currentPointId;
   const imageType=currentPointImageType.value;
+  const status=$("pointPhotoStatus");
+  status.textContent="Nalagam: "+f.name;
   try{
-    await savedImagesReady;
     const data=await readSelectedImage(f);
+    await savedImagesReady;
     const p=TOUR_POINTS.find(p=>p.id===pointId);if(!p)return;
     p.panorama=data;p.imageType=imageType;
     if(currentPointId===pointId)applyPointPanorama(p);
     renderMapPoints();
     try{
       await saveTour();
+      status.textContent="✓ Fotografija shranjena: "+f.name;
       announceToScreenReader("Fotografija točke je shranjena.");
     }catch(storageError){
+      status.textContent="Fotografija je naložena, vendar ni trajno shranjena.";
       console.warn("Shranjevanje fotografije v IndexedDB ni uspelo:",storageError);
       alert("Fotografija je prikazana, vendar je brskalnik ni mogel trajno shraniti. Uporabi IZVOZI SVOJ HTML, da ohraniš spremembo.");
     }
-  }catch(error){showImageError(error);}finally{e.target.value="";}
+  }catch(error){status.textContent="Nalaganje fotografije ni uspelo.";showImageError(error);}finally{e.target.value="";}
 });
 pointAddLearningBtn.addEventListener("click",()=>{pointManager.style.display="none";startAddMode();});
 pointAddTourBtn.addEventListener("click",()=>{const id="tocka-"+Date.now();const p={id,name:"TOČKA "+(TOUR_POINTS.length+1),panorama:"360.jpg",color:"#ef4444",x:50,y:50};TOUR_POINTS.push(p);HOTSPOTS_BY_POINT[id]=[];safeLocalSet(pointStorageKey(id),"[]");saveTour();renderMapPoints();switchTourPoint(id);openCurrentPointEditor();});
@@ -4157,6 +4249,7 @@ function setFov(value){
 
 
     threeCamera.updateProjectionMatrix();
+    fitFlatPhoto();
 
   }
 
