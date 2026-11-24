@@ -4808,8 +4808,8 @@ startVRBtn.onclick = async ()=>{
     if(mobile && !cardboardLandscapeReady())return;
     const controls=camera.getAttribute("look-controls");
     cardboardControls={touchEnabled:controls.touchEnabled,mouseEnabled:controls.mouseEnabled};
-    camera.setAttribute("look-controls","touchEnabled",false);
-    camera.setAttribute("look-controls","mouseEnabled",false);
+    /* Na telefonu ohranimo vrtenje 360° panorame z dotikom v vse smeri.
+       Ne izklapljamo touch/mouse look-controls ob vstopu v VR. */
     vrStart.style.display="none";
     // Brez predhodnega fullscreen/landscape lock in brez dodatne rotacije kamere.
     // Na Androidu se enterVR izvede neposredno iz uporabnikovega dotika.
