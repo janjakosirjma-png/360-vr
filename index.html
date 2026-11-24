@@ -4902,28 +4902,32 @@ scene.addEventListener(
   "exit-vr",
   async ()=>{
     restoreCardboardControls();
-    // Obnovi običajni izris šele po koncu XR seje, brez ponovnega nalaganja slike.
+    // Po koncu XR ponovno priklopi A-Frame izrisovalno zanko na običajni zaslon.
     const rendererAtExit=scene.renderer;
     const canvasAtExit=rendererAtExit?.domElement;
     let attempts=0;
     function resumeNormalView(){
-      if(scene.is("vr-mode") || cardboardStarting || scene.renderer!==rendererAtExit)return;
-      if(!rendererAtExit)return;
+      if(scene.is("vr-mode") || cardboardStarting || scene.renderer!==rendererAtExit || !rendererAtExit)return;
       if(rendererAtExit.xr?.isPresenting){
-        if(++attempts<40)setTimeout(resumeNormalView,50);
+        if(++attempts<100)setTimeout(resumeNormalView,50);
         return;
       }
       if(rendererAtExit.getContext().isContextLost()){
-        canvasAtExit?.addEventListener("webglcontextrestored",()=>requestAnimationFrame(resumeNormalView),{once:true});
+        canvasAtExit?.addEventListener("webglcontextrestored",()=>setTimeout(resumeNormalView,0),{once:true});
         return;
       }
-      // XR lahko za seboj pusti vezan stereoskopski framebuffer.
       rendererAtExit.setRenderTarget(null);
       if(typeof scene.resize==="function")scene.resize();
       if(!scene.isPlaying)scene.play();
       if(scene.camera)scene.camera.updateMatrixWorld(true);
+      // Three.js lahko po XR še vedno čaka na staro animacijsko zanko.
+      if(typeof scene.render==="function" && typeof rendererAtExit.setAnimationLoop==="function"){
+        rendererAtExit.setAnimationLoop(null);
+        rendererAtExit.setAnimationLoop(scene.render.bind(scene));
+      }
     }
-    requestAnimationFrame(()=>requestAnimationFrame(resumeNormalView));
+    // Časovnik ni odvisen od XR requestAnimationFrame, ki se lahko ustavi.
+    setTimeout(resumeNormalView,100);
 
 
     /*
