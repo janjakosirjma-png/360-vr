@@ -1290,6 +1290,7 @@ textarea:focus-visible{
       <div id="mapLegend">Klikni za vstop • povleci za premik.</div>
     </div>
     <div id="mapEditorBar">
+      <button id="addPointBtn" type="button" aria-pressed="false">＋ DODAJ TOČKO</button>
       <label class="fileLabel" for="mapBgFile">🖼 ZAMENJAJ OZADJE</label>
       <input id="mapBgFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.svg" style="display:none">
       <button id="exportBtn" type="button" title="Prenesi en sam HTML dokument z vsemi fotografijami, zemljevidom in VR-ogledom">💾 IZVOZI SVOJ HTML</button>
@@ -3838,6 +3839,30 @@ function installPointerControls(){
     return;
   }
   installAhaDrag(sceneCanvas);
+  // Vertical single-finger panorama rotation; A-Frame retains horizontal rotation.
+  let panoramaTouch = null;
+  function panoramaPitchControl(){
+    const look = camera.components["look-controls"];
+    return !scene.is("vr-mode") && currentPoint()?.imageType !== "flat" &&
+      !ahaDrag && !addMode && look?.data.enabled && look.data.touchEnabled &&
+      look.pitchObject ? look : null;
+  }
+  sceneCanvas.addEventListener("touchstart", e => {
+    panoramaTouch = panoramaPitchControl() && e.touches.length === 1
+      ? {id:e.touches[0].identifier, y:e.touches[0].clientY} : null;
+  }, {passive:true});
+  sceneCanvas.addEventListener("touchmove", e => {
+    const look = panoramaPitchControl();
+    if(!panoramaTouch || !look || e.touches.length !== 1 ||
+       e.touches[0].identifier !== panoramaTouch.id){panoramaTouch=null;return;}
+    const y=e.touches[0].clientY, dy=y-panoramaTouch.y;
+    panoramaTouch.y=y;
+    look.pitchObject.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,
+      look.pitchObject.rotation.x+dy*Math.PI/Math.max(1,sceneCanvas.clientHeight)));
+  }, {passive:true});
+  const clearPanoramaTouch=()=>{panoramaTouch=null;};
+  sceneCanvas.addEventListener("touchend",clearPanoramaTouch,{passive:true});
+  sceneCanvas.addEventListener("touchcancel",clearPanoramaTouch,{passive:true});
 
 
   sceneCanvas.addEventListener(
@@ -4067,10 +4092,12 @@ async function exportAssetDataURL(src,label){
   }
 }
 async function exportAFrameLibrary(){
+  const embedded=document.querySelector('script[data-export-aframe="1.6.0"]:not([src])');
+  if(embedded && embedded.textContent.length>100000)return embedded.textContent;
   const urls=[
-    "https://cdn.jsdelivr.net/npm/aframe@1.7.1/dist/aframe.min.js",
-    "https://unpkg.com/aframe@1.7.1/dist/aframe.min.js",
-    "https://aframe.io/releases/1.7.1/aframe.min.js"
+    "https://aframe.io/releases/1.6.0/aframe.min.js",
+    "https://cdn.jsdelivr.net/npm/aframe@1.6.0/dist/aframe.min.js",
+    "https://unpkg.com/aframe@1.6.0/dist/aframe.min.js"
   ];
   for(const url of urls){
     try{
@@ -4080,12 +4107,7 @@ async function exportAFrameLibrary(){
       if(code.length>100000 && /AFRAME|aframe/i.test(code))return code;
     }catch(e){console.warn("A-Frame: "+url,e);}
   }
-  const agreed=confirm("Knjižnice A-Frame ni mogoče samodejno vključiti.\n\nČe imaš datoteko aframe.min.js (različica 1.7.1), jo lahko izbereš z računalnika. Sicer prekliči izvoz in poskusi znova s spletne strani, ko imaš internet.");
-  if(!agreed)throw new Error("VR-knjižnica A-Frame ni dostopna za samostojen izvoz.");
-  const file=await chooseExportFile("A-Frame",".js,application/javascript,text/javascript");
-  const code=await file.text();
-  if(code.length<100000 || !/AFRAME|aframe/i.test(code))throw new Error("Datoteka ni ustrezna knjižnica A-Frame.");
-  return code;
+  return null;
 }
 async function exportStandaloneHtml(){
   stopDictation();stopSpeaking();closePopup();stopAddMode();saveHotspots();saveTour();
@@ -4120,10 +4142,17 @@ async function exportStandaloneHtml(){
       if(image)image.setAttribute("src",chosen.panorama);
     }
     /* A-Frame je v prenesenem HTML vgrajen, da VR deluje tudi brez interneta. */
-    const aframe=doc.querySelector('script[src*="aframe"]');
+    const aframe=doc.querySelector('script[data-export-aframe="1.6.0"],script[src*="aframe"]');
     if(!aframe)throw new Error("V dokumentu manjka knjižnica A-Frame.");
-    aframe.removeAttribute("src");
-    aframe.textContent=(await exportAFrameLibrary()).replace(/<\/script/gi,"<\\/script");
+    const aframeCode=await exportAFrameLibrary();
+    aframe.setAttribute("data-export-aframe","1.6.0");
+    if(aframeCode){
+      aframe.removeAttribute("src");
+      aframe.textContent=aframeCode.replace(/<\/script/gi,"<\\/script");
+    }else{
+      aframe.textContent="";
+      aframe.setAttribute("src","https://aframe.io/releases/1.6.0/aframe.min.js");
+    }
     /* V aplikacijskem skriptu zamenjaj obstoječi paket, ne podvajaj ga. */
     const appScript=[...doc.querySelectorAll("script")].find(s=>s.textContent.includes("const EMBEDDED_EXPORT_PAYLOAD ="));
     if(!appScript)throw new Error("Ni mogoče najti skripta s podatki ogleda.");
@@ -4147,7 +4176,7 @@ async function exportStandaloneHtml(){
     a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),60000);
     announceToScreenReader("Prenesen je en sam HTML dokument z zemljevidom, vsemi fotografijami, VR-ogledom in oznakami.");
-    alert("HTML je izvožen. V mapi Prenosi odpri datoteko '"+fileName+"'. Vse fotografije, zemljevid in knjižnica za 360° ogled so v tej datoteki.");
+    alert("HTML je izvožen. V mapi Prenosi odpri datoteko '"+fileName+"'. "+(aframeCode?"Vse fotografije, zemljevid in knjižnica za 360° ogled so v tej datoteki.":"Vse fotografije in zemljevid so v datoteki. Knjižnice A-Frame 1.6.0 ni bilo mogoče vgraditi, zato je za 360° ogled in VR potreben internet."));
   }catch(e){console.error(e);alert("Izvoz ni uspel. Nič ni bilo izgubljeno. "+(e?.message||e));}
   finally{exportBtn.disabled=false;exportBtn.textContent=oldText;}
 }
@@ -4270,6 +4299,30 @@ renderMapPoints();
 
 
 mapBtn.addEventListener("click", showMap);
+// Dodajanje točk neposredno na zemljevidu, brez odpiranja panorame.
+const mapAddPointButton=$("addPointBtn"), mapPlacementHint=$("placementHint");
+let mapPlacementActive=false;
+function setMapPlacement(active){
+  mapPlacementActive=active;
+  mapAddPointButton.setAttribute("aria-pressed",String(active));
+  mapAddPointButton.textContent=active?"× PREKLIČI DODAJANJE":"＋ DODAJ TOČKO";
+  mapPlacementHint.style.display=active?"block":"none";
+}
+setMapPlacement(false);
+mapAddPointButton.addEventListener("click",()=>setMapPlacement(!mapPlacementActive));
+tourMap.addEventListener("click",async e=>{
+  if(!mapPlacementActive||e.target.closest(".map-point"))return;
+  const r=tourMap.getBoundingClientRect();if(!r.width||!r.height)return;
+  const x=Math.max(2,Math.min(96,(e.clientX-r.left)/r.width*100));
+  const y=Math.max(5,Math.min(92,(e.clientY-r.top)/r.height*100));
+  setMapPlacement(false);
+  await savedImagesReady;
+  let id="tocka-"+Date.now();while(TOUR_POINTS.some(p=>p.id===id))id+="-1";
+  TOUR_POINTS.push({id,name:"TOČKA "+(TOUR_POINTS.length+1),panorama:"360.jpg",color:"#ef4444",x,y});
+  HOTSPOTS_BY_POINT[id]=[];safeLocalSet(pointStorageKey(id),"[]");
+  renderMapPoints();
+  try{await saveTour();}catch(e){console.warn("Shranjevanje nove točke:",e);alert("Točka je dodana, vendar trajno shranjevanje ni uspelo. Izvozi HTML za ohranitev sprememb.");}
+});
 mapClose.addEventListener("click", hideMap);
 mapOverlay.addEventListener("click", event=>{ if(event.target===mapOverlay) hideMap(); });
 
