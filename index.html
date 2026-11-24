@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 
 <title>360° VR ogled</title>
+<style>html.vr-resuming::after{content:"";position:fixed;inset:0;background:#000;z-index:2147483647;pointer-events:auto;}</style>
+<script>try{if(sessionStorage.getItem("stable-360-vr-resume:"+location.href))document.documentElement.classList.add("vr-resuming");}catch(e){}</script>
 
 <meta aframe-injected="" name="mobile-web-app-capable" content="yes"><meta aframe-injected="" name="theme-color" content="black"><script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script><style>/* .a-fullscreen means not embedded. */
 html.a-fullscreen {
@@ -1787,8 +1789,8 @@ function showMap(){if(scene.is("vr-mode"))return;closePopup();stopAddMode();rend
 function hideMap(){mapOverlay.style.display="none";}
 /* Fotografije: neposredna tekstura, brez začasnih blob URL-jev. */
 let photoRenderVersion=0;
-function applyPointPanorama(point){
-  if(!point||!point.panorama)return;
+function applyPointPanorama(point,onReady){
+  if(!point||!point.panorama){if(onReady)onReady(new Error("Manjka fotografija"));return;}
   const version=++photoRenderVersion;
   const flat=point.imageType==="flat";
   const plane=document.getElementById("flatPhotoPlane");
@@ -1834,6 +1836,7 @@ function applyPointPanorama(point){
       target.__pointPhotoTexture=texture;
       if(old)old.dispose();
       if(flat)fitFlatPhoto();
+      if(onReady)onReady();
     };
     if(scene.hasLoaded)install();else scene.addEventListener("loaded",install,{once:true});
   };
@@ -1842,6 +1845,7 @@ function applyPointPanorama(point){
     // Ohrani običajno A-Frame nalaganje za relativne / zunanje vire.
     target.setAttribute("material","src",src);
     console.warn("Fotografije ni mogoče neposredno prebrati.");
+    if(onReady)onReady(new Error("Fotografije ni mogoče neposredno prebrati."));
   };
   img.src=src;
 }
@@ -5061,11 +5065,12 @@ scene.addEventListener(
 
     const point = currentPoint();
     /* Ne vklopi 360° ozadja čez navadno fotografijo ob nalaganju scene. */
-    applyPointPanorama(point);
-    locationBadge.textContent = "📍 " + point.name;
-    updateMapActiveState();
-
-    renderHotspots();
+    if(!document.documentElement.classList.contains("vr-resuming")){
+      applyPointPanorama(point);
+      locationBadge.textContent = "📍 " + point.name;
+      updateMapActiveState();
+      renderHotspots();
+    }
 
 
     installPointerControls();
@@ -5167,13 +5172,15 @@ async function restoreSavedImages(){
   }catch(e){console.warn("IndexedDB ni dosegljiv, ostaja obstoječi prikaz:",e);}
 }
 /* Začetno stanje dinamičnega učnega sprehoda. */
-renderMapPoints();
-locationBadge.textContent = "📍 " + currentPoint().name;
-applyPointPanorama(currentPoint());
+if(!document.documentElement.classList.contains("vr-resuming")){
+  renderMapPoints();
+  locationBadge.textContent = "📍 " + currentPoint().name;
+  applyPointPanorama(currentPoint());
+}
 async function restoreAfterCardboardOrStart(){
   let key;
   try{key=sessionStorage.getItem(vrResumeMarker);}catch(e){}
-  if(!key)return restoreSavedImages();
+  if(!key){document.documentElement.classList.remove("vr-resuming");return restoreSavedImages();}
   try{
     const state=await imageDbGet(key);
     if(!state || !Array.isArray(state.tourPoints) || !state.tourPoints.length)throw new Error("Manjka stanje ogleda");
@@ -5183,12 +5190,19 @@ async function restoreAfterCardboardOrStart(){
     mapBackground=state.mapBackground;
     loadHotspotsForPoint(currentPointId);
     locationBadge.textContent="📍 "+currentPoint().name;
-    applyMapBackground();renderMapPoints();applyPointPanorama(currentPoint());renderHotspots();hideMap();
+    applyMapBackground();renderMapPoints();hideMap();
+    if(!scene.hasLoaded)await new Promise(resolve=>scene.addEventListener("loaded",resolve,{once:true}));
+    renderHotspots();
+    await new Promise((resolve,reject)=>applyPointPanorama(currentPoint(),error=>error?reject(error):resolve()));
+    // Reveal only after the restored panorama has had a chance to render.
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    document.documentElement.classList.remove("vr-resuming");
     sessionStorage.removeItem(vrResumeMarker);
     // Remove only this temporary checkpoint, never ordinary saved photographs.
     try{const db=await imageDb();const tx=db.transaction("data","readwrite");tx.objectStore("data").delete(key);tx.oncomplete=tx.onabort=()=>db.close();}catch(e){}
   }catch(e){
     console.error("Obnovitev stanja po VR:",e);
+    document.documentElement.classList.remove("vr-resuming");
     mapOverlay.style.display="flex";
     alert("Stanja ogleda po VR ni bilo mogoče obnoviti. Začasna kopija ostaja shranjena.");
     return restoreSavedImages();
