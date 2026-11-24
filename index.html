@@ -1451,6 +1451,18 @@ AFRAME.registerComponent(
         return;
       }
 
+      // Navadne fotografije: oznaka sledi ravnini fotografije, ne svetu 360°.
+      const h=this.el.dataset.hotspotId && getHotspot(this.el.dataset.hotspotId);
+      if(h && currentPoint()?.imageType==="flat" && placeFlatAha(this.el,h)){
+        this.wasFlat=true;
+        return;
+      }
+      if(this.wasFlat && h){
+        const p=sphericalToVector(h.yaw,h.pitch,8);
+        this.el.object3D.position.set(p.x,p.y,p.z);
+        this.el.object3D.scale.set(1,1,1);
+        this.wasFlat=false;
+      }
       this.el.object3D.lookAt(
         0,
         0,
@@ -2043,6 +2055,41 @@ function makeHotspotCanvas(number){
    RENDER HOTSPOTS
 ========================================================= */
 
+// Koordinate AHA! na navadni fotografiji so relativne na njene robove.
+function flatAhaFrame(){
+  const plane=document.getElementById("flatPhotoPlane");
+  if(!plane?.object3D)return null;
+  const g=plane.getAttribute("geometry");
+  if(!g?.width||!g?.height)return null;
+  plane.object3D.updateWorldMatrix(true,false);
+  return {obj:plane.object3D,w:g.width,h:g.height};
+}
+function flatAhaClamp(v){return Math.max(-0.5,Math.min(0.5,v));}
+function flatAhaFromRay(ray){
+  const f=flatAhaFrame();if(!f)return null;
+  const o=f.obj.worldToLocal(ray.origin.clone());
+  const d=f.obj.worldToLocal(ray.origin.clone().add(ray.direction)).sub(o);
+  if(Math.abs(d.z)<1e-8)return null;
+  const t=-o.z/d.z;if(t<0)return null;
+  return {flatX:flatAhaClamp((o.x+t*d.x)/f.w),flatY:flatAhaClamp((o.y+t*d.y)/f.h)};
+}
+function placeFlatAha(marker,h){
+  const f=flatAhaFrame(),obj=marker.object3D,parent=obj.parent;
+  if(!f||!parent)return false;
+  // Stare oznake brez koordinat fotografije: enkrat določi relativni položaj.
+  if(!Number.isFinite(h.flatX)||!Number.isFinite(h.flatY)){
+    const p=sphericalToVector(h.yaw,h.pitch,1);
+    const z=Math.max(0.01,-p.z);
+    h.flatX=flatAhaClamp(5*p.x/z/f.w);
+    h.flatY=flatAhaClamp(5*p.y/z/f.h);
+  }
+  parent.updateWorldMatrix(true,false);
+  obj.position.copy(parent.worldToLocal(f.obj.localToWorld(new THREE.Vector3(h.flatX*f.w,h.flatY*f.h,0.03))));
+  obj.quaternion.copy(parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(f.obj.getWorldQuaternion(new THREE.Quaternion())));
+  obj.scale.setScalar(0.62);
+  obj.updateMatrixWorld(true);
+  return true;
+}
 function renderHotspots(){
 
   while(
@@ -3688,6 +3735,10 @@ function createHotspotAtScreenPoint(
   };
 
 
+  if(currentPoint()?.imageType==="flat"){
+    const coords=flatAhaFromRay(raycaster.ray);
+    if(coords)Object.assign(hotspot,coords);
+  }
   hotspots.push(
     hotspot
   );
@@ -3753,8 +3804,13 @@ function installAhaDrag(canvas){
     d.moved=true;e.preventDefault();e.stopImmediatePropagation();
     aim(e.clientX,e.clientY);
     const pos=vectorToSpherical(ray.ray.direction);
-    d.hotspot.yaw=pos.yaw;d.hotspot.pitch=pos.pitch;
-    d.marker.setAttribute("position",sphericalToVector(pos.yaw,pos.pitch,8));
+    if(currentPoint()?.imageType==="flat"){
+      const coords=flatAhaFromRay(ray.ray);
+      if(coords){Object.assign(d.hotspot,coords);placeFlatAha(d.marker,d.hotspot);}
+    }else{
+      d.hotspot.yaw=pos.yaw;d.hotspot.pitch=pos.pitch;
+      d.marker.setAttribute("position",sphericalToVector(pos.yaw,pos.pitch,8));
+    }
   },true);
   function finish(e){
     const d=ahaDrag;if(!d||d.id!==e.pointerId)return;
