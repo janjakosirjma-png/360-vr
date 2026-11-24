@@ -1264,6 +1264,7 @@ textarea:focus-visible{
      TOUR MAP - SHEMATSKI KONTINENT, 3 VIDNE TOČKE
 ======================================================== -->
 <div id="mapOverlay" role="dialog" aria-modal="true" aria-labelledby="mapTitle" style="display: flex;">
+<script>try{if(sessionStorage.getItem("stable-360-vr-resume:"+location.href))document.getElementById("mapOverlay").style.display="none";}catch(e){}</script>
   <div id="mapPanel">
     <div id="mapHeader">
       <div>
@@ -5188,6 +5189,7 @@ async function restoreAfterCardboardOrStart(){
     try{const db=await imageDb();const tx=db.transaction("data","readwrite");tx.objectStore("data").delete(key);tx.oncomplete=tx.onabort=()=>db.close();}catch(e){}
   }catch(e){
     console.error("Obnovitev stanja po VR:",e);
+    mapOverlay.style.display="flex";
     alert("Stanja ogleda po VR ni bilo mogoče obnoviti. Začasna kopija ostaja shranjena.");
     return restoreSavedImages();
   }
