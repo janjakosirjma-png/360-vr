@@ -4717,95 +4717,57 @@ cancelVRBtn.onclick =
   };
 
 
-startVRBtn.onclick =
-  async ()=>{
-
-    /*
-      iOS permission.
-    */
-
-    if(
-      typeof DeviceOrientationEvent !==
-        "undefined" &&
-
-      typeof DeviceOrientationEvent
-        .requestPermission ===
-        "function"
-    ){
-
-      try{
-
-        const permission =
-          await DeviceOrientationEvent
-            .requestPermission();
-
-
-        if(
-          permission !==
-          "granted"
-        ){
-
-          alert(
-            "Dovoljenje za senzor gibanja ni bilo odobreno."
-          );
-
-          return;
-
-        }
-
-      }
-      catch(e){
-
+/* Cardboard: zagon šele v že vzpostavljeni ležeči orientaciji.
+   Ne zaklepamo zaslona pred WebXR: Cardboard sam upravlja orientacijo. */
+let cardboardStarting=false;
+let cardboardControls=null;
+function cardboardLandscapeReady(){
+  const orientation=screen.orientation;
+  return innerWidth>innerHeight &&
+    (!orientation || !orientation.type || orientation.type.startsWith("landscape"));
+}
+function restoreCardboardControls(){
+  if(!cardboardControls)return;
+  camera.setAttribute("look-controls","touchEnabled",cardboardControls.touchEnabled);
+  camera.setAttribute("look-controls","mouseEnabled",cardboardControls.mouseEnabled);
+  cardboardControls=null;
+}
+startVRBtn.onclick = async ()=>{
+  if(cardboardStarting || scene.is("vr-mode"))return;
+  const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+  if(mobile && !cardboardLandscapeReady()){
+    alert("Pred zagonom VR obrni telefon vodoravno. Če se zaslon ne obrne, vključi samodejno obračanje zaslona. Nato ponovno pritisni VR.");
+    return;
+  }
+  cardboardStarting=true;
+  try{
+    if(typeof DeviceOrientationEvent!=="undefined" &&
+       typeof DeviceOrientationEvent.requestPermission==="function"){
+      const permission=await DeviceOrientationEvent.requestPermission();
+      if(permission!=="granted"){
+        alert("Dovoljenje za senzor gibanja ni bilo odobreno.");
         return;
-
       }
-
     }
-
-
-    vrStart.style.display =
-      "none";
-
-
-    /*
-      Landscape.
-    */
-
-    try{
-
-      if(
-        screen.orientation &&
-        screen.orientation.lock
-      ){
-
-        await screen.orientation.lock(
-          "landscape"
-        );
-
-      }
-
-    }
-    catch(e){}
-
-
-    /*
-      A-FRAME VR - OHRANJENO.
-    */
-
-    try{
-
-      await scene.enterVR();
-
-    }
-    catch(e){
-
-      alert(
-        "Brskalnik ni uspel zagnati VR načina."
-      );
-
-    }
-
-  };
+    if(mobile && !cardboardLandscapeReady())return;
+    const controls=camera.getAttribute("look-controls");
+    cardboardControls={touchEnabled:controls.touchEnabled,mouseEnabled:controls.mouseEnabled};
+    camera.setAttribute("look-controls","touchEnabled",false);
+    camera.setAttribute("look-controls","mouseEnabled",false);
+    vrStart.style.display="none";
+    // Brez predhodnega fullscreen/landscape lock in brez dodatne rotacije kamere.
+    // Na Androidu se enterVR izvede neposredno iz uporabnikovega dotika.
+    await scene.enterVR();
+  }catch(e){
+    restoreCardboardControls();
+    vrStart.style.display="flex";
+    console.warn("Cardboard VR:",e);
+    alert("Brskalnik ni uspel zagnati VR načina.");
+  }finally{
+    cardboardStarting=false;
+  }
+};
 
 
 /* =========================================================
@@ -4879,6 +4841,8 @@ scene.addEventListener(
 scene.addEventListener(
   "exit-vr",
   async ()=>{
+    restoreCardboardControls();
+
 
     /*
       Najprej ugasnemo gaze.
@@ -4912,19 +4876,7 @@ scene.addEventListener(
     await releaseWakeLock();
 
 
-    try{
 
-      if(
-        screen.orientation &&
-        screen.orientation.unlock
-      ){
-
-        screen.orientation.unlock();
-
-      }
-
-    }
-    catch(e){}
 
   }
 );
