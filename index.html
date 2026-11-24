@@ -1310,7 +1310,8 @@ textarea:focus-visible{
       <option value="flat">Navadna fotografija (brez raztegovanja)</option>
     </select>
     <label class="fieldLabel" for="currentPointFile">Fotografija točke</label>
-    <label class="fileLabel" style="display:block;text-align:center">📷 ZAMENJAJ / DODAJ FOTOGRAFIJO<input id="currentPointFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif"></label>
+    <label class="fileLabel" for="currentPointFile" style="display:block;text-align:center;position:relative;cursor:pointer">📷 ZAMENJAJ / DODAJ FOTOGRAFIJO<input id="currentPointFile" type="file" accept="image/*" aria-label="Izberi fotografijo točke" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:1;margin:0;padding:0"></label>
+    <div id="pointPhotoStatus" role="status" aria-live="polite" style="font-size:13px;text-align:center;overflow-wrap:anywhere"></div>
     <div class="editorButtons">
       <button id="pointAddLearningBtn" type="button">＋ DODAJ AHA!</button>
       <button id="pointAddTourBtn" type="button">＋ NOVA TOČKA SPREHODA</button>
@@ -4078,7 +4079,7 @@ function enablePointDrag(el,p){
 }
 function openCurrentPointEditor(){
   const p=currentPoint(); if(!p)return;
-  currentPointName.value=p.name||""; currentPointColor.value=p.color||"#ef4444"; currentPointImageType.value=p.imageType||"360"; currentPointFile.value=""; pointManager.style.display="flex";
+  currentPointName.value=p.name||""; currentPointColor.value=p.color||"#ef4444"; currentPointImageType.value=p.imageType||"360"; currentPointFile.value=""; $("pointPhotoStatus").textContent=""; pointManager.style.display="flex";
 }
 editCurrentPointBtn.addEventListener("click",openCurrentPointEditor);
 closePointManager.addEventListener("click",()=>pointManager.style.display="none");
@@ -4094,21 +4095,25 @@ currentPointFile.addEventListener("change",async e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
   const pointId=currentPointId;
   const imageType=currentPointImageType.value;
+  const status=$("pointPhotoStatus");
+  status.textContent="Nalagam: "+f.name;
   try{
-    await savedImagesReady;
     const data=await readSelectedImage(f);
+    await savedImagesReady;
     const p=TOUR_POINTS.find(p=>p.id===pointId);if(!p)return;
     p.panorama=data;p.imageType=imageType;
     if(currentPointId===pointId)applyPointPanorama(p);
     renderMapPoints();
     try{
       await saveTour();
+      status.textContent="✓ Fotografija shranjena: "+f.name;
       announceToScreenReader("Fotografija točke je shranjena.");
     }catch(storageError){
+      status.textContent="Fotografija je naložena, vendar ni trajno shranjena.";
       console.warn("Shranjevanje fotografije v IndexedDB ni uspelo:",storageError);
       alert("Fotografija je prikazana, vendar je brskalnik ni mogel trajno shraniti. Uporabi IZVOZI SVOJ HTML, da ohraniš spremembo.");
     }
-  }catch(error){showImageError(error);}finally{e.target.value="";}
+  }catch(error){status.textContent="Nalaganje fotografije ni uspelo.";showImageError(error);}finally{e.target.value="";}
 });
 pointAddLearningBtn.addEventListener("click",()=>{pointManager.style.display="none";startAddMode();});
 pointAddTourBtn.addEventListener("click",()=>{const id="tocka-"+Date.now();const p={id,name:"TOČKA "+(TOUR_POINTS.length+1),panorama:"360.jpg",color:"#ef4444",x:50,y:50};TOUR_POINTS.push(p);HOTSPOTS_BY_POINT[id]=[];safeLocalSet(pointStorageKey(id),"[]");saveTour();renderMapPoints();switchTourPoint(id);openCurrentPointEditor();});
