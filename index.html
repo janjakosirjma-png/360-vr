@@ -4781,6 +4781,28 @@ cancelVRBtn.onclick =
    Ne zaklepamo zaslona pred WebXR: Cardboard sam upravlja orientacijo. */
 let cardboardStarting=false;
 let cardboardControls=null;
+const vrResumeMarker="stable-360-vr-resume:"+location.href;
+let vrReloading=false;
+async function reloadAfterCardboard(){
+  if(vrReloading || scene.is("vr-mode"))return;
+  vrReloading=true;
+  try{
+    await savedImagesReady;
+    await imageSaveQueue;
+    const key="vr-resume:"+Date.now()+":"+Math.random().toString(36).slice(2);
+    const state={tourPoints:TOUR_POINTS,currentPointId,hotspotsByPoint:{...HOTSPOTS_BY_POINT,[currentPointId]:hotspots},mapBackground};
+    await imageDbPut(key,state);
+    // Do not reload unless the checkpoint and tab-specific marker are available.
+    sessionStorage.setItem(vrResumeMarker,key);
+    if(sessionStorage.getItem(vrResumeMarker)!==key)throw new Error("Obnovitev ni dosegljiva");
+    location.reload();
+  }catch(e){
+    vrReloading=false;
+    console.error("Obnovitev po VR:",e);
+    alert("Samodejna obnovitev po VR ni mogoča, ker stanje ogleda ni bilo varno shranjeno. Aplikacija ni bila ponovno naložena.");
+  }
+}
+
 function cardboardLandscapeReady(){
   const orientation=screen.orientation;
   return innerWidth>innerHeight &&
@@ -4902,50 +4924,7 @@ scene.addEventListener(
   "exit-vr",
   async ()=>{
     restoreCardboardControls();
-    // Po izhodu naj A-Frame najprej sam zakljuci XR. Rezervna zanka
-    // se uporabi samo, ce obicajni izris dejansko ne napreduje.
-    const r=scene.renderer;
-    const recoveryToken={};
-    scene.__exitRecoveryToken=recoveryToken;
-    let lastFrame=-1, stalledSince=0, repaired=false;
-    function recoverNormalFrame(now){
-      if(scene.__exitRecoveryToken!==recoveryToken || scene.is("vr-mode") || cardboardStarting || scene.renderer!==r || !r)return;
-      if(document.hidden){stalledSince=0;requestAnimationFrame(recoverNormalFrame);return;}
-      if(r.xr?.isPresenting){
-        // Ne posegaj v aktivno XR sejo.
-        requestAnimationFrame(recoverNormalFrame);return;
-      }
-      if(r.getContext().isContextLost()){
-        // Three.js obnovi teksture ob webglcontextrestored; ne brisi slik.
-        repaired=false;stalledSince=0;
-        requestAnimationFrame(recoverNormalFrame);return;
-      }
-      if(!repaired){
-        try{
-          r.xr.enabled=false;
-          if(typeof r.resetState==="function")r.resetState();
-          r.setRenderTarget(null);
-          scene.resize();
-          if(!scene.isPlaying)scene.play();
-          if(scene.camera)scene.camera.updateMatrixWorld(true);
-          repaired=true;
-        }catch(e){console.warn("Obnova prikaza po VR:",e);}
-      }
-      const frame=r.info?.render?.frame;
-      if(frame!==lastFrame){lastFrame=frame;stalledSince=now;}
-      if(!stalledSince)stalledSince=now;
-      if(now-stalledSince>350){
-        // Ne ustavljaj izvorne zanke. Izrisi le, kadar ni nove slike.
-        try{
-          r.setRenderTarget(null);
-          scene.render(now);
-          lastFrame=r.info?.render?.frame;
-          // V rezervnem nacinu izrisi vsak naslednji browser frame.
-        }catch(e){console.warn("Rezervni izris po VR:",e);stalledSince=now;}
-      }
-      requestAnimationFrame(recoverNormalFrame);
-    }
-    requestAnimationFrame(recoverNormalFrame);
+
 
 
     /*
@@ -4976,6 +4955,8 @@ scene.addEventListener(
 
     hideVRInfo();
 
+
+    void reloadAfterCardboard();
 
     await releaseWakeLock();
 
@@ -5188,7 +5169,30 @@ async function restoreSavedImages(){
 renderMapPoints();
 locationBadge.textContent = "📍 " + currentPoint().name;
 applyPointPanorama(currentPoint());
-const savedImagesReady=restoreSavedImages();
+async function restoreAfterCardboardOrStart(){
+  let key;
+  try{key=sessionStorage.getItem(vrResumeMarker);}catch(e){}
+  if(!key)return restoreSavedImages();
+  try{
+    const state=await imageDbGet(key);
+    if(!state || !Array.isArray(state.tourPoints) || !state.tourPoints.length)throw new Error("Manjka stanje ogleda");
+    TOUR_POINTS=state.tourPoints;
+    currentPointId=state.currentPointId;
+    HOTSPOTS_BY_POINT=state.hotspotsByPoint||{};
+    mapBackground=state.mapBackground;
+    loadHotspotsForPoint(currentPointId);
+    locationBadge.textContent="📍 "+currentPoint().name;
+    applyMapBackground();renderMapPoints();applyPointPanorama(currentPoint());renderHotspots();
+    sessionStorage.removeItem(vrResumeMarker);
+    // Remove only this temporary checkpoint, never ordinary saved photographs.
+    try{const db=await imageDb();const tx=db.transaction("data","readwrite");tx.objectStore("data").delete(key);tx.oncomplete=tx.onabort=()=>db.close();}catch(e){}
+  }catch(e){
+    console.error("Obnovitev stanja po VR:",e);
+    alert("Stanja ogleda po VR ni bilo mogoče obnoviti. Začasna kopija ostaja shranjena.");
+    return restoreSavedImages();
+  }
+}
+const savedImagesReady=restoreAfterCardboardOrStart();
 
 /* =========================================================
    UI LOOP
