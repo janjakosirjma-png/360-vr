@@ -1451,6 +1451,18 @@ AFRAME.registerComponent(
         return;
       }
 
+      // Navadne fotografije: oznaka sledi ravnini fotografije, ne svetu 360°.
+      const h=this.el.dataset.hotspotId && getHotspot(this.el.dataset.hotspotId);
+      if(h && currentPoint()?.imageType==="flat" && placeFlatAha(this.el,h)){
+        this.wasFlat=true;
+        return;
+      }
+      if(this.wasFlat && h){
+        const p=sphericalToVector(h.yaw,h.pitch,8);
+        this.el.object3D.position.set(p.x,p.y,p.z);
+        this.el.object3D.scale.set(1,1,1);
+        this.wasFlat=false;
+      }
       this.el.object3D.lookAt(
         0,
         0,
@@ -1795,43 +1807,15 @@ function applyPointPanorama(point){
       if(version!==photoRenderVersion)return;
       const mesh=target.getObject3D("mesh");
       if(!mesh||!mesh.material){requestAnimationFrame(install);return;}
-      const gpuLimit=scene.renderer?.capabilities?.maxTextureSize||4096;
-      const limit=flat?Math.min(gpuLimit,
-        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)?4096:8192):gpuLimit;
+      const limit=Math.min(scene.renderer?.capabilities?.maxTextureSize||4096,
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)?4096:8192);
       const factor=Math.min(1,limit/img.naturalWidth,limit/img.naturalHeight);
-      // 360: keep original pixels in separate GPU textures when one texture is too small.
-      const tileWidth=limit-2;
-      const cols=Math.ceil(img.naturalWidth/tileWidth),rows=Math.ceil(img.naturalHeight/tileWidth);
-      const tiled=!flat&&factor<1&&cols*rows<=((scene.renderer?.capabilities?.maxTextures||8)-1);
-      const tiles=[];
-      if(tiled){
-        for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
-          const x=col*tileWidth,y=row*tileWidth;
-          const w=Math.min(tileWidth,img.naturalWidth-x),h=Math.min(tileWidth,img.naturalHeight-y);
-          const c=document.createElement("canvas");c.width=w+2;c.height=h+2;
-          const ctx=c.getContext("2d");
-          ctx.drawImage(img,x,y,w,h,1,1,w,h);
-          // One-pixel overlap prevents visible lines at tile boundaries.
-          ctx.drawImage(img,(x-1+img.naturalWidth)%img.naturalWidth,y,1,h,0,1,1,h);
-          ctx.drawImage(img,(x+w)%img.naturalWidth,y,1,h,w+1,1,1,h);
-          ctx.drawImage(c,0,1,w+2,1,0,0,w+2,1);
-          ctx.drawImage(c,0,h,w+2,1,0,h+1,w+2,1);
-          const t=new THREE.CanvasTexture(c);
-          if(THREE.SRGBColorSpace!==undefined)t.colorSpace=THREE.SRGBColorSpace;
-          else if(THREE.sRGBEncoding!==undefined)t.encoding=THREE.sRGBEncoding;
-          t.minFilter=t.magFilter=THREE.LinearFilter;t.generateMipmaps=false;
-          tiles.push({t,x,y,w,h});
-        }
-      }
       let source=img;
-      if(tiled){source=tiles[0].t.image;}
-      else if(factor<1){
+      if(factor<1){
         const canvas=document.createElement("canvas");
         canvas.width=Math.max(1,Math.round(img.naturalWidth*factor));
         canvas.height=Math.max(1,Math.round(img.naturalHeight*factor));
-        const ctx=canvas.getContext("2d");
-        if(!flat){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";}
-        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
         source=canvas;
       }
       const texture=new THREE.Texture(source);
@@ -1839,39 +1823,12 @@ function applyPointPanorama(point){
       else if(THREE.sRGBEncoding!==undefined)texture.encoding=THREE.sRGBEncoding;
       texture.minFilter=THREE.LinearFilter;
       texture.generateMipmaps=false;
-      if(!flat){
-        texture.magFilter=THREE.LinearFilter;
-        // No lower-resolution mip levels for 360 photos.
-        texture.minFilter=THREE.LinearFilter;
-        texture.generateMipmaps=false;
-      }
       texture.needsUpdate=true;
       // A-Frame ne sme naknadno prepisati neposredno naložene teksture.
       target.setAttribute("material","src","");
       const material=target.getObject3D("mesh").material;
       const old=target.__pointPhotoTexture;
       material.map=texture;
-      if(!flat){
-        const oldTiles=target.__fullResolutionTiles||[];
-        const baseHook=target.__basePhotoShaderHook||(target.__basePhotoShaderHook=material.onBeforeCompile);
-        const baseKey=target.__basePhotoShaderKey||(target.__basePhotoShaderKey=material.customProgramCacheKey);
-        material.onBeforeCompile=baseHook;material.customProgramCacheKey=baseKey;
-        if(tiled){
-          material.onBeforeCompile=function(shader,renderer){
-            baseHook.call(this,shader,renderer);
-            const declarations=tiles.map((v,i)=>`uniform sampler2D panoTile${i};`).join("\n");
-            const W=img.naturalWidth,H=img.naturalHeight;
-            const f=n=>Number(n).toFixed(1);
-            const branches=tiles.map(({x,y,w,h},i)=>`if (p.x < ${f(x+w)} && p.y < ${f(y+h)} && p.x >= ${f(x)} && p.y >= ${f(y)}) return texture2D(panoTile${i}, vec2((p.x-${f(x)}+1.0)/${f(w+2)},1.0-(p.y-${f(y)}+1.0)/${f(h+2)}));`).join("\n");
-            tiles.forEach(({t},i)=>shader.uniforms["panoTile"+i]={value:t});
-            shader.fragmentShader=shader.fragmentShader.replace("#include <map_pars_fragment>","#include <map_pars_fragment>\n"+declarations+`\nvec4 sampleFullPano(vec2 uv){vec2 p=vec2(fract(uv.x)*${f(W)},clamp(1.0-uv.y,0.0,0.9999999)*${f(H)});${branches} return texture2D(panoTile0,uv);}`);
-            shader.fragmentShader=shader.fragmentShader.replace("#include <map_fragment>","diffuseColor *= sampleFullPano(vMapUv);");
-          };
-          material.customProgramCacheKey=()=>"full-pano-"+img.naturalWidth+"x"+img.naturalHeight+"-"+tileWidth;
-        }
-        target.__fullResolutionTiles=tiles.map(v=>v.t);
-        oldTiles.forEach(t=>t.dispose());
-      }
       material.needsUpdate=true;
       target.__pointPhotoTexture=texture;
       if(old)old.dispose();
@@ -2098,6 +2055,41 @@ function makeHotspotCanvas(number){
    RENDER HOTSPOTS
 ========================================================= */
 
+// Koordinate AHA! na navadni fotografiji so relativne na njene robove.
+function flatAhaFrame(){
+  const plane=document.getElementById("flatPhotoPlane");
+  if(!plane?.object3D)return null;
+  const g=plane.getAttribute("geometry");
+  if(!g?.width||!g?.height)return null;
+  plane.object3D.updateWorldMatrix(true,false);
+  return {obj:plane.object3D,w:g.width,h:g.height};
+}
+function flatAhaClamp(v){return Math.max(-0.5,Math.min(0.5,v));}
+function flatAhaFromRay(ray){
+  const f=flatAhaFrame();if(!f)return null;
+  const o=f.obj.worldToLocal(ray.origin.clone());
+  const d=f.obj.worldToLocal(ray.origin.clone().add(ray.direction)).sub(o);
+  if(Math.abs(d.z)<1e-8)return null;
+  const t=-o.z/d.z;if(t<0)return null;
+  return {flatX:flatAhaClamp((o.x+t*d.x)/f.w),flatY:flatAhaClamp((o.y+t*d.y)/f.h)};
+}
+function placeFlatAha(marker,h){
+  const f=flatAhaFrame(),obj=marker.object3D,parent=obj.parent;
+  if(!f||!parent)return false;
+  // Stare oznake brez koordinat fotografije: enkrat določi relativni položaj.
+  if(!Number.isFinite(h.flatX)||!Number.isFinite(h.flatY)){
+    const p=sphericalToVector(h.yaw,h.pitch,1);
+    const z=Math.max(0.01,-p.z);
+    h.flatX=flatAhaClamp(5*p.x/z/f.w);
+    h.flatY=flatAhaClamp(5*p.y/z/f.h);
+  }
+  parent.updateWorldMatrix(true,false);
+  obj.position.copy(parent.worldToLocal(f.obj.localToWorld(new THREE.Vector3(h.flatX*f.w,h.flatY*f.h,0.03))));
+  obj.quaternion.copy(parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(f.obj.getWorldQuaternion(new THREE.Quaternion())));
+  obj.scale.setScalar(0.62);
+  obj.updateMatrixWorld(true);
+  return true;
+}
 function renderHotspots(){
 
   while(
@@ -3743,6 +3735,10 @@ function createHotspotAtScreenPoint(
   };
 
 
+  if(currentPoint()?.imageType==="flat"){
+    const coords=flatAhaFromRay(raycaster.ray);
+    if(coords)Object.assign(hotspot,coords);
+  }
   hotspots.push(
     hotspot
   );
@@ -3808,8 +3804,13 @@ function installAhaDrag(canvas){
     d.moved=true;e.preventDefault();e.stopImmediatePropagation();
     aim(e.clientX,e.clientY);
     const pos=vectorToSpherical(ray.ray.direction);
-    d.hotspot.yaw=pos.yaw;d.hotspot.pitch=pos.pitch;
-    d.marker.setAttribute("position",sphericalToVector(pos.yaw,pos.pitch,8));
+    if(currentPoint()?.imageType==="flat"){
+      const coords=flatAhaFromRay(ray.ray);
+      if(coords){Object.assign(d.hotspot,coords);placeFlatAha(d.marker,d.hotspot);}
+    }else{
+      d.hotspot.yaw=pos.yaw;d.hotspot.pitch=pos.pitch;
+      d.marker.setAttribute("position",sphericalToVector(pos.yaw,pos.pitch,8));
+    }
   },true);
   function finish(e){
     const d=ahaDrag;if(!d||d.id!==e.pointerId)return;
@@ -4743,6 +4744,10 @@ async function releaseWakeLock(){
 
 vrBtn.onclick =
   ()=>{
+    // Desktop: keep the normal interactive panorama; do not enter VR.
+    if(!(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+      (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1)))return;
+
 
     hideMap();
 
@@ -4776,6 +4781,28 @@ cancelVRBtn.onclick =
    Ne zaklepamo zaslona pred WebXR: Cardboard sam upravlja orientacijo. */
 let cardboardStarting=false;
 let cardboardControls=null;
+const vrResumeMarker="stable-360-vr-resume:"+location.href;
+let vrReloading=false;
+async function reloadAfterCardboard(){
+  if(vrReloading || scene.is("vr-mode"))return;
+  vrReloading=true;
+  try{
+    await savedImagesReady;
+    await imageSaveQueue;
+    const key="vr-resume:"+Date.now()+":"+Math.random().toString(36).slice(2);
+    const state={tourPoints:TOUR_POINTS,currentPointId,hotspotsByPoint:{...HOTSPOTS_BY_POINT,[currentPointId]:hotspots},mapBackground};
+    await imageDbPut(key,state);
+    // Do not reload unless the checkpoint and tab-specific marker are available.
+    sessionStorage.setItem(vrResumeMarker,key);
+    if(sessionStorage.getItem(vrResumeMarker)!==key)throw new Error("Obnovitev ni dosegljiva");
+    location.reload();
+  }catch(e){
+    vrReloading=false;
+    console.error("Obnovitev po VR:",e);
+    alert("Samodejna obnovitev po VR ni mogoča, ker stanje ogleda ni bilo varno shranjeno. Aplikacija ni bila ponovno naložena.");
+  }
+}
+
 function cardboardLandscapeReady(){
   const orientation=screen.orientation;
   return innerWidth>innerHeight &&
@@ -4813,10 +4840,6 @@ startVRBtn.onclick = async ()=>{
     vrStart.style.display="none";
     // Brez predhodnega fullscreen/landscape lock in brez dodatne rotacije kamere.
     // Na Androidu se enterVR izvede neposredno iz uporabnikovega dotika.
-    const xr=scene.renderer?.xr;
-    if(xr?.setFramebufferScaleFactor){
-      xr.setFramebufferScaleFactor(currentPoint()?.imageType==="flat"?1:2);
-    }
     await scene.enterVR();
   }catch(e){
     restoreCardboardControls();
@@ -4903,6 +4926,7 @@ scene.addEventListener(
     restoreCardboardControls();
 
 
+
     /*
       Najprej ugasnemo gaze.
     */
@@ -4931,6 +4955,8 @@ scene.addEventListener(
 
     hideVRInfo();
 
+
+    void reloadAfterCardboard();
 
     await releaseWakeLock();
 
@@ -5143,7 +5169,30 @@ async function restoreSavedImages(){
 renderMapPoints();
 locationBadge.textContent = "📍 " + currentPoint().name;
 applyPointPanorama(currentPoint());
-const savedImagesReady=restoreSavedImages();
+async function restoreAfterCardboardOrStart(){
+  let key;
+  try{key=sessionStorage.getItem(vrResumeMarker);}catch(e){}
+  if(!key)return restoreSavedImages();
+  try{
+    const state=await imageDbGet(key);
+    if(!state || !Array.isArray(state.tourPoints) || !state.tourPoints.length)throw new Error("Manjka stanje ogleda");
+    TOUR_POINTS=state.tourPoints;
+    currentPointId=state.currentPointId;
+    HOTSPOTS_BY_POINT=state.hotspotsByPoint||{};
+    mapBackground=state.mapBackground;
+    loadHotspotsForPoint(currentPointId);
+    locationBadge.textContent="📍 "+currentPoint().name;
+    applyMapBackground();renderMapPoints();applyPointPanorama(currentPoint());renderHotspots();
+    sessionStorage.removeItem(vrResumeMarker);
+    // Remove only this temporary checkpoint, never ordinary saved photographs.
+    try{const db=await imageDb();const tx=db.transaction("data","readwrite");tx.objectStore("data").delete(key);tx.oncomplete=tx.onabort=()=>db.close();}catch(e){}
+  }catch(e){
+    console.error("Obnovitev stanja po VR:",e);
+    alert("Stanja ogleda po VR ni bilo mogoče obnoviti. Začasna kopija ostaja shranjena.");
+    return restoreSavedImages();
+  }
+}
+const savedImagesReady=restoreAfterCardboardOrStart();
 
 /* =========================================================
    UI LOOP
